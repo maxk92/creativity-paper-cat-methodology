@@ -1,1 +1,1 @@
-Heatmaps paarweiser Agreement-Kennzahlen zwischen Ratern; maskierte (weisse) Zellen = unzureichende Ueberlappung.
+Heatmaps of pairwise agreement metrics between raters; masked (white) cells = insufficient overlap.

@@ -1,1 +1,1 @@
-Verteilung von Ratermittelwerten, Rater-SD, Kategoriennutzung und Extrem-/Zentraltendenz ueber alle Rater.
+Distribution of rater means, rater SD, category usage, and extreme/central tendency across all raters.

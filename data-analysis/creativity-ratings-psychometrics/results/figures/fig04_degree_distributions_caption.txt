@@ -1,1 +1,1 @@
-Gradverteilung im bipartiten Rater-Aktions-Graphen.
+Degree distribution in the bipartite rater-action graph.

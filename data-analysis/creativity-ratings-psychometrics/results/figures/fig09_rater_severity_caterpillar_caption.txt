@@ -1,1 +1,1 @@
-Rater-Severity-Schaetzungen (Posterior-Mittel des linearen gekreuzten Modells) mit 95%-Credible-Intervallen, sortiert von strengstem zu grosszuegigstem Rater.
+Rater severity estimates (posterior mean of the linear crossed model) with 95% credible intervals, sorted from strictest to most lenient rater.

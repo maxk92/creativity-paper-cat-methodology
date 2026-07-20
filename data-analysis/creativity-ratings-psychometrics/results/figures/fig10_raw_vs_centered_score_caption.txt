@@ -1,1 +1,1 @@
-Rohmittelwert vs. raterzentrierter Mittelwert je Aktion, eingefaerbt nach Anzahl Ratings.
+Raw mean vs. rater-centered mean per action, colored by number of ratings.

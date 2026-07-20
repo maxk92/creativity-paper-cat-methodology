@@ -41,7 +41,8 @@ This notebook implements the complete psychometric workflow from the
 analysis brief
 (`psychometrie_kreativitaetsratings_llm_anleitung.md`):
 
-1. Data import & validation
+1. Load preprocessed ratings (loading and cleaning happen upstream, in
+   `00_data_loading_preprocessing.ipynb`)
 2. Connectivity/identifiability check (bipartite rater–action graph)
 3. Descriptive pairwise agreement
 4. Krippendorff's alpha (ordinal, with cluster bootstrap)
@@ -56,18 +57,12 @@ analysis brief
 13. Simulation/recovery check
 14. Export of result files, key figures, automated interpretation
 
-## ⚠️ Important note on the data used in this run
+## Data used in this run
 
-**This notebook runs by default on SIMULATED placeholder data**
-(`DEV_MODE = True`, see the setup cell). This data reproduces the
-described design structure in a traceable way (same distribution of
-ratings-per-action, incomplete crossing, a deliberately isolated
-rater cluster to test the connectivity check), but it is **not real
-creativity judgments**. All numbers, models, and interpretations
-reported in this run are demonstrations of the methodology, not real
-findings. Once real ratings from Google Sheets are available, set
-`DEV_MODE = False` and insert the Google Sheets import code in
-Section 3 — the rest of the pipeline stays unchanged.
+This notebook reads the already-cleaned rating data produced by
+`00_data_loading_preprocessing.ipynb` (`data/processed/ratings_long_clean.csv`).
+That notebook is the single place where the Google Sheets export is
+downloaded and cleaned; run it first if the file is missing or stale.
 
 ## Non-negotiable rules (from the analysis brief)
 
@@ -257,235 +252,52 @@ print(json.dumps(session_info, indent=2))
 """)
 
 # ====================================================================
-# 2. DATA IMPORT (Section 3 of the brief)
+# 2. LOAD PREPROCESSED DATA
 # ====================================================================
 md(r"""
-## 1. Data import from Google Sheets
+## 1. Load preprocessed data
 
-The production import code (downloading the rating sheet from Google
-Sheets and joining it with the StatsBomb event details) already exists
-in the notebook `data-analysis/paper1-data-analysis.ipynb` of this
-project and follows this pattern:
-
-```python
-sheet_url = "https://docs.google.com/spreadsheets/d/<ID>/edit?usp=sharing"
-sheet_id = sheet_url.split("/d/")[1].split("/")[0]
-url_template = "https://docs.google.com/spreadsheets/d/{}/export?format=xlsx"
-ratings_raw = pd.read_excel(url_template.format(sheet_id), sheet_name=0)
-```
-
-For the present psychometric analysis, **only** `action_id`,
-`rater_id`, and `rating` (plus optional additional variables) are
-needed; joining with the StatsBomb event data (action type, xG, etc.)
-is not required for reliability/score estimation and remains the job
-of the upstream notebook.
-
-**Placeholder policy:** The following code block is the exact
-mandated placeholder cell. It raises a `NotImplementedError` as soon
-as `DEV_MODE = False` is set — at that point the real import code MUST
-be inserted here. For development and demonstration of the pipeline,
-`DEV_MODE = True` is set; in that case, already-generated placeholder
-data clearly marked as **simulated** is loaded (see
-`scripts/simulate_ratings.py`).
+Loading the rating export and cleaning it (schema checks, type
+conversion, out-of-range/duplicate handling, exclusion of ratings where
+the action could not be recognized) happen once, upstream, in
+`00_data_loading_preprocessing.ipynb`. This notebook reads the resulting
+clean file directly and starts from it.
 """)
 
 code(r"""
-# ============================================================
-# PLACEHOLDER: Google Sheets import
-# ============================================================
-# Insert the researcher's existing Python code here.
-# Expected result:
-# ratings_raw = pandas.DataFrame with at least:
-# action_id, rater_id, rating
-#
-# Example:
-# ratings_raw = load_ratings_from_google_sheet(...)
-# ============================================================
-
-DEV_MODE = True  # SET TO False AS SOON AS REAL SHEET DATA IS USED
-
-if not DEV_MODE:
-    raise NotImplementedError(
-        "Insert the Google Sheets import code here and then remove "
-        "the NotImplementedError line."
+CLEAN_PATH = DATA_PROCESSED / "ratings_long_clean.csv"
+if not CLEAN_PATH.exists():
+    raise FileNotFoundError(
+        f"{CLEAN_PATH} not found. Run 00_data_loading_preprocessing.ipynb first."
     )
-else:
-    log_warning(
-        "DEV_MODE=True: loading SIMULATED placeholder data. "
-        "All downstream results are methodology demonstrations, "
-        "NOT real findings. Before using this for publication, "
-        "set DEV_MODE=False and insert the real import code."
-    )
-    _sim_path = DATA_RAW / "ratings_long_raw.csv"
-    if not _sim_path.exists():
-        raise FileNotFoundError(
-            f"Simulated development data not found at {_sim_path}. "
-            "Please run 'python scripts/simulate_ratings.py' first."
-        )
-    ratings_raw = pd.read_csv(_sim_path)
 
-ratings_raw.head()
-""")
-
-code(r"""
-# Save the raw data immediately after "downloading" it, and do NOT
-# modify it afterwards (Section 3.1 of the analysis brief).
-RAW_PATH = DATA_RAW / "ratings_long_raw.csv"
-RAW_PATH.parent.mkdir(parents=True, exist_ok=True)
-ratings_raw.to_csv(RAW_PATH, index=False)
-print(f"Raw data saved: {RAW_PATH} ({len(ratings_raw)} rows)")
-print(f"Columns: {list(ratings_raw.columns)}")
-""")
-
-# ====================================================================
-# 3. VALIDATION AND CLEANING (Section 4 of the brief)
-# ====================================================================
-md(r"""
-## 2. Data validation and cleaning
-
-### 2.1 Schema, types, duplicates
-
-We check: existence of required variables, missing IDs, convertibility
-of `rating` to numeric, value range $\{1,\dots,7\}$, and duplicate
-`(action_id, rater_id)` combinations. **Duplicates are not averaged
-automatically** — they are first listed in a table and resolved only
-according to an explicitly documented rule (see below).
-""")
-
-code(r"""
-required_cols = ["action_id", "rater_id", "rating"]
-missing_cols = [c for c in required_cols if c not in ratings_raw.columns]
-if missing_cols:
-    raise ValueError(f"Required variables missing from the raw dataset: {missing_cols}")
-
-cleaning_log = []
-
-def log_clean_step(step, n_before, n_after, description):
-    cleaning_log.append({
-        "step": step, "n_rows_before": n_before, "n_rows_after": n_after,
-        "n_rows_affected": n_before - n_after, "description": description,
-    })
-
-df = ratings_raw.copy()
-n0 = len(df)
-
-# --- missing IDs ------------------------------------------------------
-n_missing_action_id = df["action_id"].isna().sum()
-n_missing_rater_id = df["rater_id"].isna().sum()
-print(f"Missing action_id: {n_missing_action_id}")
-print(f"Missing rater_id:  {n_missing_rater_id}")
-if n_missing_action_id or n_missing_rater_id:
-    log_warning(f"{n_missing_action_id + n_missing_rater_id} rows with a missing ID found.")
-df = df.dropna(subset=["action_id", "rater_id"]).copy()
-log_clean_step("drop_missing_id", n0, len(df), "Rows with missing action_id/rater_id removed")
-
-# --- IDs as string/categorical -----------------------------------------
+df = pd.read_csv(CLEAN_PATH)
 df["action_id"] = df["action_id"].astype(str)
 df["rater_id"] = df["rater_id"].astype(str)
-
-# --- convert rating to numeric (robust against " 4 ", "n/a", etc.) -----
-n_before = len(df)
-rating_numeric_raw = pd.to_numeric(
-    df["rating"].astype(str).str.strip(), errors="coerce"
-)
-n_not_convertible = rating_numeric_raw.isna().sum() - df["rating"].isna().sum()
-print(f"Non-convertible, non-missing raw rating values: {n_not_convertible}")
-if n_not_convertible > 0:
-    print(df.loc[rating_numeric_raw.isna() & df["rating"].notna(),
-                  ["action_id", "rater_id", "rating"]])
-    log_warning(f"{n_not_convertible} raw rating values were not numerically convertible and were set to NA.")
-df["rating_numeric_raw"] = rating_numeric_raw
-""")
-
-code(r"""
-# --- check value range: only 1-7 allowed -------------------------------
-out_of_range_mask = df["rating_numeric_raw"].notna() & (
-    (df["rating_numeric_raw"] < 1) | (df["rating_numeric_raw"] > 7)
-    | (df["rating_numeric_raw"] % 1 != 0)
-)
-tbl_out_of_range = df.loc[out_of_range_mask,
-                            ["action_id", "rater_id", "rating", "rating_numeric_raw"]]
-print(f"Values outside {{1,...,7}} or non-integer: {len(tbl_out_of_range)}")
-if len(tbl_out_of_range) > 0:
-    print(tbl_out_of_range)
-    log_warning(f"{len(tbl_out_of_range)} rating values outside the allowed range 1-7 found and removed.")
-save_table(tbl_out_of_range, "flagged_out_of_range_ratings")
-
-n_before = len(df)
-df = df.loc[~out_of_range_mask].copy()
-log_clean_step("drop_out_of_range", n_before, len(df),
-                "Rating values outside {1,...,7} or non-integer removed")
-
-# --- missing ratings (after conversion) --------------------------------
-n_before = len(df)
-n_missing_rating = df["rating_numeric_raw"].isna().sum()
-print(f"Missing/non-convertible rating values: {n_missing_rating}")
-if n_missing_rating > 0:
-    log_warning(f"{n_missing_rating} rows with missing/non-convertible rating removed.")
-df = df.loc[df["rating_numeric_raw"].notna()].copy()
-log_clean_step("drop_missing_rating", n_before, len(df),
-                "Rows with missing or non-convertible rating removed")
-""")
-
-md(r"""
-### 2.2 Duplicates (`action_id` × `rater_id`)
-
-**Documented resolution rule:** Repeated occurrences of the same
-rater–action combination are first listed in full in a table. Since
-the present (simulated) dataset carries no substantive information
-about which of the repeated values is the "valid" one (e.g., whether
-it is an intentional repeated rating, an accidental duplication during
-the sheet export, or a second rating dimension), we set an **explicit,
-conservative rule**: *for duplicates, the row that appears last in the
-raw data is kept* (assumption: later entries in a Google Sheets export
-typically reflect corrections). This rule is an assumption and must be
-checked against the actual cause of duplicates once real data is used,
-and replaced if necessary (e.g., by consulting the raters or using a
-`rating_order` criterion).
-""")
-
-code(r"""
-dup_mask = df.duplicated(subset=["action_id", "rater_id"], keep=False)
-tbl_duplicates = df.loc[dup_mask,
-                          ["action_id", "rater_id", "rating", "rating_numeric_raw"]].sort_values(
-    ["action_id", "rater_id"])
-print(f"Rows with a duplicate (action_id, rater_id) combination: {len(tbl_duplicates)}")
-print(tbl_duplicates)
-save_table(tbl_duplicates, "flagged_duplicate_rater_action_pairs")
-if len(tbl_duplicates) > 0:
-    log_warning(
-        f"{len(tbl_duplicates)} rows with duplicate (action_id, rater_id) "
-        "combinations found. Resolution rule: the last entry is kept "
-        "(see the markdown cell above). Verify against real data!"
-    )
-
-n_before = len(df)
-df = df.drop_duplicates(subset=["action_id", "rater_id"], keep="last").copy()
-log_clean_step("resolve_duplicates", n_before, len(df),
-                "Duplicates resolved: last entry per (action_id, rater_id) kept")
-
-# --- create final rating variables --------------------------------------
-df["rating_numeric"] = df["rating_numeric_raw"].astype(int)
 df["rating_ordinal"] = pd.Categorical(df["rating_numeric"], categories=list(range(1, 8)),
                                         ordered=True)
-df = df.drop(columns=["rating_numeric_raw"])
 
-assert df["rating_numeric"].between(1, 7).all(), "Ratings outside 1-7 after cleaning!"
-assert not df.duplicated(subset=["action_id", "rater_id"]).any(), "Duplicates remain after cleaning!"
-assert df["action_id"].notna().all() and df["rater_id"].notna().all()
+required_cols = ["action_id", "rater_id", "rating_numeric", "rating_ordinal"]
+missing_cols = [c for c in required_cols if c not in df.columns]
+if missing_cols:
+    raise ValueError(f"Required variables missing from the preprocessed dataset: {missing_cols}")
 
-n_final = len(df)
-print(f"\nCleaning complete: {n0} -> {n_final} rows "
-      f"({n0 - n_final} removed/resolved; the difference from duplicate "
-      "resolution is only counted once).")
+assert df["rating_numeric"].between(1, 7).all(), "Ratings outside 1-7 in the preprocessed data!"
+assert not df.duplicated(subset=["action_id", "rater_id"]).any(), "Duplicate (action_id, rater_id) rows in the preprocessed data!"
 
-cleaning_log_df = pd.DataFrame(cleaning_log)
-print(cleaning_log_df)
-save_table(cleaning_log_df, "cleaning_log")
+CLEANING_LOG_PATH = RESULTS_TABLES / "cleaning_log.csv"
+cleaning_log_df = (pd.read_csv(CLEANING_LOG_PATH) if CLEANING_LOG_PATH.exists()
+                    else pd.DataFrame())
+
+print(f"Loaded {len(df)} ratings ({df['action_id'].nunique()} actions, "
+      f"{df['rater_id'].nunique()} raters).")
+df.head()
 """)
 
 md(r"""
-### 2.3 Missingness structure, ratings per action and per rater
+## 2. Data overview and plausibility checks
+
+### 2.1 Missingness structure, ratings per action and per rater
 
 Actions with only one rating are kept for model-based score
 estimation, but are flagged separately for all *pairwise* agreement
@@ -527,7 +339,7 @@ df["single_rating_action"] = df["action_id"].map(ratings_per_action == 1)
 """)
 
 md(r"""
-### 2.4 Plausibility and distribution checks
+### 2.2 Plausibility and distribution checks
 
 Overall category frequencies as well as rater statistics (mean,
 median, SD, IQR, floor/ceiling rates, number of categories used, share
@@ -598,7 +410,7 @@ plt.show()
 """)
 
 md(r"""
-### 2.5 Temporal drift (descriptive, if `rating_order` is available)
+### 2.3 Temporal drift (descriptive, if `rating_order` is available)
 
 A simple descriptive check: correlation between `rating_order`
 (position within the rater's session) and rating, per rater. The
@@ -622,10 +434,6 @@ else:
 """)
 
 code(r"""
-# Save the clean file (Section 4.5 of the analysis brief)
-CLEAN_PATH = DATA_PROCESSED / "ratings_long_clean.csv"
-df.to_csv(CLEAN_PATH, index=False)
-print(f"Cleaned data saved: {CLEAN_PATH} ({len(df)} rows)")
 ratings_clean = df.copy()
 ratings_clean.head()
 """)
@@ -2472,15 +2280,16 @@ else:
 md(r"""
 ## 14. Simulation and recovery check
 
-**This section is only meaningful because this run uses SIMULATED
-data** (`DEV_MODE=True`), for which the true action/rater parameters
-are known (see `scripts/simulate_ratings.py` and
+**This section is only meaningful for simulated data**, where the true
+action/rater parameters are known (see `scripts/simulate_ratings.py` and
 `data/simulation/`). **With real ratings this comparison is not
-possible**, since no true values exist — the infrastructure
-demonstrated here remains usable for a design-based simulation
-(identical rater-action incidence matrix, artificial known parameters,
-see Section 16 of the analysis brief) to check which parameters are
-identifiable at all given the concrete unbalanced design.
+possible**, since no true values exist. It is skipped automatically
+whenever the loaded data does not match that simulated development
+dataset. The infrastructure demonstrated here remains usable for a
+design-based simulation (identical rater-action incidence matrix,
+artificial known parameters, see Section 16 of the analysis brief) to
+check which parameters are identifiable at all given the concrete
+unbalanced design.
 """)
 
 code(r"""
@@ -2488,63 +2297,76 @@ gt_action = pd.read_csv(PROJECT_ROOT / "data" / "simulation" / "ground_truth_act
 gt_rater = pd.read_csv(PROJECT_ROOT / "data" / "simulation" / "ground_truth_rater_params.csv")
 gt_thresh = pd.read_csv(PROJECT_ROOT / "data" / "simulation" / "ground_truth_thresholds.csv")
 
-recovery_action = ordinal_scores.merge(gt_action, on="action_id", how="inner")
-bias_theta = (recovery_action["ordinal_latent_score"] - recovery_action["theta_true"]).mean()
-rmse_theta = np.sqrt(((recovery_action["ordinal_latent_score"] - recovery_action["theta_true"]) ** 2).mean())
-rank_corr_theta = recovery_action["ordinal_latent_score"].corr(recovery_action["theta_true"], method="spearman")
-coverage_theta = ((recovery_action["theta_true"] >= recovery_action["ordinal_latent_lower"]) &
-                    (recovery_action["theta_true"] <= recovery_action["ordinal_latent_upper"])).mean()
+matching_actions = set(gt_action["action_id"]) & set(ratings_clean["action_id"])
+recovery_available = len(matching_actions) / max(1, gt_action["action_id"].nunique()) > 0.5
 
-print("=== Recovery: action theta (ordinal model) ===")
-print(f"Bias: {bias_theta:+.3f}")
-print(f"RMSE: {rmse_theta:.3f}")
-print(f"Rank correlation (estimated vs. true): {rank_corr_theta:.3f}")
-print(f"95% CI coverage: {coverage_theta:.1%} (target ~95%)")
+if not recovery_available:
+    log_warning(
+        "data/simulation/ground_truth_*.csv does not match the currently "
+        "loaded data (this run is not using the simulated development "
+        "dataset it was generated for). Skipping the recovery check."
+    )
+else:
+    recovery_action = ordinal_scores.merge(gt_action, on="action_id", how="inner")
+    bias_theta = (recovery_action["ordinal_latent_score"] - recovery_action["theta_true"]).mean()
+    rmse_theta = np.sqrt(((recovery_action["ordinal_latent_score"] - recovery_action["theta_true"]) ** 2).mean())
+    rank_corr_theta = recovery_action["ordinal_latent_score"].corr(recovery_action["theta_true"], method="spearman")
+    coverage_theta = ((recovery_action["theta_true"] >= recovery_action["ordinal_latent_lower"]) &
+                        (recovery_action["theta_true"] <= recovery_action["ordinal_latent_upper"])).mean()
 
-recovery_rater = severity_df.merge(gt_rater, on="rater_id", how="inner")
-# Sign/scale check: lmm_severity and severity_true should correlate highly
-sev_corr = recovery_rater["lmm_severity"].corr(recovery_rater["severity_true"])
-print(f"\n=== Recovery: rater severity (linear model) ===")
-print(f"Correlation estimated vs. true: {sev_corr:.3f}")
+    print("=== Recovery: action theta (ordinal model) ===")
+    print(f"Bias: {bias_theta:+.3f}")
+    print(f"RMSE: {rmse_theta:.3f}")
+    print(f"Rank correlation (estimated vs. true): {rank_corr_theta:.3f}")
+    print(f"95% CI coverage: {coverage_theta:.1%} (target ~95%)")
 
-recovery_summary = pd.DataFrame([
-    {"quantity": "action_theta_bias", "value": bias_theta},
-    {"quantity": "action_theta_rmse", "value": rmse_theta},
-    {"quantity": "action_theta_rank_corr", "value": rank_corr_theta},
-    {"quantity": "action_theta_ci_coverage", "value": coverage_theta},
-    {"quantity": "rater_severity_recovery_corr", "value": sev_corr},
-])
-save_table(recovery_summary, "simulation_recovery_summary")
+    recovery_rater = severity_df.merge(gt_rater, on="rater_id", how="inner")
+    # Sign/scale check: lmm_severity and severity_true should correlate highly
+    sev_corr = recovery_rater["lmm_severity"].corr(recovery_rater["severity_true"])
+    print(f"\n=== Recovery: rater severity (linear model) ===")
+    print(f"Correlation estimated vs. true: {sev_corr:.3f}")
 
-if rank_corr_theta < 0.7:
-    log_warning(f"Recovery rank correlation of action theta is only {rank_corr_theta:.3f} - "
-                 "weak parameter identifiability may be present in the given design.")
+    recovery_summary = pd.DataFrame([
+        {"quantity": "action_theta_bias", "value": bias_theta},
+        {"quantity": "action_theta_rmse", "value": rmse_theta},
+        {"quantity": "action_theta_rank_corr", "value": rank_corr_theta},
+        {"quantity": "action_theta_ci_coverage", "value": coverage_theta},
+        {"quantity": "rater_severity_recovery_corr", "value": sev_corr},
+    ])
+    save_table(recovery_summary, "simulation_recovery_summary")
+
+    if rank_corr_theta < 0.7:
+        log_warning(f"Recovery rank correlation of action theta is only {rank_corr_theta:.3f} - "
+                     "weak parameter identifiability may be present in the given design.")
 """)
 
 code(r"""
-fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
-axes[0].scatter(recovery_action["theta_true"], recovery_action["ordinal_latent_score"],
-                  s=10, alpha=0.4, c=recovery_action["n_ratings"], cmap="viridis")
-lims = [recovery_action["theta_true"].min(), recovery_action["theta_true"].max()]
-axes[0].plot(lims, lims, color="grey", ls="--", lw=1)
-axes[0].set_xlabel(r"True $\theta_i$ (simulation)")
-axes[0].set_ylabel(r"Estimated $\theta_i$ (ordinal model)")
-axes[0].set_title(f"Action recovery (r_rank={rank_corr_theta:.2f})")
+if recovery_available:
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
+    axes[0].scatter(recovery_action["theta_true"], recovery_action["ordinal_latent_score"],
+                      s=10, alpha=0.4, c=recovery_action["n_ratings"], cmap="viridis")
+    lims = [recovery_action["theta_true"].min(), recovery_action["theta_true"].max()]
+    axes[0].plot(lims, lims, color="grey", ls="--", lw=1)
+    axes[0].set_xlabel(r"True $\theta_i$ (simulation)")
+    axes[0].set_ylabel(r"Estimated $\theta_i$ (ordinal model)")
+    axes[0].set_title(f"Action recovery (r_rank={rank_corr_theta:.2f})")
 
-axes[1].scatter(recovery_rater["severity_true"], recovery_rater["lmm_severity"], s=25, alpha=0.7,
-                  color="#DD8452")
-lims2 = [recovery_rater["severity_true"].min(), recovery_rater["severity_true"].max()]
-axes[1].plot(lims2, lims2, color="grey", ls="--", lw=1)
-axes[1].set_xlabel("True rater severity (simulation)")
-axes[1].set_ylabel("Estimated rater severity (linear model)")
-axes[1].set_title(f"Rater recovery (r={sev_corr:.2f})")
+    axes[1].scatter(recovery_rater["severity_true"], recovery_rater["lmm_severity"], s=25, alpha=0.7,
+                      color="#DD8452")
+    lims2 = [recovery_rater["severity_true"].min(), recovery_rater["severity_true"].max()]
+    axes[1].plot(lims2, lims2, color="grey", ls="--", lw=1)
+    axes[1].set_xlabel("True rater severity (simulation)")
+    axes[1].set_ylabel("Estimated rater severity (linear model)")
+    axes[1].set_title(f"Rater recovery (r={sev_corr:.2f})")
 
-fig.suptitle("Parameter recovery: only valid for simulated development data")
-fig.tight_layout()
-save_fig(fig, "fig13_simulation_recovery",
-         "Comparison of estimated vs. true (simulated) action creativity (left) and "
-         "rater severity (right). Only meaningful in the DEV_MODE run with simulated data.")
-plt.show()
+    fig.suptitle("Parameter recovery: only valid for simulated development data")
+    fig.tight_layout()
+    save_fig(fig, "fig13_simulation_recovery",
+             "Comparison of estimated vs. true (simulated) action creativity (left) and "
+             "rater severity (right). Only meaningful for the simulated development dataset.")
+    plt.show()
+else:
+    print("Recovery plot skipped (real data in use).")
 """)
 
 
@@ -2564,12 +2386,11 @@ code(r"""
 final_action_scores = action_scores.merge(lmm_full, on="action_id", how="left")
 final_action_scores = final_action_scores.merge(ordinal_scores, on="action_id", how="left")
 
-if "theta_jrt" not in dir():
-    theta_jrt_mean = idata_jrt.posterior["theta"].mean(dim=("chain", "draw")).values
-    theta_jrt_sd = idata_jrt.posterior["theta"].std(dim=("chain", "draw")).values
-    jrt_action_scores = pd.DataFrame({
-        "action_id": action_levels_o, "jrt_score": theta_jrt_mean, "jrt_score_se": theta_jrt_sd,
-    })
+theta_jrt_mean = idata_jrt.posterior["theta"].mean(dim=("chain", "draw")).values
+theta_jrt_sd = idata_jrt.posterior["theta"].std(dim=("chain", "draw")).values
+jrt_action_scores = pd.DataFrame({
+    "action_id": action_levels_o, "jrt_score": theta_jrt_mean, "jrt_score_se": theta_jrt_sd,
+})
 final_action_scores = final_action_scores.merge(jrt_action_scores, on="action_id", how="left")
 
 def score_flag(row):
@@ -2817,10 +2638,6 @@ This interpretation refers to the present, incompletely crossed design.
 Actions with only one rating contribute to the model-based estimation of
 the action distribution but provide no within-action information about
 inter-rater agreement.
-
-IMPORTANT: this run uses SIMULATED placeholder data (DEV_MODE=True).
-The numbers reported above are methodology demonstrations, not real
-findings about actual creativity ratings.
 '''
 
 print(interpretation_text)
@@ -2900,27 +2717,23 @@ md(r"""
 
 **Limitations of this analysis:**
 
-1. **Simulated development data.** This run uses simulated placeholder
-   data (`DEV_MODE=True`). All numbers are methodology demonstrations.
-   Before publication: set `DEV_MODE=False`, insert the real Google
-   Sheets import code, re-run the entire notebook.
-2. **Residual variance covers multiple sources.** Since most
+1. **Residual variance covers multiple sources.** Since most
    rater-action cells contain only one rating, the action×rater
    interaction is not separately identifiable from measurement error
    (Section 6.1). The reported reliability coefficients are
    variance-component approximations, not a complete G-theory
    decomposition.
-3. **JRT model with reduced complexity.** Rater-specific thresholds
+2. **JRT model with reduced complexity.** Rater-specific thresholds
    (as opposed to only rater-specific discrimination) were not
    estimated separately, for connectivity and compute-time reasons.
-4. **Simplified cross-validation.** The rating-level CV (Section 12.2)
+3. **Simplified cross-validation.** The rating-level CV (Section 12.2)
    uses approximate, quickly computable predictors instead of a full
    model refit per fold.
-5. **Statsmodels scaling limit.** `statsmodels.MixedLM` with
+4. **Statsmodels scaling limit.** `statsmodels.MixedLM` with
    `vc_formula` is not practical for factors with thousands of levels
    (here: actions); we use PyMC as the primary estimation engine for
    Python (see Section 6.2 for the rationale).
-6. **Separate components.** If the rater-action graph has more than
+5. **Separate components.** If the rater-action graph has more than
    one connected component, rater severity values are not comparable
    on the same scale across components (see Section 3).
 

@@ -1,1 +1,1 @@
-Traceplots der Hyperparameter des linearen Modells.
+Trace plots of the hyperparameters of the linear model.

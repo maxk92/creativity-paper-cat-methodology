@@ -49,16 +49,12 @@ Bayesian ordinal facette modeling via Stan; the dedicated CRAN package
 - Interpretation is cautious, descriptive, without mechanical good/bad
   thresholds.
 
-### ⚠️ Note on the data used in this run
+### Data used in this run
 
-By default, this notebook reads the **simulated** raw file
-`data/raw/ratings_long_raw.csv` produced by `simulate_ratings.py`
-(identical to the Python notebook; see Section 3.2 of the analysis
-brief: "the R notebook should by default read the saved raw CSV"). All
-numbers in this run are methodology demonstrations, not real findings.
-Once real ratings are available, the Python notebook (Section 3,
-Google Sheets import) replaces `data/raw/ratings_long_raw.csv`, and
-this R notebook does not need to change.
+This notebook reads the already-cleaned rating data produced by
+`00_data_loading_preprocessing.ipynb` (`data/processed/ratings_long_clean.csv`).
+That notebook is the single place where the Google Sheets export is
+downloaded and cleaned; run it first if the file is missing or stale.
 
 ### References
 
@@ -115,7 +111,7 @@ print(pkg_status)
 
 has_pkg <- function(p) isTRUE(pkg_status$available[pkg_status$package == p])
 
-PROJECT_ROOT <- here()
+PROJECT_ROOT <- normalizePath("..")
 DATA_RAW <- file.path(PROJECT_ROOT, "data", "raw")
 DATA_PROCESSED <- file.path(PROJECT_ROOT, "data", "processed")
 RESULTS_TABLES <- file.path(PROJECT_ROOT, "results", "tables")
@@ -182,151 +178,66 @@ writeLines(jsonlite::toJSON(session_info_r, auto_unbox = TRUE, pretty = TRUE),
 writeLines(capture.output(sessionInfo()), file.path(RESULTS_LOGS, "sessionInfo_r.txt"))
 ```
 
-## 2. Data import
+## 2. Load preprocessed data
 
-The production import (Google Sheets → StatsBomb merge) happens in the
-Python notebook (Section 3 of the analysis brief). By default, this R
-notebook reads the already-saved raw CSV:
+Loading the rating export and cleaning it (schema checks, type
+conversion, out-of-range/duplicate handling, exclusion of ratings where
+the action could not be recognized) happen once, upstream, in
+`00_data_loading_preprocessing.ipynb`. This notebook reads the resulting
+clean file directly and starts from it.
 
 ```{r import}
 
-ratings_raw <- readr::read_csv(
-  file.path(DATA_RAW, "ratings_long_raw.csv"),
-  show_col_types = FALSE
-)
-
-if ("data_source" %in% names(ratings_raw) &&
-     any(ratings_raw$data_source == "simulated_dev_placeholder")) {
-  log_warning(paste(
-    "Raw data is flagged as 'simulated_dev_placeholder'.",
-    "All results in this run are methodology demonstrations, NOT real findings."
-  ))
+CLEAN_PATH <- file.path(DATA_PROCESSED, "ratings_long_clean.csv")
+if (!file.exists(CLEAN_PATH)) {
+  stop(paste("File not found:", CLEAN_PATH,
+              "- run 00_data_loading_preprocessing.ipynb first."))
 }
 
-glimpse(ratings_raw)
+df <- readr::read_csv(CLEAN_PATH, show_col_types = FALSE) %>%
+  mutate(action_id = as.character(action_id), rater_id = as.character(rater_id),
+          rating_ordinal = factor(rating_numeric, levels = 1:7, ordered = TRUE))
 
-# Optional googlesheets4 placeholder (not required, see Section 3.2 of
-# the analysis brief): would go here if R should import directly from
-# Google Sheets, e.g.:
-#   library(googlesheets4)
-#   ratings_raw <- read_sheet(sheet_url)
-```
-
-## 3. Data validation and cleaning
-
-### 3.1 Schema, types, duplicates
-
-```{r cleaning-schema}
-
-required_cols <- c("action_id", "rater_id", "rating")
-missing_cols <- setdiff(required_cols, names(ratings_raw))
+required_cols <- c("action_id", "rater_id", "rating_numeric", "rating_ordinal")
+missing_cols <- setdiff(required_cols, names(df))
 if (length(missing_cols) > 0) {
-  stop(paste("Required variables missing from the raw dataset:", paste(missing_cols, collapse = ", ")))
+  stop(paste("Required variables missing from the preprocessed dataset:", paste(missing_cols, collapse = ", ")))
 }
-
-cleaning_log <- tibble(step = character(), n_before = integer(),
-                         n_after = integer(), description = character())
-log_clean_step <- function(step, n_before, n_after, description) {
-  cleaning_log <<- bind_rows(cleaning_log, tibble(
-    step = step, n_before = n_before, n_after = n_after, description = description))
-}
-
-df <- ratings_raw
-n0 <- nrow(df)
-
-n_missing_action_id <- sum(is.na(df$action_id))
-n_missing_rater_id <- sum(is.na(df$rater_id))
-cat("Missing action_id:", n_missing_action_id, "\n")
-cat("Missing rater_id: ", n_missing_rater_id, "\n")
-if (n_missing_action_id + n_missing_rater_id > 0) {
-  log_warning(sprintf("%d rows with a missing ID found.",
-                        n_missing_action_id + n_missing_rater_id))
-}
-df <- df %>% filter(!is.na(action_id), !is.na(rater_id))
-log_clean_step("drop_missing_id", n0, nrow(df), "Rows with a missing ID removed")
-
-df <- df %>% mutate(action_id = as.character(action_id), rater_id = as.character(rater_id))
-
-# robustly convert rating to numeric (e.g. " 4 ", "n/a")
-n_before <- nrow(df)
-rating_numeric_raw <- suppressWarnings(as.numeric(trimws(as.character(df$rating))))
-n_not_convertible <- sum(is.na(rating_numeric_raw) & !is.na(df$rating))
-cat("Non-convertible, non-missing raw rating values:", n_not_convertible, "\n")
-if (n_not_convertible > 0) {
-  print(df[is.na(rating_numeric_raw) & !is.na(df$rating), c("action_id", "rater_id", "rating")])
-  log_warning(sprintf("%d raw rating values were not numerically convertible and were set to NA.",
-                        n_not_convertible))
-}
-df$rating_numeric_raw <- rating_numeric_raw
-```
-
-```{r cleaning-range}
-
-out_of_range_mask <- !is.na(df$rating_numeric_raw) &
-  (df$rating_numeric_raw < 1 | df$rating_numeric_raw > 7 | df$rating_numeric_raw %% 1 != 0)
-tbl_out_of_range <- df[out_of_range_mask, c("action_id", "rater_id", "rating", "rating_numeric_raw")]
-cat("Values outside {1,...,7} or non-integer:", nrow(tbl_out_of_range), "\n")
-if (nrow(tbl_out_of_range) > 0) {
-  print(tbl_out_of_range)
-  log_warning(sprintf("%d rating values outside 1-7 found and removed.", nrow(tbl_out_of_range)))
-}
-save_table(tbl_out_of_range, "flagged_out_of_range_ratings_R")
-
-n_before <- nrow(df)
-df <- df[!out_of_range_mask, ]
-log_clean_step("drop_out_of_range", n_before, nrow(df), "Values outside 1-7 removed")
-
-n_before <- nrow(df)
-n_missing_rating <- sum(is.na(df$rating_numeric_raw))
-cat("Missing/non-convertible rating values:", n_missing_rating, "\n")
-if (n_missing_rating > 0) log_warning(sprintf("%d rows with a missing rating removed.", n_missing_rating))
-df <- df[!is.na(df$rating_numeric_raw), ]
-log_clean_step("drop_missing_rating", n_before, nrow(df), "Missing ratings removed")
-```
-
-### 3.2 Duplicates (`action_id` × `rater_id`)
-
-**Documented resolution rule** (identical to the Python notebook, see
-the rationale there): for repeated occurrences, the row that appears
-last in the raw data is kept. This is an assumption that must be
-checked against the actual cause of duplicates once real data is used.
-
-```{r cleaning-duplicates}
-
-dup_mask <- duplicated(df[, c("action_id", "rater_id")]) |
-  duplicated(df[, c("action_id", "rater_id")], fromLast = TRUE)
-tbl_duplicates <- df[dup_mask, c("action_id", "rater_id", "rating", "rating_numeric_raw")] %>%
-  arrange(action_id, rater_id)
-cat("Rows with a duplicate (action_id, rater_id) combination:", nrow(tbl_duplicates), "\n")
-print(tbl_duplicates)
-save_table(tbl_duplicates, "flagged_duplicate_rater_action_pairs_R")
-if (nrow(tbl_duplicates) > 0) {
-  log_warning(sprintf(
-    "%d rows with duplicate (action_id, rater_id) combinations. Rule: last entry kept.",
-    nrow(tbl_duplicates)))
-}
-
-n_before <- nrow(df)
-df <- df %>%
-  group_by(action_id, rater_id) %>%
-  slice_tail(n = 1) %>%
-  ungroup()
-log_clean_step("resolve_duplicates", n_before, nrow(df), "Duplicates resolved: last entry kept")
-
-df <- df %>%
-  mutate(rating_numeric = as.integer(rating_numeric_raw),
-          rating_ordinal = factor(rating_numeric, levels = 1:7, ordered = TRUE)) %>%
-  select(-rating_numeric_raw)
-
 stopifnot(all(df$rating_numeric >= 1 & df$rating_numeric <= 7))
 stopifnot(!any(duplicated(df[, c("action_id", "rater_id")])))
 
-cat(sprintf("\nCleaning complete: %d -> %d rows\n", n0, nrow(df)))
-print(cleaning_log)
-save_table(cleaning_log, "cleaning_log_R")
+CLEANING_LOG_PATH <- file.path(RESULTS_TABLES, "cleaning_log.csv")
+cleaning_log <- if (file.exists(CLEANING_LOG_PATH)) {
+  readr::read_csv(CLEANING_LOG_PATH, show_col_types = FALSE)
+} else {
+  tibble()
+}
+
+cat(sprintf("Loaded %d ratings (%d actions, %d raters)\n",
+             nrow(df), n_distinct(df$action_id), n_distinct(df$rater_id)))
+glimpse(df)
 ```
 
-### 3.3 Missingness structure and ratings per action/rater
+## 3. Data overview and plausibility checks
+
+### 3.1 Missingness structure and ratings per action/rater
+
+```{r gridExtra-helper}
+#| echo: false
+
+# Small helper to use patchwork if available, otherwise gridExtra,
+# otherwise just return the first plot (notebook stays runnable).
+gridExtra_or_patchwork <- function(...) {
+  plots <- list(...)
+  if (requireNamespace("patchwork", quietly = TRUE)) {
+    Reduce(`+`, plots)
+  } else if (requireNamespace("gridExtra", quietly = TRUE)) {
+    gridExtra::arrangeGrob(grobs = plots, ncol = length(plots))
+  } else {
+    plots[[1]]
+  }
+}
+```
 
 ```{r missingness}
 
@@ -361,24 +272,7 @@ df <- df %>%
   mutate(single_rating_action = n_ratings == 1)
 ```
 
-```{r gridExtra-helper}
-#| echo: false
-
-# Small helper to use patchwork if available, otherwise gridExtra,
-# otherwise just return the first plot (notebook stays runnable).
-gridExtra_or_patchwork <- function(...) {
-  plots <- list(...)
-  if (requireNamespace("patchwork", quietly = TRUE)) {
-    Reduce(`+`, plots)
-  } else if (requireNamespace("gridExtra", quietly = TRUE)) {
-    gridExtra::arrangeGrob(grobs = plots, ncol = length(plots))
-  } else {
-    plots[[1]]
-  }
-}
-```
-
-### 3.4 Plausibility and distribution checks
+### 3.2 Plausibility and distribution checks
 
 ```{r plausibility}
 
@@ -415,7 +309,7 @@ save_table(rater_desc, "rater_descriptive_statistics_R")
 head(rater_desc, 10)
 ```
 
-### 3.5 Temporal drift (descriptive)
+### 3.3 Temporal drift (descriptive)
 
 ```{r drift-descriptive}
 
@@ -432,9 +326,7 @@ if ("rating_order" %in% names(df)) {
   log_warning("No rating_order variable available - drift check skipped.")
 }
 
-readr::write_csv(df, file.path(DATA_PROCESSED, "ratings_long_clean.csv"))
 ratings_clean <- df
-cat(sprintf("Cleaned data saved: %d rows\n", nrow(ratings_clean)))
 ```
 
 ## 4. Connectivity and identifiability
@@ -1269,9 +1161,11 @@ if ("match_id" %in% names(ratings_clean)) {
 
 ## 15. Simulation and recovery check
 
-**Only meaningful because this run uses SIMULATED data** (see
-`data/simulation/`). With real ratings, this comparison is not
-possible.
+**Only meaningful for simulated data**, where the true action/rater
+parameters are known (see `data/simulation/`). With real ratings this
+comparison is not possible, so this section is skipped automatically
+whenever the loaded data does not match the simulated development
+dataset those ground-truth files were generated for.
 
 ```{r recovery-check}
 
@@ -1280,23 +1174,34 @@ gt_action <- readr::read_csv(file.path(PROJECT_ROOT, "data", "simulation", "grou
 gt_rater <- readr::read_csv(file.path(PROJECT_ROOT, "data", "simulation", "ground_truth_rater_params.csv"),
                                show_col_types = FALSE)
 
-if (nrow(ordinal_scores_r) > 0) {
-  recovery_action <- ordinal_scores_r %>% inner_join(gt_action, by = "action_id")
-  rank_corr_theta <- cor(recovery_action$ordinal_latent_score, recovery_action$theta_true, method = "spearman")
-  bias_theta <- mean(recovery_action$ordinal_latent_score - recovery_action$theta_true)
-  rmse_theta <- sqrt(mean((recovery_action$ordinal_latent_score - recovery_action$theta_true)^2))
-  cat(sprintf("Ordinal model - bias: %.3f, RMSE: %.3f, rank correlation: %.3f\n",
-               bias_theta, rmse_theta, rank_corr_theta))
+recovery_available <- (length(intersect(gt_action$action_id, ratings_clean$action_id)) /
+                          max(1, n_distinct(gt_action$action_id))) > 0.5
+
+if (!recovery_available) {
+  log_warning(paste(
+    "data/simulation/ground_truth_*.csv does not match the currently loaded",
+    "data (this run is not using the simulated development dataset it was",
+    "generated for). Skipping the recovery check."
+  ))
 } else {
-  log_warning("No ordinal model available (brms missing) - recovery check limited to the linear model.")
+  if (nrow(ordinal_scores_r) > 0) {
+    recovery_action <- ordinal_scores_r %>% inner_join(gt_action, by = "action_id")
+    rank_corr_theta <- cor(recovery_action$ordinal_latent_score, recovery_action$theta_true, method = "spearman")
+    bias_theta <- mean(recovery_action$ordinal_latent_score - recovery_action$theta_true)
+    rmse_theta <- sqrt(mean((recovery_action$ordinal_latent_score - recovery_action$theta_true)^2))
+    cat(sprintf("Ordinal model - bias: %.3f, RMSE: %.3f, rank correlation: %.3f\n",
+                 bias_theta, rmse_theta, rank_corr_theta))
+  } else {
+    log_warning("No ordinal model available (brms missing) - recovery check limited to the linear model.")
+  }
+
+  recovery_rater <- severity_df %>% inner_join(gt_rater, by = "rater_id")
+  sev_corr <- cor(recovery_rater$lmm_severity, recovery_rater$severity_true)
+  cat(sprintf("Linear model - rater severity recovery correlation: %.3f\n", sev_corr))
+
+  recovery_summary <- tibble(quantity = "rater_severity_recovery_corr_R", value = sev_corr)
+  save_table(recovery_summary, "simulation_recovery_summary_R")
 }
-
-recovery_rater <- severity_df %>% inner_join(gt_rater, by = "rater_id")
-sev_corr <- cor(recovery_rater$lmm_severity, recovery_rater$severity_true)
-cat(sprintf("Linear model - rater severity recovery correlation: %.3f\n", sev_corr))
-
-recovery_summary <- tibble(quantity = "rater_severity_recovery_corr_R", value = sev_corr)
-save_table(recovery_summary, "simulation_recovery_summary_R")
 ```
 
 ## 16. Export of result files
@@ -1333,8 +1238,8 @@ different file names (`*_R.csv` vs. the language-neutral
 `action_scores.csv` from the Python notebook) so that one cannot
 accidentally overwrite the other. For the final publication, ONE set
 is designated as canonical (see the README) — both should be
-substantively very similar as long as DEV_MODE/the same raw file was
-used.
+substantively very similar, since both notebooks read the same
+preprocessed file.
 :::
 
 ## 17. Automated interpretation
@@ -1357,9 +1262,7 @@ interpretation_text <- glue::glue(
 "{round(ci_ord[2],2)}]).\n\n",
 "The D-study curve shows a rise from rho_abs(k=1)={round(rho_abs_1,2)} to ",
 "rho_abs(k=7)={round(rho_abs_7,2)}.\n\n",
-"The rater-action graph splits into {n_components} connected component(s).\n\n",
-"IMPORTANT: this run uses SIMULATED placeholder data. All numbers are ",
-"methodology demonstrations, not real findings."
+"The rater-action graph splits into {n_components} connected component(s)."
 )
 cat(interpretation_text)
 writeLines(as.character(interpretation_text), file.path(RESULTS_LOGS, "automated_interpretation_R.txt"))
@@ -1409,15 +1312,13 @@ See the Python notebook, Section 19, for the full discussion (equally
 valid for both notebooks, since both operate on the same data and
 design). Summary:
 
-1. Simulated development data in this run — use real data before
-   publication.
-2. Residual variance jointly covers action×rater interaction and
+1. Residual variance jointly covers action×rater interaction and
    measurement error (no complete G-theory decomposition).
-3. `jrt` package not installed in this environment — the JRT analysis
+2. `jrt` package not installed in this environment — the JRT analysis
    is done fully in Python (PyMC), or approximated via the `brms`
    `disc` formula above.
-4. Cross-validation simplified (no full model refit per fold).
-5. With multiple connected components, rater severity values are not
+3. Cross-validation simplified (no full model refit per fold).
+4. With multiple connected components, rater severity values are not
    comparable across components.
 
 ### Recommendations for future rating assignment

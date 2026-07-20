@@ -1,1 +1,1 @@
-Verteilung der Anzahl Ratings pro Aktion (links) und der Anzahl bewerteter Aktionen pro Rater (rechts).
+Distribution of the number of ratings per action (left) and the number of rated actions per rater (right).

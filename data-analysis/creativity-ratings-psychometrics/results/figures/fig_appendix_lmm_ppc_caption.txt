@@ -1,1 +1,1 @@
-Posterior-Predictive-Check des linearen Gauss-Modells.
+Posterior predictive check of the linear Gaussian model.

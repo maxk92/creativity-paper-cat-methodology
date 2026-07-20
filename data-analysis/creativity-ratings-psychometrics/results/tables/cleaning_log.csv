@@ -1,5 +1,6 @@
 step,n_rows_before,n_rows_after,n_rows_affected,description
-drop_missing_id,10128,10128,0,Zeilen mit fehlender action_id/rater_id entfernt
-drop_out_of_range,10128,10125,3,"Ratingwerte ausserhalb {1,...,7} bzw. nicht-ganzzahlig entfernt"
-drop_missing_rating,10125,10122,3,Zeilen mit fehlendem oder nicht konvertierbarem Rating entfernt
-resolve_duplicates,10122,10116,6,"Duplikate aufgeloest: letzter Eintrag je (action_id, rater_id) behalten"
+drop_action_not_recognized,8750,7502,1248,Rows where the rater flagged the action as not recognized were excluded
+drop_missing_id,7502,7502,0,Rows with missing action_id/rater_id removed
+drop_out_of_range,7502,7501,1,"Rating values outside {1,...,7} or non-integer removed"
+drop_missing_rating,7501,7501,0,Rows with missing or non-convertible rating removed
+resolve_duplicates,7501,7495,6,"Duplicates resolved: last entry per (action_id, rater_id) kept"
