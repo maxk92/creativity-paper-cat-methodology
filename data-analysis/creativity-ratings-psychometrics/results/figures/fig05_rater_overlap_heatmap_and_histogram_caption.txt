@@ -1,0 +1,1 @@
+Links: Heatmap gemeinsam bewerteter Aktionen je Raterpaar. Rechts: Histogramm der Ueberlappungszahlen ueber alle Raterpaare mit mindestens einer gemeinsamen Aktion.

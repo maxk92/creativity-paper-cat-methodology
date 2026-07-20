@@ -1,0 +1,1 @@
+Gesamthaeufigkeit der sieben Ratingkategorien ueber alle Ratings.

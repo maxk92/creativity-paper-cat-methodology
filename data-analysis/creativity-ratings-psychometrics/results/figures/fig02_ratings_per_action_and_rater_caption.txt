@@ -1,0 +1,1 @@
+Verteilung der Anzahl Ratings pro Aktion (links) und der Anzahl bewerteter Aktionen pro Rater (rechts).

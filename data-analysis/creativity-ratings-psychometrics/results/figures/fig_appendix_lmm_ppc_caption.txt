@@ -1,0 +1,1 @@
+Posterior-Predictive-Check des linearen Gauss-Modells.

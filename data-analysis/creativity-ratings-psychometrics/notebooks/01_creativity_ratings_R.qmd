@@ -1,0 +1,1438 @@
+---
+title: "Psychometric Analysis of Incompletely Crossed Creativity Ratings"
+subtitle: "R notebook (content-parallel to `01_creativity_ratings_python.ipynb`)"
+author: "Automated analysis workflow"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: show
+    theme: cosmo
+    embed-resources: true
+execute:
+  eval: true
+  warning: true
+  message: false
+  cache: false
+---
+
+## 0. Context, goal, and non-negotiable rules
+
+Creativity ratings on a unipolar 7-point scale (1 = not creative,
+7 = very creative) are available for approximately 4,000 football
+actions. The number of ratings per action is unequal (roughly 600
+actions with one rating, roughly 2,000 with two ratings, the rest with
+three to seven ratings). Not all raters rated the same actions — the
+design is **unbalanced, incomplete, and (partially) crossed**.
+
+This notebook implements the same workflow as
+`01_creativity_ratings_python.ipynb`, with R-specific advantages:
+`lme4` estimates the linear crossed model for ~4,000 action levels
+natively and quickly (sparse Cholesky factorization), where
+`statsmodels.MixedLM` in Python does not scale in practice (see the
+discussion in the Python notebook, Section 6.2); `brms` provides the
+Bayesian ordinal facette modeling via Stan; the dedicated CRAN package
+`jrt` is used for the judge-response-theory extension, if installed.
+
+### Non-negotiable rules (from the analysis brief)
+
+- Absolute agreement ≠ relative consistency ≠ reliability of a single
+  rating ≠ reliability of an aggregated score.
+- Actions with only one rating are kept for model-based estimation but
+  contribute no within-action agreement information.
+- Rater severity is only identifiable within connected components of
+  the rater–action graph.
+- No action score without the number of ratings and an uncertainty
+  statement.
+- Interpretation is cautious, descriptive, without mechanical good/bad
+  thresholds.
+
+### ⚠️ Note on the data used in this run
+
+By default, this notebook reads the **simulated** raw file
+`data/raw/ratings_long_raw.csv` produced by `simulate_ratings.py`
+(identical to the Python notebook; see Section 3.2 of the analysis
+brief: "the R notebook should by default read the saved raw CSV"). All
+numbers in this run are methodology demonstrations, not real findings.
+Once real ratings are available, the Python notebook (Section 3,
+Google Sheets import) replaces `data/raw/ratings_long_raw.csv`, and
+this R notebook does not need to change.
+
+### References
+
+Amabile (1982, 1996); Baayen, Davidson & Bates (2008); Bates, Mächler,
+Bolker & Walker (2015); Brennan (2001); Bürkner (2017); Eckes (2015);
+Krippendorff (2004/2018); Linacre (1989); Myszkowski & Storme (2019);
+Myszkowski (2021, R package `jrt`); Primi, Silvia, Jauk & Benedek
+(2019); Shavelson & Webb (1991); Shrout & Fleiss (1979); McGraw & Wong
+(1996); Koo & Li (2016). Full citations: see the Python notebook
+Section 0 or `README.md`. Software documentation: current `lme4`,
+`brms`, `jrt`, `krippendorffsalpha` documentation (see the respective
+CRAN pages).
+
+## 1. Setup, reproducibility, and session information
+
+```{r setup}
+
+SEED <- 20260713
+set.seed(SEED)
+
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(here)
+  library(janitor)
+  library(igraph)
+  library(lme4)
+  library(lmerTest)
+  library(irr)
+  library(psych)
+})
+
+# Optional packages: only load if installed (see the README for the
+# install status in this run). Missing packages produce a clear
+# warning instead of a silent failure (Section 25 of the analysis
+# brief).
+optional_pkgs <- c("performance", "insight", "broom.mixed", "sjPlot",
+                     "ggeffects", "krippendorffsalpha", "ordinal",
+                     "glmmTMB", "brms", "posterior", "bayesplot", "loo",
+                     "tidybayes", "jrt", "mirt", "TAM", "arrow", "skimr",
+                     "naniar", "data.table")
+pkg_status <- tibble(package = optional_pkgs,
+                       available = map_lgl(optional_pkgs, requireNamespace, quietly = TRUE))
+for (i in seq_len(nrow(pkg_status))) {
+  if (pkg_status$available[i]) {
+    suppressPackageStartupMessages(library(pkg_status$package[i], character.only = TRUE))
+  } else {
+    warning(sprintf(
+      "Package '%s' is not installed. Dependent sections will be detected at runtime and skipped/flagged with a warning.",
+      pkg_status$package[i]
+    ))
+  }
+}
+print(pkg_status)
+
+has_pkg <- function(p) isTRUE(pkg_status$available[pkg_status$package == p])
+
+PROJECT_ROOT <- here()
+DATA_RAW <- file.path(PROJECT_ROOT, "data", "raw")
+DATA_PROCESSED <- file.path(PROJECT_ROOT, "data", "processed")
+RESULTS_TABLES <- file.path(PROJECT_ROOT, "results", "tables")
+RESULTS_FIGURES <- file.path(PROJECT_ROOT, "results", "figures")
+RESULTS_MODELS <- file.path(PROJECT_ROOT, "results", "models")
+RESULTS_LOGS <- file.path(PROJECT_ROOT, "results", "logs")
+for (d in c(DATA_RAW, DATA_PROCESSED, RESULTS_TABLES, RESULTS_FIGURES, RESULTS_MODELS, RESULTS_LOGS)) {
+  dir.create(d, showWarnings = FALSE, recursive = TRUE)
+}
+
+WARNINGS_LOG <- list()
+log_warning <- function(msg) {
+  WARNINGS_LOG[[length(WARNINGS_LOG) + 1]] <<- list(
+    timestamp = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"), message = msg)
+  warning(msg, call. = FALSE)
+}
+
+save_table <- function(df, name, ...) {
+  path <- file.path(RESULTS_TABLES, paste0(name, ".csv"))
+  readr::write_csv(df, path, ...)
+  message(sprintf("Table saved: results/tables/%s.csv (%d rows x %d columns)",
+                    name, nrow(df), ncol(df)))
+  invisible(path)
+}
+
+save_fig <- function(plot_obj, name, width = 8, height = 5, caption = NULL) {
+  ggsave(file.path(RESULTS_FIGURES, paste0(name, ".png")), plot_obj,
+          width = width, height = height, dpi = 200)
+  ggsave(file.path(RESULTS_FIGURES, paste0(name, ".svg")), plot_obj,
+          width = width, height = height)
+  if (!is.null(caption)) {
+    writeLines(caption, file.path(RESULTS_FIGURES, paste0(name, "_caption.txt")))
+  }
+  message(sprintf("Figure saved: %s.png / %s.svg", name, name))
+}
+
+cat("Seed:", SEED, "\n")
+cat("Project root:", PROJECT_ROOT, "\n")
+```
+
+```{r session-info}
+
+get_git_hash <- function() {
+  out <- tryCatch(system2("git", c("-C", PROJECT_ROOT, "rev-parse", "HEAD"),
+                            stdout = TRUE, stderr = TRUE),
+                    error = function(e) "not a Git repository / hash not available")
+  if (length(out) == 0 || grepl("fatal", paste(out, collapse = " "))) {
+    return("not a Git repository / hash not available")
+  }
+  out[1]
+}
+
+session_info_r <- list(
+  analysis_datetime = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"),
+  r_version = R.version.string,
+  platform = R.version$platform,
+  git_commit = get_git_hash(),
+  seed = SEED
+)
+str(session_info_r)
+writeLines(jsonlite::toJSON(session_info_r, auto_unbox = TRUE, pretty = TRUE),
+            file.path(RESULTS_LOGS, "session_info_r.json"))
+# additionally log full package versions
+writeLines(capture.output(sessionInfo()), file.path(RESULTS_LOGS, "sessionInfo_r.txt"))
+```
+
+## 2. Data import
+
+The production import (Google Sheets → StatsBomb merge) happens in the
+Python notebook (Section 3 of the analysis brief). By default, this R
+notebook reads the already-saved raw CSV:
+
+```{r import}
+
+ratings_raw <- readr::read_csv(
+  file.path(DATA_RAW, "ratings_long_raw.csv"),
+  show_col_types = FALSE
+)
+
+if ("data_source" %in% names(ratings_raw) &&
+     any(ratings_raw$data_source == "simulated_dev_placeholder")) {
+  log_warning(paste(
+    "Raw data is flagged as 'simulated_dev_placeholder'.",
+    "All results in this run are methodology demonstrations, NOT real findings."
+  ))
+}
+
+glimpse(ratings_raw)
+
+# Optional googlesheets4 placeholder (not required, see Section 3.2 of
+# the analysis brief): would go here if R should import directly from
+# Google Sheets, e.g.:
+#   library(googlesheets4)
+#   ratings_raw <- read_sheet(sheet_url)
+```
+
+## 3. Data validation and cleaning
+
+### 3.1 Schema, types, duplicates
+
+```{r cleaning-schema}
+
+required_cols <- c("action_id", "rater_id", "rating")
+missing_cols <- setdiff(required_cols, names(ratings_raw))
+if (length(missing_cols) > 0) {
+  stop(paste("Required variables missing from the raw dataset:", paste(missing_cols, collapse = ", ")))
+}
+
+cleaning_log <- tibble(step = character(), n_before = integer(),
+                         n_after = integer(), description = character())
+log_clean_step <- function(step, n_before, n_after, description) {
+  cleaning_log <<- bind_rows(cleaning_log, tibble(
+    step = step, n_before = n_before, n_after = n_after, description = description))
+}
+
+df <- ratings_raw
+n0 <- nrow(df)
+
+n_missing_action_id <- sum(is.na(df$action_id))
+n_missing_rater_id <- sum(is.na(df$rater_id))
+cat("Missing action_id:", n_missing_action_id, "\n")
+cat("Missing rater_id: ", n_missing_rater_id, "\n")
+if (n_missing_action_id + n_missing_rater_id > 0) {
+  log_warning(sprintf("%d rows with a missing ID found.",
+                        n_missing_action_id + n_missing_rater_id))
+}
+df <- df %>% filter(!is.na(action_id), !is.na(rater_id))
+log_clean_step("drop_missing_id", n0, nrow(df), "Rows with a missing ID removed")
+
+df <- df %>% mutate(action_id = as.character(action_id), rater_id = as.character(rater_id))
+
+# robustly convert rating to numeric (e.g. " 4 ", "n/a")
+n_before <- nrow(df)
+rating_numeric_raw <- suppressWarnings(as.numeric(trimws(as.character(df$rating))))
+n_not_convertible <- sum(is.na(rating_numeric_raw) & !is.na(df$rating))
+cat("Non-convertible, non-missing raw rating values:", n_not_convertible, "\n")
+if (n_not_convertible > 0) {
+  print(df[is.na(rating_numeric_raw) & !is.na(df$rating), c("action_id", "rater_id", "rating")])
+  log_warning(sprintf("%d raw rating values were not numerically convertible and were set to NA.",
+                        n_not_convertible))
+}
+df$rating_numeric_raw <- rating_numeric_raw
+```
+
+```{r cleaning-range}
+
+out_of_range_mask <- !is.na(df$rating_numeric_raw) &
+  (df$rating_numeric_raw < 1 | df$rating_numeric_raw > 7 | df$rating_numeric_raw %% 1 != 0)
+tbl_out_of_range <- df[out_of_range_mask, c("action_id", "rater_id", "rating", "rating_numeric_raw")]
+cat("Values outside {1,...,7} or non-integer:", nrow(tbl_out_of_range), "\n")
+if (nrow(tbl_out_of_range) > 0) {
+  print(tbl_out_of_range)
+  log_warning(sprintf("%d rating values outside 1-7 found and removed.", nrow(tbl_out_of_range)))
+}
+save_table(tbl_out_of_range, "flagged_out_of_range_ratings_R")
+
+n_before <- nrow(df)
+df <- df[!out_of_range_mask, ]
+log_clean_step("drop_out_of_range", n_before, nrow(df), "Values outside 1-7 removed")
+
+n_before <- nrow(df)
+n_missing_rating <- sum(is.na(df$rating_numeric_raw))
+cat("Missing/non-convertible rating values:", n_missing_rating, "\n")
+if (n_missing_rating > 0) log_warning(sprintf("%d rows with a missing rating removed.", n_missing_rating))
+df <- df[!is.na(df$rating_numeric_raw), ]
+log_clean_step("drop_missing_rating", n_before, nrow(df), "Missing ratings removed")
+```
+
+### 3.2 Duplicates (`action_id` × `rater_id`)
+
+**Documented resolution rule** (identical to the Python notebook, see
+the rationale there): for repeated occurrences, the row that appears
+last in the raw data is kept. This is an assumption that must be
+checked against the actual cause of duplicates once real data is used.
+
+```{r cleaning-duplicates}
+
+dup_mask <- duplicated(df[, c("action_id", "rater_id")]) |
+  duplicated(df[, c("action_id", "rater_id")], fromLast = TRUE)
+tbl_duplicates <- df[dup_mask, c("action_id", "rater_id", "rating", "rating_numeric_raw")] %>%
+  arrange(action_id, rater_id)
+cat("Rows with a duplicate (action_id, rater_id) combination:", nrow(tbl_duplicates), "\n")
+print(tbl_duplicates)
+save_table(tbl_duplicates, "flagged_duplicate_rater_action_pairs_R")
+if (nrow(tbl_duplicates) > 0) {
+  log_warning(sprintf(
+    "%d rows with duplicate (action_id, rater_id) combinations. Rule: last entry kept.",
+    nrow(tbl_duplicates)))
+}
+
+n_before <- nrow(df)
+df <- df %>%
+  group_by(action_id, rater_id) %>%
+  slice_tail(n = 1) %>%
+  ungroup()
+log_clean_step("resolve_duplicates", n_before, nrow(df), "Duplicates resolved: last entry kept")
+
+df <- df %>%
+  mutate(rating_numeric = as.integer(rating_numeric_raw),
+          rating_ordinal = factor(rating_numeric, levels = 1:7, ordered = TRUE)) %>%
+  select(-rating_numeric_raw)
+
+stopifnot(all(df$rating_numeric >= 1 & df$rating_numeric <= 7))
+stopifnot(!any(duplicated(df[, c("action_id", "rater_id")])))
+
+cat(sprintf("\nCleaning complete: %d -> %d rows\n", n0, nrow(df)))
+print(cleaning_log)
+save_table(cleaning_log, "cleaning_log_R")
+```
+
+### 3.3 Missingness structure and ratings per action/rater
+
+```{r missingness}
+
+ratings_per_action <- df %>% count(action_id, name = "n_ratings")
+ratings_per_rater <- df %>% count(rater_id, name = "n_actions_rated")
+
+p1 <- ratings_per_action %>%
+  count(n_ratings) %>%
+  ggplot(aes(x = factor(n_ratings), y = n)) +
+  geom_col(fill = "#4C72B0") +
+  labs(x = "Ratings per action", y = "Number of actions", title = "Ratings per action") +
+  theme_minimal()
+
+p2 <- ratings_per_rater %>%
+  ggplot(aes(x = n_actions_rated)) +
+  geom_histogram(bins = 20, fill = "#DD8452") +
+  labs(x = "Rated actions", y = "Number of raters", title = "Rated actions per rater") +
+  theme_minimal()
+
+fig02 <- gridExtra_or_patchwork(p1, p2)
+save_fig(fig02, "fig02_ratings_per_action_and_rater_R", width = 10, height = 4,
+          caption = "Distribution of ratings per action (left) and rated actions per rater (right).")
+fig02
+
+cat("Share of actions with exactly 1 rating:",
+    scales::percent(mean(ratings_per_action$n_ratings == 1)), "\n")
+cat("Share of actions with exactly 2 ratings:",
+    scales::percent(mean(ratings_per_action$n_ratings == 2)), "\n")
+
+df <- df %>%
+  left_join(ratings_per_action, by = "action_id") %>%
+  mutate(single_rating_action = n_ratings == 1)
+```
+
+```{r gridExtra-helper}
+#| echo: false
+
+# Small helper to use patchwork if available, otherwise gridExtra,
+# otherwise just return the first plot (notebook stays runnable).
+gridExtra_or_patchwork <- function(...) {
+  plots <- list(...)
+  if (requireNamespace("patchwork", quietly = TRUE)) {
+    Reduce(`+`, plots)
+  } else if (requireNamespace("gridExtra", quietly = TRUE)) {
+    gridExtra::arrangeGrob(grobs = plots, ncol = length(plots))
+  } else {
+    plots[[1]]
+  }
+}
+```
+
+### 3.4 Plausibility and distribution checks
+
+```{r plausibility}
+
+p_overall <- df %>%
+  count(rating_numeric) %>%
+  ggplot(aes(x = factor(rating_numeric), y = n)) +
+  geom_col(fill = "#55A868") +
+  labs(x = "Creativity rating", y = "Frequency",
+        title = sprintf("Distribution of all ratings (n=%d)", nrow(df))) +
+  theme_minimal()
+save_fig(p_overall, "fig01_overall_rating_distribution_R", width = 6, height = 4,
+          caption = "Overall frequency of the seven rating categories.")
+p_overall
+
+rater_desc <- df %>%
+  group_by(rater_id) %>%
+  summarise(
+    n_ratings = n(),
+    n_actions = n_distinct(action_id),
+    mean = mean(rating_numeric),
+    median = median(rating_numeric),
+    sd = sd(rating_numeric),
+    iqr = IQR(rating_numeric),
+    n_categories_used = n_distinct(rating_numeric),
+    floor_rate = mean(rating_numeric == 1),
+    ceiling_rate = mean(rating_numeric == 7),
+    extreme_category_rate = mean(rating_numeric %in% c(1, 7)),
+    central_category_rate = mean(rating_numeric %in% c(3, 4, 5)),
+    .groups = "drop"
+  ) %>%
+  arrange(mean)
+
+save_table(rater_desc, "rater_descriptive_statistics_R")
+head(rater_desc, 10)
+```
+
+### 3.5 Temporal drift (descriptive)
+
+```{r drift-descriptive}
+
+if ("rating_order" %in% names(df)) {
+  drift_corr <- df %>%
+    group_by(rater_id) %>%
+    filter(n() >= 10) %>%
+    summarise(spearman_rating_vs_order = cor(rating_numeric, rating_order, method = "spearman"),
+               .groups = "drop")
+  n_flagged <- sum(abs(drift_corr$spearman_rating_vs_order) > 0.2, na.rm = TRUE)
+  cat("Raters with |Spearman(rating, rating_order)| > .2:", n_flagged, "\n")
+  save_table(drift_corr, "descriptive_drift_correlation_by_rater_R")
+} else {
+  log_warning("No rating_order variable available - drift check skipped.")
+}
+
+readr::write_csv(df, file.path(DATA_PROCESSED, "ratings_long_clean.csv"))
+ratings_clean <- df
+cat(sprintf("Cleaned data saved: %d rows\n", nrow(ratings_clean)))
+```
+
+## 4. Connectivity and identifiability
+
+As in the Python notebook: bipartite rater–action graph, connected
+components. Rater severity is only interpretable on a common scale
+within a single component.
+
+```{r connectivity}
+
+edges <- ratings_clean %>%
+  transmute(action = action_id, rater = paste0("R::", rater_id)) %>%
+  as.matrix()
+
+g <- graph_from_edgelist(edges, directed = FALSE)
+V(g)$type <- grepl("^R::", V(g)$name)  # TRUE = rater node
+
+comp <- components(g)
+comp_sizes <- sort(table(comp$membership), decreasing = TRUE)
+n_components <- comp$no
+
+comp_summary <- tibble(component_id = seq_len(n_components)) %>%
+  rowwise() %>%
+  mutate(
+    nodes_in_comp = list(V(g)$name[comp$membership == component_id]),
+    n_nodes = length(nodes_in_comp),
+    n_actions = sum(!grepl("^R::", nodes_in_comp)),
+    n_raters = sum(grepl("^R::", nodes_in_comp))
+  ) %>%
+  ungroup() %>%
+  arrange(desc(n_nodes)) %>%
+  select(-nodes_in_comp)
+
+save_table(comp_summary, "connectivity_component_summary_R")
+print(comp_summary)
+
+cat("\nNumber of connected components:", n_components, "\n")
+if (n_components > 1) {
+  log_warning(sprintf(paste(
+    "The rater-action graph has %d separate components. Rater severity from",
+    "different components is NOT comparable on a common scale.",
+    "The main analysis uses the largest component."), n_components))
+}
+
+largest_comp_id <- as.integer(names(comp_sizes)[1])
+largest_component_nodes <- V(g)$name[comp$membership == largest_comp_id]
+largest_component_actions <- largest_component_nodes[!grepl("^R::", largest_component_nodes)]
+largest_component_raters <- sub("^R::", "", largest_component_nodes[grepl("^R::", largest_component_nodes)])
+
+action_component_map <- tibble(action_id = V(g)$name[!V(g)$type],
+                                 connected_component = comp$membership[!V(g)$type] - 1L)
+# component_id 0 = largest component (same convention as in the Python notebook)
+main_id <- comp$membership[largest_component_nodes[1]]
+action_component_map <- action_component_map %>%
+  mutate(connected_component = if_else(comp$membership[match(action_id, V(g)$name)] == main_id, 0L, 1L))
+
+ratings_clean <- ratings_clean %>%
+  left_join(action_component_map, by = "action_id") %>%
+  mutate(in_largest_component = connected_component == 0)
+
+cat(sprintf("\nLargest component: %d actions, %d raters (%.1f%% of all actions)\n",
+             length(largest_component_actions), length(largest_component_raters),
+             100 * length(largest_component_actions) / n_distinct(ratings_clean$action_id)))
+```
+
+> **Interpretation:** rater severity parameters are only identifiable
+> relative to other raters if the rating design is sufficiently
+> connected. All rater-correcting models below are estimated on the
+> largest connected component; actions outside it receive a
+> corresponding `score_flag` in `action_scores.csv`.
+
+```{r connectivity-overlap}
+
+rater_ids_sorted <- sort(unique(ratings_clean$rater_id))
+n_raters <- length(rater_ids_sorted)
+
+action_to_raters <- ratings_clean %>% group_by(action_id) %>% summarise(raters = list(rater_id))
+overlap <- matrix(0L, n_raters, n_raters, dimnames = list(rater_ids_sorted, rater_ids_sorted))
+for (rs in action_to_raters$raters) {
+  if (length(rs) < 2) next
+  idx <- match(unique(rs), rater_ids_sorted)
+  for (a in seq_along(idx)) for (b in seq_along(idx)) if (a != b) overlap[idx[a], idx[b]] <- overlap[idx[a], idx[b]] + 1L
+}
+overlap_df <- as_tibble(overlap, rownames = "rater_id")
+save_table(overlap_df, "rater_pair_overlap_matrix_R")
+
+pair_overlaps <- overlap[upper.tri(overlap)]
+pair_overlaps_nonzero <- pair_overlaps[pair_overlaps > 0]
+
+overlap_long <- as_tibble(overlap, rownames = "rater_1") %>%
+  pivot_longer(-rater_1, names_to = "rater_2", values_to = "n_common")
+p_heat <- ggplot(overlap_long, aes(x = rater_1, y = rater_2, fill = n_common)) +
+  geom_tile() + scale_fill_viridis_c() +
+  theme_minimal() + theme(axis.text.x = element_text(angle = 90, size = 5), axis.text.y = element_text(size = 5)) +
+  labs(title = "Heatmap: jointly rated actions per rater pair", x = NULL, y = NULL)
+save_fig(p_heat, "fig05_rater_overlap_heatmap_R", width = 8, height = 7,
+          caption = "Heatmap of jointly rated actions per rater pair.")
+p_heat
+
+mean_pair_overlap <- tibble(
+  rater_id = rater_ids_sorted,
+  mean_pair_overlap = rowSums(overlap) / pmax(1, rowSums(overlap > 0))
+)
+cat("Median overlap (rater pairs>0):", median(pair_overlaps_nonzero), "\n")
+cat("Share of rater pairs with no shared action:",
+    scales::percent(mean(pair_overlaps == 0)), "\n")
+```
+
+## 5. Descriptive pairwise agreement
+
+```{r pairwise-agreement}
+
+MIN_OVERLAP <- 10
+
+wide <- ratings_clean %>%
+  select(action_id, rater_id, rating_numeric) %>%
+  pivot_wider(names_from = rater_id, values_from = rating_numeric)
+
+pair_stats <- list()
+rater_cols <- setdiff(names(wide), "action_id")
+for (i in seq_along(rater_cols)) {
+  for (j in seq_along(rater_cols)) {
+    if (j <= i) next
+    rj <- rater_cols[i]; rk <- rater_cols[j]
+    both <- wide %>% select(all_of(c(rj, rk))) %>% drop_na()
+    n_common <- nrow(both)
+    if (n_common < MIN_OVERLAP) next
+    yj <- both[[rj]]; yk <- both[[rk]]
+    w_kappa <- irr::kappa2(cbind(yj, yk), weight = "squared")$value
+    pair_stats[[length(pair_stats) + 1]] <- tibble(
+      rater_1 = rj, rater_2 = rk, n_common_actions = n_common,
+      pearson_r = cor(yj, yk, method = "pearson"),
+      spearman_r = cor(yj, yk, method = "spearman"),
+      kendall_tau = cor(yj, yk, method = "kendall"),
+      mean_diff_1_minus_2 = mean(yj - yk),
+      sd_diff = sd(yj - yk),
+      mae = mean(abs(yj - yk)),
+      weighted_kappa = w_kappa
+    )
+  }
+}
+pair_stats_df <- bind_rows(pair_stats)
+save_table(pair_stats_df, "pairwise_rater_agreement_R")
+cat(sprintf("Rater pairs with >= %d shared actions: %d of %d possible pairs\n",
+             MIN_OVERLAP, nrow(pair_stats_df), n_raters * (n_raters - 1) / 2))
+summary(pair_stats_df)
+```
+
+```{r bland-altman}
+
+top_pairs <- pair_stats_df %>% slice_max(n_common_actions, n = 2)
+ba_plots <- pmap(top_pairs, function(rater_1, rater_2, ...) {
+  both <- wide %>% select(all_of(c(rater_1, rater_2))) %>% drop_na()
+  m <- rowMeans(both); d <- both[[rater_1]] - both[[rater_2]]
+  md <- mean(d); sdd <- sd(d)
+  ggplot(tibble(m = m, d = d), aes(m, d)) +
+    geom_jitter(width = 0.05, height = 0.05, alpha = 0.3, color = "#4C72B0") +
+    geom_hline(yintercept = md) +
+    geom_hline(yintercept = md + 1.96 * sdd, linetype = "dashed", color = "red") +
+    geom_hline(yintercept = md - 1.96 * sdd, linetype = "dashed", color = "red") +
+    labs(title = sprintf("%s vs %s (n=%d)", rater_1, rater_2, nrow(both)),
+          x = "Mean of both ratings", y = "Difference") +
+    theme_minimal()
+})
+fig_ba <- gridExtra_or_patchwork(ba_plots[[1]], ba_plots[[2]])
+save_fig(fig_ba, "fig06_bland_altman_top_pairs_R", width = 11, height = 4.5,
+          caption = "Bland-Altman-style plots for the two rater pairs with the strongest overlap.")
+fig_ba
+```
+
+## 6. Krippendorff's alpha
+
+Primarily **ordinal** alpha (category distances not assumed equal),
+plus **interval-scaled** alpha as a sensitivity analysis. Preferred
+package: `krippendorffsalpha` (reliability-data matrix: raters ×
+units, `NA` = missing).
+
+```{r krippendorff-alpha}
+
+reliability_data <- t(as.matrix(wide %>% select(-action_id)))
+
+if (has_pkg("krippendorffsalpha")) {
+  alpha_ordinal <- krippendorffsalpha::krippendorffs.alpha(
+    reliability_data, level = "ordinal", confint = FALSE)$alpha.hat
+  alpha_interval <- krippendorffsalpha::krippendorffs.alpha(
+    reliability_data, level = "interval", confint = FALSE)$alpha.hat
+} else {
+  log_warning("Package 'krippendorffsalpha' not available - using irr::kripp.alpha as a substitute (less flexible with missing values).")
+  alpha_ordinal <- irr::kripp.alpha(reliability_data, method = "ordinal")$value
+  alpha_interval <- irr::kripp.alpha(reliability_data, method = "interval")$value
+}
+
+cat(sprintf("Krippendorff's alpha (ordinal, primary):       %.3f\n", alpha_ordinal))
+cat(sprintf("Krippendorff's alpha (interval, sensitivity):  %.3f\n", alpha_interval))
+```
+
+### 6.1 Uncertainty: cluster bootstrap over actions
+
+```{r krippendorff-bootstrap}
+
+N_BOOT <- 2000
+action_ids_all <- wide$action_id
+n_actions_all <- length(action_ids_all)
+set.seed(SEED)
+
+alpha_fun <- function(rel_data) {
+  if (has_pkg("krippendorffsalpha")) {
+    list(
+      ord = krippendorffsalpha::krippendorffs.alpha(rel_data, level = "ordinal", confint = FALSE)$alpha.hat,
+      int = krippendorffsalpha::krippendorffs.alpha(rel_data, level = "interval", confint = FALSE)$alpha.hat
+    )
+  } else {
+    list(ord = irr::kripp.alpha(rel_data, method = "ordinal")$value,
+          int = irr::kripp.alpha(rel_data, method = "interval")$value)
+  }
+}
+
+boot_alphas <- map(seq_len(N_BOOT), function(b) {
+  sampled <- sample(action_ids_all, n_actions_all, replace = TRUE)
+  boot_wide <- wide[match(sampled, wide$action_id), ]
+  rel <- t(as.matrix(boot_wide %>% select(-action_id)))
+  tryCatch(alpha_fun(rel), error = function(e) list(ord = NA_real_, int = NA_real_))
+})
+boot_ord <- map_dbl(boot_alphas, "ord")
+boot_int <- map_dbl(boot_alphas, "int")
+
+ci_ord <- quantile(boot_ord, c(.025, .975), na.rm = TRUE)
+ci_int <- quantile(boot_int, c(.025, .975), na.rm = TRUE)
+cat(sprintf("Ordinal alpha: %.3f, 95%% CI [%.3f, %.3f] (n_boot=%d, %d failed)\n",
+             alpha_ordinal, ci_ord[1], ci_ord[2], N_BOOT, sum(is.na(boot_ord))))
+cat(sprintf("Interval alpha: %.3f, 95%% CI [%.3f, %.3f]\n", alpha_interval, ci_int[1], ci_int[2]))
+
+alpha_summary_df <- tibble(
+  measure = c("ordinal", "interval"),
+  alpha = c(alpha_ordinal, alpha_interval),
+  ci_low = c(ci_ord[1], ci_int[1]), ci_high = c(ci_ord[2], ci_int[2]), n_boot = N_BOOT
+)
+save_table(alpha_summary_df, "krippendorff_alpha_main_R")
+```
+
+### 6.2 Subgroup sensitivity
+
+```{r krippendorff-subgroups}
+
+alpha_for_subset <- function(action_subset, label) {
+  sub_wide <- wide %>% filter(action_id %in% action_subset)
+  rel <- t(as.matrix(sub_wide %>% select(-action_id)))
+  a <- alpha_fun(rel)
+  tibble(subset = label, n_actions = nrow(sub_wide), alpha_ordinal = a$ord, alpha_interval = a$int)
+}
+
+subset_results <- bind_rows(
+  alpha_for_subset(wide$action_id, "all actions"),
+  alpha_for_subset(ratings_per_action$action_id[ratings_per_action$n_ratings >= 2], "n_ratings >= 2"),
+  alpha_for_subset(ratings_per_action$action_id[ratings_per_action$n_ratings >= 3], "n_ratings >= 3"),
+  alpha_for_subset(largest_component_actions, "largest connected component")
+)
+save_table(subset_results, "krippendorff_alpha_sensitivity_R")
+print(subset_results)
+log_warning("Krippendorff's alpha values from different subsets are not directly comparable due to differing action heterogeneity.")
+```
+
+## 7. Linear crossed mixed-effects model
+
+$$
+y_{ij} = \mu + u_i + v_j + \varepsilon_{ij}, \quad
+u_i \sim \mathcal N(0,\sigma^2_{\text{action}}), \quad
+v_j \sim \mathcal N(0,\sigma^2_{\text{rater}}), \quad
+\varepsilon_{ij} \sim \mathcal N(0,\sigma^2_e)
+$$
+
+Unlike `statsmodels.MixedLM` in Python (see the discussion there,
+Section 6.2: `vc_formula` does not scale practically to ~4,000 action
+levels due to dense design matrices), `lme4::lmer` estimates this
+model **natively and quickly** via sparse Cholesky factorization, even
+with thousands of levels. We estimate on the largest connected
+component.
+
+```{r lmm-fit}
+
+df_lmm <- ratings_clean %>% filter(in_largest_component)
+
+model_lmm <- lmer(
+  rating_numeric ~ 1 + (1 | action_id) + (1 | rater_id),
+  data = df_lmm, REML = TRUE,
+  control = lmerControl(optimizer = "bobyqa")
+)
+summary(model_lmm)
+
+is_singular <- isSingular(model_lmm)
+cat("\nSingularity check:", ifelse(is_singular, "SINGULAR", "ok"), "\n")
+if (is_singular) log_warning("lmer fit is singular (at least one variance component ~0).")
+if (has_pkg("performance")) {
+  print(performance::check_convergence(model_lmm))
+}
+```
+
+```{r lmm-varcomp}
+
+vc <- as.data.frame(VarCorr(model_lmm))
+var_action <- vc$vcov[vc$grp == "action_id"]
+var_rater <- vc$vcov[vc$grp == "rater_id"]
+var_resid <- vc$vcov[vc$grp == "Residual"]
+
+variance_components_df <- tibble(
+  component = c("action (u_i)", "rater (v_j)", "residual (eps_ij)"),
+  variance = c(var_action, var_rater, var_resid)
+) %>% mutate(pct_of_total = variance / sum(variance))
+save_table(variance_components_df, "lmm_variance_components_R")
+print(variance_components_df)
+stopifnot(all(variance_components_df$variance >= 0))
+```
+
+### 7.1 BLUPs (conditional modes)
+
+```{r lmm-blups}
+
+re <- ranef(model_lmm, condVar = TRUE)
+action_blup <- as_tibble(re$action_id, rownames = "action_id") %>%
+  rename(lmm_score_deviation = `(Intercept)`)
+rater_blup <- as_tibble(re$rater_id, rownames = "rater_id") %>%
+  rename(lmm_severity = `(Intercept)`)
+
+# extract conditional SDs from postVar
+action_postvar <- attr(re$action_id, "postVar")
+action_blup$lmm_score_se <- sqrt(action_postvar[1, 1, ])
+rater_postvar <- attr(re$rater_id, "postVar")
+rater_blup$lmm_severity_se <- sqrt(rater_postvar[1, 1, ])
+
+mu_hat <- fixef(model_lmm)[["(Intercept)"]]
+cat("Fixed intercept (grand mean):", round(mu_hat, 3), "\n")
+save_table(action_blup, "lmm_action_blups_R")
+save_table(rater_blup, "lmm_rater_blups_R")
+```
+
+### 7.2 Absolute and relative reliability, D-study
+
+$$
+\rho_{\text{abs},k} = \frac{\sigma^2_{\text{action}}}{\sigma^2_{\text{action}}+\sigma^2_{\text{rater}}/k+\sigma^2_e/k}, \qquad
+\rho_{\text{rel},k} = \frac{\sigma^2_{\text{action}}}{\sigma^2_{\text{action}}+\sigma^2_e/k}
+$$
+
+### 7.3 Uncertainty: parametric bootstrap (`lme4::bootMer`)
+
+**Note on compute time:** `bootMer` with `nsim=200` refits the model
+200 times; with ~4,000 action levels this can take several minutes
+depending on the machine. For a quick test run, reduce `nsim` (e.g. to
+20) and increase it back to ≥200 before the final publication run.
+
+```{r lmm-dstudy-bootstrap}
+
+reliability_abs <- function(k, va, vr, ve) va / (va + vr / k + ve / k)
+reliability_rel <- function(k, va, ve) va / (va + ve / k)
+
+N_BOOT_LMM <- 200  # reduce for a quick test run if needed
+
+extract_vc <- function(fit) {
+  vc_b <- as.data.frame(VarCorr(fit))
+  c(va = vc_b$vcov[vc_b$grp == "action_id"],
+     vr = vc_b$vcov[vc_b$grp == "rater_id"],
+     ve = vc_b$vcov[vc_b$grp == "Residual"])
+}
+
+boot_result <- tryCatch(
+  bootMer(model_lmm, FUN = extract_vc, nsim = N_BOOT_LMM, seed = SEED,
+           use.u = FALSE, type = "parametric",
+           .progress = "none"),
+  error = function(e) { log_warning(paste("bootMer failed:", conditionMessage(e))); NULL }
+)
+
+if (!is.null(boot_result)) {
+  boot_vc_df <- as_tibble(boot_result$t) %>% setNames(c("va", "vr", "ve")) %>% drop_na()
+  boot_vc_df <- boot_vc_df %>% mutate(
+    rho_abs_1 = va / (va + vr + ve),
+    rho_rel_1 = va / (va + ve)
+  )
+  vc_ci <- tibble(
+    quantity = c("sigma2_action", "sigma2_rater", "sigma2_resid", "rho_abs_k1", "rho_rel_k1"),
+    estimate = c(var_action, var_rater, var_resid,
+                  reliability_abs(1, var_action, var_rater, var_resid),
+                  reliability_rel(1, var_action, var_resid)),
+    ci_low = c(quantile(boot_vc_df$va, .025), quantile(boot_vc_df$vr, .025),
+                quantile(boot_vc_df$ve, .025), quantile(boot_vc_df$rho_abs_1, .025),
+                quantile(boot_vc_df$rho_rel_1, .025)),
+    ci_high = c(quantile(boot_vc_df$va, .975), quantile(boot_vc_df$vr, .975),
+                 quantile(boot_vc_df$ve, .975), quantile(boot_vc_df$rho_abs_1, .975),
+                 quantile(boot_vc_df$rho_rel_1, .975))
+  )
+  save_table(vc_ci, "lmm_variance_components_bootstrap_ci_R")
+  print(vc_ci)
+} else {
+  vc_ci <- tibble()
+}
+
+d_study <- tibble(k = 1:7) %>%
+  mutate(rho_abs = reliability_abs(k, var_action, var_rater, var_resid),
+          rho_rel = reliability_rel(k, var_action, var_resid))
+save_table(d_study, "d_study_reliability_R")
+print(d_study)
+
+p_vc <- ggplot(variance_components_df, aes(x = component, y = variance, fill = component)) +
+  geom_col() + theme_minimal() + theme(legend.position = "none") +
+  labs(title = "Variance components (lmer)")
+p_dstudy <- d_study %>%
+  pivot_longer(c(rho_abs, rho_rel), names_to = "type", values_to = "rho") %>%
+  ggplot(aes(k, rho, color = type)) + geom_line() + geom_point() +
+  ylim(0, 1) + theme_minimal() +
+  labs(title = "D-study", x = "Number of raters k", y = "Reliability")
+fig08 <- gridExtra_or_patchwork(p_vc, p_dstudy)
+save_fig(fig08, "fig08_variance_components_and_dstudy_R", width = 11, height = 4.5,
+          caption = "Variance components and D-study curves (linear crossed model, lme4).")
+fig08
+```
+
+## 8. Action scores: raw mean and rater-centered mean
+
+```{r action-scores-raw}
+
+grand_mean <- mean(ratings_clean$rating_numeric)
+rater_means <- ratings_clean %>% group_by(rater_id) %>% summarise(rater_mean = mean(rating_numeric))
+
+ratings_clean <- ratings_clean %>%
+  left_join(rater_means, by = "rater_id") %>%
+  mutate(rating_rater_centered = rating_numeric - rater_mean + grand_mean)
+
+action_scores <- ratings_clean %>%
+  group_by(action_id) %>%
+  summarise(
+    n_ratings = n(),
+    raw_mean = mean(rating_numeric),
+    raw_median = median(rating_numeric),
+    raw_sd = sd(rating_numeric),
+    rater_centered_mean = mean(rating_rater_centered),
+    connected_component = first(connected_component),
+    .groups = "drop"
+  ) %>%
+  mutate(raw_se = raw_sd / sqrt(n_ratings))
+
+cat(sprintf("Action scores computed for %d actions.\n", nrow(action_scores)))
+head(action_scores)
+```
+
+## 9. Rater effects in the linear model
+
+```{r rater-effects}
+
+severity_df <- rater_blup %>%
+  left_join(rater_desc %>% select(rater_id, n_ratings, raw_mean = mean, sd, iqr,
+                                     n_categories_used, extreme_category_rate, central_category_rate),
+             by = "rater_id") %>%
+  arrange(lmm_severity) %>%
+  mutate(rank = row_number())
+
+corr_severity_mean <- cor(severity_df$lmm_severity, severity_df$raw_mean)
+cat(sprintf("Correlation LMM severity vs. rater mean: r = %.3f\n", corr_severity_mean))
+
+p_caterpillar <- ggplot(severity_df, aes(x = lmm_severity, y = reorder(rater_id, rank))) +
+  geom_errorbarh(aes(xmin = lmm_severity - 1.96 * lmm_severity_se,
+                       xmax = lmm_severity + 1.96 * lmm_severity_se), height = 0) +
+  geom_point(color = "#4C72B0") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey40") +
+  labs(x = "Rater severity (positive = more lenient)", y = NULL,
+        title = "Caterpillar plot: rater severity") +
+  theme_minimal() + theme(axis.text.y = element_text(size = 6))
+save_fig(p_caterpillar, "fig09_rater_severity_caterpillar_R", width = 7, height = 10,
+          caption = "Rater severity with 95% uncertainty intervals.")
+p_caterpillar
+```
+
+### 9.1 Rater drift (rater-specific linear time trend)
+
+$$
+y_{ij} = \mu + u_i + v_j + \beta t_{ij} + b_j t_{ij} + \varepsilon_{ij}
+$$
+
+```{r rater-drift}
+
+if ("rating_order" %in% names(ratings_clean)) {
+  drift_df <- ratings_clean %>%
+    group_by(rater_id) %>%
+    filter(n() >= 15) %>%
+    group_modify(~ {
+      t_c <- .x$rating_order - mean(.x$rating_order)
+      fit <- lm(.x$rating_numeric ~ t_c)
+      tibble(drift_estimate = coef(fit)[2], drift_se = summary(fit)$coefficients[2, 2], n = nrow(.x))
+    }) %>% ungroup()
+  severity_df <- severity_df %>% left_join(drift_df %>% select(rater_id, drift_estimate, drift_se), by = "rater_id")
+  n_sig_drift <- sum(abs(drift_df$drift_estimate) > 2 * drift_df$drift_se, na.rm = TRUE)
+  cat("Raters with possible linear drift:", n_sig_drift, "\n")
+  save_table(drift_df, "rater_drift_estimates_R")
+} else {
+  severity_df$drift_estimate <- NA_real_
+  severity_df$drift_se <- NA_real_
+  log_warning("No rating_order variable - drift modeling skipped.")
+}
+save_table(severity_df, "rater_severity_table_R")
+```
+
+## 10. Ordinal hierarchical facette model (`brms`)
+
+$$
+\Pr(Y_{ij} \le k) = \operatorname{logit}^{-1}(\tau_k - \theta_i - \lambda_j)
+$$
+
+**Note on compute time:** `brms` compiles the model via Stan (a
+one-time C++ compilation step, then HMC sampling). For ~4,000 action
+and 40 rater levels, a full run (4 chains, 2,000 iterations each as
+suggested in the analysis brief) can take considerably longer than the
+equivalent PyMC model in the Python notebook (there, roughly 10
+minutes for the ordinal variant) — on this machine, this chunk was not
+run with full iteration counts for time reasons. Before publication:
+increase `iter`/`warmup` as needed and raise `adapt_delta` further if
+divergences occur.
+
+```{r ordinal-brms}
+
+if (has_pkg("brms")) {
+  df_ord <- ratings_clean %>% filter(in_largest_component) %>%
+    mutate(rating_ordinal = ordered(rating_numeric, levels = 1:7))
+
+  priors_ord <- c(
+    brms::prior(normal(0, 1.5), class = "Intercept"),
+    brms::prior(exponential(1), class = "sd")
+  )
+
+  model_ord <- brms::brm(
+    rating_ordinal ~ 1 + (1 | action_id) + (1 | rater_id),
+    data = df_ord,
+    family = brms::cumulative(link = "logit"),
+    prior = priors_ord,
+    chains = 4, iter = 2000, warmup = 1000, cores = 4,
+    seed = SEED,
+    control = list(adapt_delta = 0.95),
+    backend = "cmdstanr",
+    silent = 2, refresh = 0
+  )
+
+  print(summary(model_ord))
+  model_ord$save <- brms::save_model(model_ord, file.path(RESULTS_MODELS, "ordinal_brms_model"))
+
+  rhat_max <- max(brms::rhat(model_ord), na.rm = TRUE)
+  cat("Max R-hat:", round(rhat_max, 4), "\n")
+  if (rhat_max >= 1.01) log_warning(sprintf("Max R-hat = %.4f >= 1.01 in the brms model.", rhat_max))
+
+  n_div <- sum(brms::nuts_params(model_ord, pars = "divergent__")$Value)
+  cat("Divergences:", n_div, "\n")
+  if (n_div > 0) log_warning(sprintf("%d divergences in the brms model.", n_div))
+} else {
+  log_warning("Package 'brms' not available - ordinal facette model in R skipped. See the Python notebook (PyMC) for the full ordinal analysis.")
+  model_ord <- NULL
+}
+```
+
+### 10.1 Posterior predictive checks and ordinal scores
+
+```{r ordinal-ppc-scores}
+
+if (!is.null(model_ord)) {
+  pp_check_plot <- brms::pp_check(model_ord, type = "bars", ndraws = 100)
+  save_fig(pp_check_plot, "fig12_ordinal_ppc_R", width = 8, height = 5,
+            caption = "Posterior predictive check of the ordinal brms model (category frequencies).")
+  pp_check_plot
+
+  action_re <- brms::ranef(model_ord)$action_id[, , "Intercept"]
+  ordinal_scores_r <- tibble(
+    action_id = rownames(action_re),
+    ordinal_latent_score = action_re[, "Estimate"],
+    ordinal_latent_lower = action_re[, "Q2.5"],
+    ordinal_latent_upper = action_re[, "Q97.5"]
+  )
+  save_table(ordinal_scores_r, "ordinal_action_scores_R")
+
+  rater_re <- brms::ranef(model_ord)$rater_id[, , "Intercept"]
+  ordinal_severity_r <- tibble(
+    rater_id = rownames(rater_re),
+    ordinal_severity = rater_re[, "Estimate"],
+    ordinal_severity_lower = rater_re[, "Q2.5"],
+    ordinal_severity_upper = rater_re[, "Q97.5"]
+  )
+  save_table(ordinal_severity_r, "ordinal_rater_severity_R")
+} else {
+  ordinal_scores_r <- tibble(action_id = character(), ordinal_latent_score = double(),
+                               ordinal_latent_lower = double(), ordinal_latent_upper = double())
+  ordinal_severity_r <- tibble(rater_id = character(), ordinal_severity = double(),
+                                 ordinal_severity_lower = double(), ordinal_severity_upper = double())
+}
+```
+
+### 10.2 Sensitivity: `ordinal::clmm` as a fast frequentist comparison
+
+`ordinal::clmm` estimates a cumulative logit model with random
+intercepts frequentistically (Laplace approximation) — considerably
+faster than `brms`, as a plausibility cross-check of the signs and
+relative magnitude of the variance components (not a substitute for
+the full Bayesian analysis).
+
+```{r ordinal-clmm}
+
+if (has_pkg("ordinal")) {
+  model_clmm <- tryCatch(
+    ordinal::clmm(rating_ordinal ~ 1 + (1 | action_id) + (1 | rater_id), data = df_lmm %>%
+                     mutate(rating_ordinal = ordered(rating_numeric, levels = 1:7))),
+    error = function(e) { log_warning(paste("clmm failed:", conditionMessage(e))); NULL }
+  )
+  if (!is.null(model_clmm)) {
+    print(summary(model_clmm))
+  }
+} else {
+  log_warning("Package 'ordinal' not available - clmm sensitivity check skipped.")
+}
+```
+
+## 11. Judge Response Theory / many-facet-Rasch extension (`jrt`)
+
+Raters as measurement instruments, actions as the objects being
+measured:
+
+$$
+P(Y_{ij}\ge k \mid \theta_i) = \operatorname{logit}^{-1}[a_j(\theta_i-b_{jk})]
+$$
+
+Preferred package: `jrt` (Myszkowski, 2021). Expected data shape:
+wide matrix (rows = actions, columns = raters, cells = rating, `NA` =
+missing) — identical to `wide` above.
+
+```{r jrt-analysis}
+
+if (has_pkg("jrt")) {
+  jrt_input <- wide %>% column_to_rownames("action_id") %>% as.matrix()
+  # Verify the exact function signature of the installed jrt version
+  # (?jrt::jrt) and adjust if necessary -- shown here is the standard
+  # API documented at the time this notebook was written:
+  jrt_fit <- jrt::jrt(jrt_input)
+  print(jrt_fit)
+  jrt_scores <- jrt::judgeInfo(jrt_fit)  # placeholder: verify the exact function name against the vignette
+  save_table(as_tibble(jrt_scores), "jrt_scores_R")
+} else {
+  log_warning(paste(
+    "Package 'jrt' is not installed in this environment (CRAN snapshot availability issue",
+    "for the R version used, see the README). The JRT extension is instead approximated",
+    "via a brms model with a rater-specific discrimination parameter (see below),",
+    "provided brms is available. NO fabricated jrt output is faked here."
+  ))
+}
+```
+
+### 11.1 Alternative: rater-specific discrimination directly in `brms`
+
+`brms`'s `cumulative()` family supports an optional discrimination
+parameter (`disc`), which can itself be modeled via a formula — an
+idiomatic way to implement JRT-style rater-specific discrimination
+without the separate `jrt` package.
+
+```{r jrt-brms-alternative}
+
+if (is.null(model_ord)) {
+  log_warning("brms not available - the JRT-brms alternative is also skipped. See the Python notebook (PyMC) for the full JRT analysis.")
+} else {
+  jrt_formula <- brms::bf(
+    rating_ordinal ~ 1 + (1 | action_id) + (1 | rater_id),
+    disc ~ 0 + rater_id
+  )
+  model_jrt_brms <- tryCatch(
+    brms::brm(
+      jrt_formula, data = df_ord, family = brms::cumulative(link = "logit"),
+      prior = c(brms::prior(normal(0, 1.5), class = "Intercept"),
+                 brms::prior(exponential(1), class = "sd"),
+                 brms::prior(normal(0, 0.5), class = "b", dpar = "disc")),
+      chains = 4, iter = 2000, warmup = 1000, cores = 4, seed = SEED,
+      control = list(adapt_delta = 0.95), backend = "cmdstanr", silent = 2, refresh = 0
+    ),
+    error = function(e) { log_warning(paste("JRT-brms model failed:", conditionMessage(e))); NULL }
+  )
+  if (!is.null(model_jrt_brms)) {
+    print(summary(model_jrt_brms))
+    if (has_pkg("loo")) {
+      loo_ord <- loo::loo(model_ord)
+      loo_jrt <- loo::loo(model_jrt_brms)
+      print(loo::loo_compare(loo_ord, loo_jrt))
+    }
+  }
+}
+```
+
+## 12. Rater-fit diagnostics: leave-one-rater-out consistency
+
+```{r rater-fit-loo}
+
+action_sum <- ratings_clean %>% group_by(action_id) %>%
+  summarise(sum_rating = sum(rating_numeric), n_rating = n())
+
+loo_df <- ratings_clean %>%
+  left_join(action_sum, by = "action_id") %>%
+  mutate(loo_consensus = if_else(n_rating >= 2, (sum_rating - rating_numeric) / (n_rating - 1), NA_real_)) %>%
+  group_by(rater_id) %>%
+  filter(sum(!is.na(loo_consensus)) >= 5) %>%
+  summarise(
+    leave_one_out_spearman = cor(rating_numeric, loo_consensus, method = "spearman", use = "complete.obs"),
+    leave_one_out_mae = mean(abs(rating_numeric - loo_consensus), na.rm = TRUE),
+    leave_one_out_mean_diff = mean(rating_numeric - loo_consensus, na.rm = TRUE),
+    n_loo = sum(!is.na(loo_consensus)),
+    .groups = "drop"
+  )
+save_table(loo_df, "leave_one_out_consistency_R")
+head(arrange(loo_df, leave_one_out_spearman), 10)
+```
+
+```{r rater-fit-flags}
+
+rater_diagnostics <- rater_desc %>%
+  left_join(severity_df %>% select(-n_ratings, -raw_mean), by = "rater_id") %>%
+  left_join(ordinal_severity_r, by = "rater_id") %>%
+  left_join(loo_df, by = "rater_id") %>%
+  left_join(mean_pair_overlap, by = "rater_id") %>%
+  mutate(
+    network_component = if_else(rater_id %in% largest_component_raters, 0L, -1L),
+    diagnostic_flag = pmap_chr(list(n_categories_used, mean_pair_overlap, leave_one_out_spearman,
+                                       drift_estimate, drift_se, network_component),
+      function(ncat, overlap_, loo_sp, de, dse, netcomp) {
+        flags <- c()
+        if (!is.na(ncat) && ncat <= 2) flags <- c(flags, "low_category_variation")
+        if (!is.na(overlap_) && overlap_ < 5) flags <- c(flags, "low_connectivity")
+        if (!is.na(loo_sp) && loo_sp < 0.1) flags <- c(flags, "low_loo_consistency")
+        if (!is.na(de) && !is.na(dse) && dse > 0 && abs(de) > 2 * dse) flags <- c(flags, "possible_drift")
+        if (netcomp != 0) flags <- c(flags, "outside_largest_component")
+        if (length(flags) == 0) "no_flag" else paste(flags, collapse = ";")
+      })
+  )
+save_table(rater_diagnostics, "rater_diagnostics_full_R")
+table(rater_diagnostics$diagnostic_flag)
+```
+
+## 13. Model comparison and sensitivity analyses
+
+```{r score-comparison}
+
+lmm_full <- action_blup %>%
+  transmute(action_id, lmm_score = mu_hat + lmm_score_deviation, lmm_score_se,
+             lmm_score_lower = lmm_score - 1.96 * lmm_score_se,
+             lmm_score_upper = lmm_score + 1.96 * lmm_score_se)
+
+score_comparison <- action_scores %>%
+  left_join(lmm_full, by = "action_id") %>%
+  left_join(ordinal_scores_r, by = "action_id")
+
+score_cols <- c("raw_mean", "rater_centered_mean", "lmm_score")
+if ("ordinal_latent_score" %in% names(score_comparison)) score_cols <- c(score_cols, "ordinal_latent_score")
+corr_mat <- cor(score_comparison[score_cols], use = "pairwise.complete.obs", method = "spearman")
+save_table(as_tibble(corr_mat, rownames = "measure"), "score_comparison_spearman_R")
+print(round(corr_mat, 3))
+
+valid <- score_comparison %>% drop_na(raw_mean, lmm_score) %>%
+  mutate(rank_raw = rank(raw_mean), rank_lmm = rank(lmm_score))
+cat("Mean absolute rank shift (raw vs. LMM-BLUP):",
+    round(mean(abs(valid$rank_raw - valid$rank_lmm)), 1), "out of", nrow(valid), "actions\n")
+cat("Rank correlation:", round(cor(valid$rank_raw, valid$rank_lmm, method = "spearman"), 3), "\n")
+```
+
+### 13.1 Rating-level cross-validation (simplified, see the Python notebook for details)
+
+```{r cross-validation}
+
+set.seed(SEED)
+cv_actions <- unique(df_lmm$action_id)
+folds <- sample(rep(1:5, length.out = length(cv_actions)))
+cv_results <- map_dfr(1:5, function(fold_i) {
+  train_actions <- cv_actions[folds != fold_i]
+  test_actions <- cv_actions[folds == fold_i]
+  train_df <- ratings_clean %>% filter(action_id %in% train_actions)
+  test_df <- ratings_clean %>% filter(action_id %in% test_actions)
+  grand_mean_train <- mean(train_df$rating_numeric)
+  rater_mean_train <- train_df %>% group_by(rater_id) %>% summarise(m = mean(rating_numeric))
+  test_df <- test_df %>% left_join(rater_mean_train, by = "rater_id") %>%
+    mutate(pred_rater = coalesce(m, grand_mean_train))
+  tibble(
+    fold = fold_i, n_test = nrow(test_df),
+    rmse_grand_mean = sqrt(mean((test_df$rating_numeric - grand_mean_train)^2)),
+    rmse_rater_mean = sqrt(mean((test_df$rating_numeric - test_df$pred_rater)^2))
+  )
+})
+save_table(cv_results, "cross_validation_new_action_prediction_R")
+print(cv_results)
+```
+
+### 13.2 Rater-assignment sensitivity
+
+```{r assignment-sensitivity}
+
+if ("action_type" %in% names(ratings_clean)) {
+  contingency <- table(ratings_clean$rater_id, ratings_clean$action_type)
+  chi_test <- suppressWarnings(chisq.test(contingency))
+  cat(sprintf("Chi-square test rater x action type: chi2=%.1f, df=%d, p=%.4g\n",
+               chi_test$statistic, chi_test$parameter, chi_test$p.value))
+  if (chi_test$p.value < 0.05) {
+    log_warning(sprintf("Significant association rater x action type (p=%.4g) - rater assignment may not have been random.", chi_test$p.value))
+  }
+} else {
+  log_warning("No action_type variable - rater-assignment sensitivity check skipped.")
+}
+```
+
+## 14. Extended dependencies: match as an additional facette
+
+```{r extended-match}
+
+if ("match_id" %in% names(ratings_clean)) {
+  model_extended <- lmer(
+    rating_numeric ~ 1 + (1 | action_id) + (1 | rater_id) + (1 | match_id),
+    data = df_lmm, REML = TRUE, control = lmerControl(optimizer = "bobyqa")
+  )
+  vc_ext <- as.data.frame(VarCorr(model_extended))
+  extended_vc <- tibble(
+    component = vc_ext$grp,
+    variance = vc_ext$vcov
+  ) %>% mutate(pct = variance / sum(variance))
+  save_table(extended_vc, "extended_model_variance_components_R")
+  print(extended_vc)
+
+  ext_scores <- ranef(model_extended)$action_id %>% as_tibble(rownames = "action_id") %>%
+    rename(action_score_extended = `(Intercept)`)
+  merged_ext <- action_blup %>% select(action_id, lmm_score_deviation) %>%
+    inner_join(ext_scores, by = "action_id")
+  rank_corr_ext <- cor(merged_ext$lmm_score_deviation, merged_ext$action_score_extended, method = "spearman")
+  cat("Rank correlation base vs. match-extended model:", round(rank_corr_ext, 3), "\n")
+  if (rank_corr_ext < 0.9) {
+    log_warning(sprintf("Rank correlation is only %.3f - match membership changes the action ranking non-trivially.", rank_corr_ext))
+  }
+} else {
+  log_warning("No match_id variable - extended model skipped.")
+}
+```
+
+## 15. Simulation and recovery check
+
+**Only meaningful because this run uses SIMULATED data** (see
+`data/simulation/`). With real ratings, this comparison is not
+possible.
+
+```{r recovery-check}
+
+gt_action <- readr::read_csv(file.path(PROJECT_ROOT, "data", "simulation", "ground_truth_action_params.csv"),
+                                show_col_types = FALSE)
+gt_rater <- readr::read_csv(file.path(PROJECT_ROOT, "data", "simulation", "ground_truth_rater_params.csv"),
+                               show_col_types = FALSE)
+
+if (nrow(ordinal_scores_r) > 0) {
+  recovery_action <- ordinal_scores_r %>% inner_join(gt_action, by = "action_id")
+  rank_corr_theta <- cor(recovery_action$ordinal_latent_score, recovery_action$theta_true, method = "spearman")
+  bias_theta <- mean(recovery_action$ordinal_latent_score - recovery_action$theta_true)
+  rmse_theta <- sqrt(mean((recovery_action$ordinal_latent_score - recovery_action$theta_true)^2))
+  cat(sprintf("Ordinal model - bias: %.3f, RMSE: %.3f, rank correlation: %.3f\n",
+               bias_theta, rmse_theta, rank_corr_theta))
+} else {
+  log_warning("No ordinal model available (brms missing) - recovery check limited to the linear model.")
+}
+
+recovery_rater <- severity_df %>% inner_join(gt_rater, by = "rater_id")
+sev_corr <- cor(recovery_rater$lmm_severity, recovery_rater$severity_true)
+cat(sprintf("Linear model - rater severity recovery correlation: %.3f\n", sev_corr))
+
+recovery_summary <- tibble(quantity = "rater_severity_recovery_corr_R", value = sev_corr)
+save_table(recovery_summary, "simulation_recovery_summary_R")
+```
+
+## 16. Export of result files
+
+```{r export-final}
+
+final_action_scores <- action_scores %>%
+  left_join(lmm_full, by = "action_id") %>%
+  left_join(ordinal_scores_r, by = "action_id") %>%
+  mutate(
+    ordinal_expected_rating = NA_real_,  # only available if the brms model ran; see the Python notebook
+    jrt_score = NA_real_, jrt_score_se = NA_real_,  # see Section 11 (jrt/brms alternative)
+    score_flag = case_when(
+      n_ratings == 1 ~ "single_rating",
+      connected_component != 0 ~ "small_component",
+      TRUE ~ "ok"
+    )
+  ) %>%
+  select(action_id, n_ratings, connected_component, raw_mean, raw_median, rater_centered_mean,
+          lmm_score, lmm_score_se, lmm_score_lower, lmm_score_upper,
+          any_of(c("ordinal_latent_score", "ordinal_latent_lower", "ordinal_latent_upper")),
+          ordinal_expected_rating, jrt_score, jrt_score_se, score_flag)
+
+readr::write_csv(final_action_scores, file.path(DATA_PROCESSED, "action_scores_R.csv"))
+cat(sprintf("action_scores_R.csv saved: %d actions\n", nrow(final_action_scores)))
+
+readr::write_csv(rater_diagnostics, file.path(DATA_PROCESSED, "rater_diagnostics_R.csv"))
+cat(sprintf("rater_diagnostics_R.csv saved: %d raters\n", nrow(rater_diagnostics)))
+```
+
+::: {.callout-note}
+The R and Python exports are deliberately saved under slightly
+different file names (`*_R.csv` vs. the language-neutral
+`action_scores.csv` from the Python notebook) so that one cannot
+accidentally overwrite the other. For the final publication, ONE set
+is designated as canonical (see the README) — both should be
+substantively very similar as long as DEV_MODE/the same raw file was
+used.
+:::
+
+## 17. Automated interpretation
+
+```{r auto-interpretation}
+
+pct_action <- variance_components_df$pct_of_total[variance_components_df$component == "action (u_i)"]
+pct_rater <- variance_components_df$pct_of_total[variance_components_df$component == "rater (v_j)"]
+pct_resid <- variance_components_df$pct_of_total[variance_components_df$component == "residual (eps_ij)"]
+rho_rel_1 <- d_study$rho_rel[1]; rho_abs_1 <- d_study$rho_abs[1]; rho_abs_7 <- d_study$rho_abs[7]
+rel_vs_abs <- if (rho_rel_1 > rho_abs_1) "higher" else "not substantially higher"
+
+interpretation_text <- glue::glue(
+"The linear variance-component model (lme4) decomposed the observed rating variance into ",
+"{scales::percent(pct_action)} differences between actions, {scales::percent(pct_rater)} ",
+"systematic differences between raters, and {scales::percent(pct_resid)} residual ",
+"variation. The relative reliability of a single rating (rho_rel={round(rho_rel_1,2)}) ",
+"was {rel_vs_abs} than the absolute reliability (rho_abs={round(rho_abs_1,2)}).\n\n",
+"Krippendorff's ordinal alpha was {round(alpha_ordinal,2)} (95% CI [{round(ci_ord[1],2)}, ",
+"{round(ci_ord[2],2)}]).\n\n",
+"The D-study curve shows a rise from rho_abs(k=1)={round(rho_abs_1,2)} to ",
+"rho_abs(k=7)={round(rho_abs_7,2)}.\n\n",
+"The rater-action graph splits into {n_components} connected component(s).\n\n",
+"IMPORTANT: this run uses SIMULATED placeholder data. All numbers are ",
+"methodology demonstrations, not real findings."
+)
+cat(interpretation_text)
+writeLines(as.character(interpretation_text), file.path(RESULTS_LOGS, "automated_interpretation_R.txt"))
+```
+
+## 18. Quality controls
+
+```{r qc-checklist}
+
+qc_checks <- tibble(
+  check = c(
+    "IDs uniquely typed",
+    "No duplicate rater-action pairs after cleaning",
+    "All ratings in {1,...,7}",
+    "Connectivity checked and documented",
+    "Variance components (linear) non-negative",
+    "lmer: no singular fit",
+    "Action scores exported with n_ratings and uncertainty",
+    "Raw data unchanged (cleaning log documented)",
+    "Package versions logged"
+  ),
+  passed = c(
+    is.character(ratings_clean$action_id) && is.character(ratings_clean$rater_id),
+    !any(duplicated(ratings_clean[, c("action_id", "rater_id")])),
+    all(ratings_clean$rating_numeric >= 1 & ratings_clean$rating_numeric <= 7),
+    n_components >= 1,
+    all(variance_components_df$variance >= 0),
+    !is_singular,
+    all(c("n_ratings", "lmm_score_se") %in% names(final_action_scores)),
+    nrow(cleaning_log) > 0,
+    file.exists(file.path(RESULTS_LOGS, "sessionInfo_r.txt"))
+  )
+)
+save_table(qc_checks, "qc_checklist_R")
+print(qc_checks)
+n_failed_qc <- sum(!qc_checks$passed)
+if (n_failed_qc > 0) log_warning(sprintf("%d of %d quality controls (R) not passed.", n_failed_qc, nrow(qc_checks)))
+
+warnings_df <- bind_rows(lapply(WARNINGS_LOG, as_tibble))
+if (nrow(warnings_df) > 0) save_table(warnings_df, "warnings_log_R")
+cat(sprintf("\n%d warnings collected in this R run.\n", nrow(warnings_df)))
+```
+
+## 19. Limitations and Design Implications
+
+See the Python notebook, Section 19, for the full discussion (equally
+valid for both notebooks, since both operate on the same data and
+design). Summary:
+
+1. Simulated development data in this run — use real data before
+   publication.
+2. Residual variance jointly covers action×rater interaction and
+   measurement error (no complete G-theory decomposition).
+3. `jrt` package not installed in this environment — the JRT analysis
+   is done fully in Python (PyMC), or approximated via the `brms`
+   `disc` formula above.
+4. Cross-validation simplified (no full model refit per fold).
+5. With multiple connected components, rater severity values are not
+   comparable across components.
+
+### Recommendations for future rating assignment
+
+See the Python notebook, Section 19 (identical recommendations: more
+ratings per action, minimum overlap between raters, targeted bridge
+actions, balanced assignment, repeated anchor actions, calibration
+sessions, separation of training and final rating).
+
+```{r final-summary}
+
+cat(strrep("=", 70), "\n")
+cat("R NOTEBOOK FULLY EXECUTED\n")
+cat(strrep("=", 70), "\n")
+cat("Timestamp:", format(Sys.time()), "\n")
+cat("Number of warnings collected:", length(WARNINGS_LOG), "\n")
+cat("QC checks passed:", sum(qc_checks$passed), "/", nrow(qc_checks), "\n")
+```

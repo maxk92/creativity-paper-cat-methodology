@@ -1,0 +1,1 @@
+Bland-Altman-artige Diagramme (mit Jitter wegen diskreter Skala) fuer die zwei Raterpaare mit der groessten Anzahl gemeinsam bewerteter Aktionen.

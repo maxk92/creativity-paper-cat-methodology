@@ -1,0 +1,907 @@
+---
+title: "Consensual Assessment Technique Methodology for Rating Creative Products: An Application to Football Actions"
+shorttitle: "CAT Methodology for Rating Creative Products"
+author:
+  - name: "Maximilian Klemp"
+    orcid: 0000-0003-4466-8136
+    email: m.klemp@dshs-koeln.de
+    affil-id: 1*
+    attributes:
+      corresponding: true
+  - name: "Daniel Memmert"
+    orcid: 0000-0002-3406-9175
+    email: memmert@dshs-koeln.de
+    affil-id: 1
+  - name: "Robert Rein"
+    orcid: 0000-0001-7059-5319
+    email: r.rein@dshs-koeln.de
+    affil-id: 1
+affiliations:
+  - id: 1
+    name: German Sport University Cologne
+    department: Institute of Exercise Training and Sport Informatics
+    city: Cologne
+    state: Germany
+  - id: "*"
+    name: m.klemp@dshs-koeln.de
+    department: Corresponding Author
+format:
+#  wordcount-pdf: default
+  pdf:
+    keep-tex: true
+#    cite-method: natbib
+    template-partials: 
+      - title.tex
+    include-in-header:
+      text: |
+        \usepackage{lineno}
+        \usepackage[noblocks]{authblk}
+        \usepackage{indentfirst}
+        \setlength{\parindent}{2em}
+        \renewcommand*{\Authsep}{, }
+        \renewcommand*{\Authand}{, }
+        \renewcommand*{\Authands}{, }
+        \renewcommand\Affilfont{\small}
+        \makeatletter
+        \newcommand*\correspondingauthor[1]{%
+        \g@addto@macro\@title{\par\normalsize\textsuperscript{*}Corresponding author: \texttt{#1}\par}
+        }
+        \correspondingauthor{m.klemp@dshs-koeln.de}
+        \usepackage{lua-ul}
+        \AtBeginDocument{%
+          \renewcommand{\criticmarkupadd}[1]{{\color[HTML]{1A7321}#1}}%
+          \renewcommand{\criticmarkuprm}[1]{{\color[HTML]{C62828}\strikeThrough{#1}}}%
+          \renewcommand{\criticmarkupmark}[1]{{\color[HTML]{E65100}#1}}%
+        }
+#        \makeatother
+    citation_package: biblatex
+filters:
+  - critic-markup
+critic-mode: original
+#header-includes: |
+    #\usepackage{indentfirst}
+    #\setlength{\parindent}{2em}
+    #\addtokomafont{disposition}{\rmfamily}
+include-before: |
+  \newpage{}
+engine: knitr
+dot: "/usr/bin/dot"
+execute:
+  eval: true
+  echo: false
+  warning: false
+indent: true
+linestretch: 1.2
+fontsize: 12pt
+mainfont: Linux Libertine O 
+number-sections: true
+number-offset: 1
+geometry:
+  - left=40mm
+  - right=20mm
+abstract: |
+  <!-- TODO (author to confirm): Creativity Research Journal's house style for
+  structured vs. unstructured abstracts should be verified before submission;
+  the paragraph below is written as a single unstructured abstract and can be
+  reformatted into labeled subsections (Background/Objective/Method/
+  Results/Conclusions) if the venue requires it. -->
+  The consensual assessment technique (CAT) is the dominant method for
+  assessing the creativity of products, yet its validity is domain-contingent:
+  the number and expertise of judges required cannot be specified in general
+  and must be established within each new domain of application [@cseh2019;
+  @amabile1982]. Sport is one such domain in which this evidence has never
+  been supplied. Using ratings of discrete football actions as a test domain,
+  this paper addresses how many judges are needed for convergent creativity
+  ratings, whether rater expertise affects agreement or severity, whether
+  rater-effects models (Judge Response Theory and the Many-Facet Rasch Model)
+  improve on simple averaging, whether creativity is discriminable from
+  aesthetic appeal and technical correctness, and how long raters can perform
+  the task reliably. We propose a large-scale, multi-rater benchmark-and-
+  pairwise design in which approximately 1,000 to 2,000 purposively selected
+  actions will be rated on a 7-point unipolar novelty x appropriateness scale
+  by raters spanning an expertise gradient. Results are reported for
+  inter-rater reliability across judge counts, expertise comparisons,
+  JRT/MFRM rater diagnostics against naive averaging, and the
+  creativity/aesthetic/technical-correctness factor structure (all pending
+  data collection). The paper is intended as a reproducible methodological
+  template for CAT-based creative-product research, with football as the
+  applied testbed.
+keywords: [consensual assessment technique, creativity assessment, judge response theory, many-facet Rasch model, inter-rater reliability, sport creativity]
+bibliography:
+  - /home/max/drive/phd_library.bib
+  - web_references.bib
+csl: /home/max/drive/utils/csl/apa-7th-edition.csl
+---
+
+# Introduction
+
+Creativity is widely regarded as a fundamental human competency, yet how to
+measure it remains a live and unresolved methodological problem across
+psychology, education, and applied fields -- not a solved technical detail
+[@long2022]. A taxonomy distinguishing the creative person, process, product,
+and press (environment) has been proposed precisely because each facet
+requires its own measurement logic and cannot be assessed by a single
+all-purpose instrument [@batey2012; @barbot2019b]. As the concluding piece of
+a recent special issue on creativity assessment argues, clarifying which
+facet of creativity is being measured is a necessary precondition for judging
+and improving any specific method [@barbot2019; @barbot2019b]. The present
+paper is concerned with the *product* facet -- the creativity of a discrete,
+observable outcome -- and with the subjective-judgment method that dominates
+its assessment.
+
+The consensual assessment technique (CAT) is the most widely used approach
+to rating the creativity of products. Under CAT, judges with relevant
+domain familiarity independently rate products' creativity without being
+given a predefined rubric, on the logic that creativity is best captured as
+a consensual, socially situated judgment rather than an objectively
+specifiable property of the product itself [@amabile1982]. CAT has
+accumulated a substantial track record of reasonable inter-rater agreement,
+particularly once ratings are averaged across multiple judges, and treating
+rater as a facet of measurement error within a generalizability-theory
+framework has clarified how much of that error is attributable to raters
+specifically [@long2015]. Textbook treatments now present CAT as a mature,
+practically usable tool alongside divergent-thinking tests and self-report
+measures [@kaufman2008].
+
+Yet CAT's apparent maturity conceals a persistent, under-operationalized gap.
+Cseh and Jeffries [-@cseh2019] offer a systematic critique of the technique,
+arguing that CAT's validity depends on the correct use of a sufficient
+number of judges with an appropriate level of expertise, and that both the
+required number and the required expertise are properties of the specific
+product and domain being rated -- they cannot be fixed once and for all
+across applications. On this view, every new domain in which CAT is applied
+owes the field its own empirical evidence on these design parameters. This
+paper's central premise is that such evidence has not yet been supplied for
+the domain of sport, and that this omission is representative of how CAT is
+often applied to new domains more generally: with a design borrowed from
+precedent rather than derived from domain-specific evidence.
+
+## Sub-debate A: How many judges are enough?
+
+A persistent rule of thumb in the CAT literature holds that "five to ten
+judges" is generally adequate for most purposes [@kaufman2008].
+<!-- CLAIM: the exact page/quote for this "5-10 judges" figure has not been
+independently verified by the pipeline (see manuscript/04_outline.md, Evidence
+gaps item 2); treat as a general heuristic, not a precisely sourced number,
+until the author confirms the citation at the page level. -->
+This heuristic is useful as a starting point but is not itself derived from
+domain-specific empirical analysis. By contrast, generalizability-theory
+approaches derive the number of judges (and items) required for a target
+level of reliability directly from the data at hand, and have shown that
+this number varies considerably by task type and rating design -- in one
+divergent-thinking-rating context as few as three untrained raters combined
+with four items sufficed for adequate dependability, but the estimate did
+not generalize uniformly across designs [@hass2018]. The tension between a
+generic heuristic and a domain-derived estimate is precisely the kind of gap
+Cseh and Jeffries [-@cseh2019] identify, and it motivates this paper's first
+research question.
+
+## Sub-debate B: Does rater expertise matter, and how much?
+
+A second, closely related debate concerns whether judges must be domain
+experts. Amabile [-@amabile1982] argues that judges' level of experience need
+not be uniform, and that CAT's reliability holds up even when the products
+being rated are naturalistically produced and non-parallel -- that is, not
+generated under identical, standardized experimental conditions. Direct
+empirical support for this claim comes from studies showing that CAT
+inter-rater reliability remained high when expert judges rated creative
+writing produced under a variety of different assignments rather than a
+single controlled prompt [@baer2004], and from design-engineering research
+modeling how novices and experts differ in the knowledge they bring to
+evaluating creative work [@christiaans2005]. At the same time, direct
+comparisons of expert and non-expert raters using CAT show that non-experts
+can be meaningfully discerning judges of creative products, complicating any
+simple assumption that only experts should be recruited [@kaufman2008b].
+Further evidence suggests that domain expertise does not straightforwardly
+increase rater agreement: in a comparison of movie ratings, raters who had
+simply seen more movies -- regardless of formal expert status -- correlated
+more highly with professional critics than less-exposed raters did
+[@plucker2009], suggesting that high exposure or experience can substitute,
+at least partially, for formal expertise. This "heavy viewer" finding
+directly motivates a design choice pursued below: recruiting football raters
+who differ in exposure and background rather than assuming only coaches or
+professionals can serve as valid judges. Other work argues that
+domain-specific expertise nonetheless matters for some purposes
+[@baer2015], and a further strand of research cautions that expertise itself
+can introduce systematic biases -- a "dark side of expertise" in which
+greater knowledge does not uniformly translate into better judgment
+[@castel2007]. Rather than treating "expert" and "novice" as monolithic
+categories, recent work has begun asking what individual-difference factors
+predict discernment among novice raters specifically [@ceh2021]. This
+sub-debate is presented here as genuinely open, not settled, and is the
+subject of this paper's second research question.
+
+## Sub-debate C: How should ratings from multiple, non-interchangeable judges be aggregated?
+
+A third, more technical debate concerns aggregation. The conventional
+practice of averaging ratings across judges implicitly treats judges as
+exchangeable random effects -- interchangeable sources of measurement error
+that cancel out on average. This assumption ignores the possibility that
+judges differ systematically in severity or leniency, a concern that has
+motivated two related but historically separate psychometric traditions.
+Judge Response Theory (JRT) proposes modeling judgments with item-response-
+theory-style models in which judges, like test items, have their own
+parameters (e.g., severity, discrimination), yielding latent creativity
+estimates that are corrected for these differences rather than averaged over
+them [@myszkowski2019]. This proposal has since been operationalized in an
+open-source R package that fits JRT models to CAT-style judgment data
+[@myszkowski2021] and has been extended into a book-length treatment of item
+response theory for creativity measurement more broadly [@myszkowski2024],
+with a recent application decomposing novelty and appropriateness as
+separate latent components within an item-response-tree framework
+[@myszkowski2025] -- a decomposition directly relevant to the two-dimensional
+novelty x appropriateness scale adopted below. Independently, the
+Many-Facet Rasch Model (MFRM) tradition, developed originally for
+rater-mediated performance assessment, models rater severity as one of
+several crossed facets alongside examinee ability and item difficulty, and
+provides established diagnostics for detecting systematic rater effects such
+as leniency, central tendency, and halo [@eckes2015; @myford2003;
+@myford2004]. MFRM has been applied directly to creativity ratings, showing
+that individual raters can be diagnosed and examinees reliably
+differentiated despite idiosyncratic rater behavior [@primi2019; @hung2012].
+Despite their shared logic, JRT and MFRM emerged from separate literatures
+and have not, to our knowledge, been directly compared against one another
+or against naive averaging in a creativity-rating context at scale. This
+paper's third research question addresses that gap.
+
+## Construct validity: Is creativity discriminable from adjacent constructs?
+
+A further concern, orthogonal to the number and expertise of judges, is
+whether the construct being rated -- creativity -- is empirically separable
+from adjacent constructs that judges might conflate with it, such as
+aesthetic appeal or technical execution. Amabile [-@amabile1982] recommends
+that when CAT is applied to a new domain, judges should also rate such
+secondary dimensions so that the creativity rating's discriminant and
+construct validity can be assessed directly rather than assumed. This
+recommendation is adopted here, using the standard definitional consensus
+that creativity reflects the joint presence of novelty (originality) and
+appropriateness (functionality, or fit to the constraints and goals of the
+situation) [@runco2012]. This paper's fourth research question asks whether
+creativity, aesthetic appeal, and technical correctness form empirically
+distinct factors when rated concurrently on the same set of products.
+
+## A practical measurement concern: Rater fatigue
+
+Beyond these conceptual debates, a comparatively neglected practical
+question is how long raters can perform a CAT-style rating task before the
+quality or consistency of their judgments declines. This is a design
+question relevant to any large-scale CAT study, not a sport-specific one,
+and has been investigated directly in at least one prior study examining
+whether CAT ratings remain reliable across extended rating sessions
+[@barth2020]. This paper's fifth research question adapts that logic to the
+football domain.
+
+## Narrowing to football: Why this domain, and why now
+
+Creativity is considered one of the key competencies to be developed and
+evaluated in football players, and assessing it in an ecologically valid,
+naturalistic environment is an explicit priority for the field
+[@safardilha2019]. Much of the existing sport-creativity literature has
+studied the creative *process* -- for example, divergent-thinking ability and
+its development in players -- while the creative *product*, the discrete
+in-game action itself, has received comparatively little attention
+[@memmert2011]. One prior study has evaluated the creativity of football
+actions directly, using a 0-10 expert rating scale, and demonstrated face
+validity by showing that rated creativity predicted the temporal proximity
+of actions to goals [@kempe2018]; however, this study did not investigate how
+many judges were needed, whether rater expertise mattered, or how ratings
+from multiple judges should best be aggregated. Two further, smaller-scale
+analogues exist: a two-expert-judge design rating in-game creativity on a
+1-10 scale achieved very high inter-judge correlation [@oboeuf2020], and a
+training-transfer study used expert on-field creativity ratings to compare
+functional-skills training against divergent-thinking training
+[@zahno2022]. Neither of these studies systematically varied the number or
+expertise of judges, nor did either apply JRT or MFRM to model rater
+severity. To our knowledge, no CAT-in-sport study to date has systematically
+varied judge number or expertise, or modeled rater severity using modern
+rater-effects models, in this domain.
+
+## Aim and research questions
+
+The aim of the present paper is to generate a large-scale, systematically
+varied multi-rater creativity-rating dataset for a sports domain (football
+actions) and to use it to provide the field with empirically grounded,
+reproducible guidance on the psychometric design choices that Cseh and
+Jeffries [-@cseh2019] argue cannot be resolved in general. Specifically, the
+paper addresses the following research questions and, where the existing
+literature already supports a directional prediction, states it as an
+explicit hypothesis rather than leaving the question hypothesis-free by
+omission:
+
+- **RQ1 (judges).** How many raters are needed for stable, convergent
+  creativity ratings of football actions?
+  - **H1.** Inter-rater reliability (ICC) will increase with the number of
+    judges averaged into the aggregate rating, with asymptotically
+    diminishing returns, consistent with generalizability-theory/
+    Spearman-Brown logic and with the empirical template set by Hass et al.
+    [-@hass2018], who derived comparable judge/item-count curves in a
+    different rating domain.
+- **RQ2 (expertise).** Does rater expertise or exposure affect inter-rater
+  agreement or rater severity? The Amabile-versus-Plucker/Kaufman tension
+  developed in Sub-debate B above yields two competing, directional
+  hypotheses rather than a single predicted winner; the RQ2 analyses test
+  which position this dataset supports.
+  - **H2a (Amabile-consistent).** Rater expertise level will not
+    systematically affect agreement or severity.
+  - **H2b (Plucker/Kaufman-consistent).** Non-expert but high-exposure
+    raters will show agreement or severity comparable to, or exceeding,
+    that of formally credentialed experts.
+- **RQ3 (aggregation/psychometrics).** Do Judge Response Theory and/or
+  Many-Facet Rasch Model rater-severity models improve on simple mean
+  aggregation, and what do they reveal about individual raters? This
+  question is stated as open/exploratory, with no directional hypothesis:
+  JRT, MFRM, and naive averaging have not previously been compared
+  head-to-head at this scale in a creativity-rating context, so there is no
+  established prior result from which to derive a directional prediction.
+- **RQ4 (construct validity).** What is the factor structure relating
+  creativity, aesthetic appeal, and technical-correctness ratings? This
+  question is likewise stated as open/exploratory: the factor structure
+  among these three constructs is not yet established in this domain.
+- **RQ5 (reliability over time).** How long can raters perform the rating
+  task reliably before agreement or rating quality declines? This question
+  is stated as open/exploratory: no prior football-specific, or more
+  broadly sport-specific, fatigue/session-length data exist to ground a
+  directional prediction.
+
+This paper addresses these five measurement questions only. Correlating
+rated creativity with performance outcomes (e.g., the value of possessions
+added metric, VAEP, or player market value) and developing automated or
+machine-learning-based creativity scoring are both explicitly deferred to
+two companion papers; the present paper is intended to establish the
+measurement foundation on which those applications will depend. Because RQ2
+speaks directly to the practical question of who should be recruited as a
+rater in future football-creativity studies -- coaches and other domain
+experts, or high-exposure non-expert viewers -- resolving it is intended as
+one of this paper's principal applied contributions to sport science, a
+point returned to in the Discussion and Conclusion.
+
+# Methods
+
+This section describes a fully specified, reproducible proposed design.
+Because data collection has not yet occurred, all procedures are described
+in the future tense; nothing reported below has yet been executed.
+
+## Design overview
+
+This will be a cross-sectional, multi-rater creativity-rating study of
+discrete football actions. The design combines a benchmark structure, in
+which a fixed subset of actions is rated by every judge in the rater panel,
+with a larger pairwise/rotating structure, in which a much larger set of
+actions is rated by only two to three judges each. The benchmark subset
+will enable full-overlap reliability analyses (RQ1-RQ3) at every candidate
+judge count, while the pairwise subset will allow the dataset to scale
+beyond what a fully crossed design could support within the available rater
+capacity. The benchmark panel will comprise a fixed set of **10 raters**,
+each of whom rates the full benchmark subset; this yields ICC/agreement
+trajectories at every candidate judge count from 1 through 10 (see
+"Judges/raters" and Analysis Plan (a) below). A panel of this size is large
+enough that the study can directly test the generic "five to ten judges"
+heuristic [@kaufman2008] against its own benchmark data, rather than merely
+citing the heuristic secondhand -- a genuine strength of this design, since
+the resulting ICC-by-judge-count curve spans exactly the range the
+heuristic claims is sufficient.
+
+## Stimuli: Sample of football actions
+
+Video and event data will be sourced preferentially from StatsBomb (pending
+confirmation of video access) or, as a fallback, from WyScout 17/18. Matches
+will be sampled across multiple competitions, including men's and women's
+FIFA tournaments, the Africa Cup of Nations, UEFA tournaments, and the Copa
+America, in order to capture a broad range of playing contexts and player
+populations.
+
+The target sample is a purposive selection of approximately **1,000 to
+2,000 football actions**, pre-selected as plausible creative-moment
+candidates rather than drawn through exhaustive or random sampling of every
+action in every match. Candidate actions might be identified via event-data
+heuristics (e.g., flags for unusual pass trajectories, dribbles, or shot
+techniques) or through expert pre-screening designed to surface actions
+likely to vary meaningfully in creativity.
+<!-- CLAIM: the exact operational criteria for "plausible creative-moment
+candidate" pre-selection (rule-based heuristics vs. expert pre-screening,
+and how the two might be combined) still need to be fully specified before
+data collection begins; this is an explicit open item for the author to
+resolve, not a settled design detail. -->
+
+### Sample-size justification
+
+The ~1,000-2,000-action target is, at present, a plausibility-based design
+choice rather than the product of a formal a priori sample-size or power
+calculation, and no such calculation has yet been performed. A more
+rigorous alternative, should the author wish to pursue it before data
+collection begins, would be precision-based planning conducted within a
+generalizability-theory (G-theory) framework: for each candidate number of
+judges under consideration for the benchmark subset, the minimum benchmark
+size required to achieve a target confidence-interval width for the
+resulting intraclass correlation coefficient (ICC) could be estimated in
+advance, following the logic used by Hass et al. [-@hass2018] to empirically
+derive the number of raters and items needed for acceptable reliability of
+divergent-thinking ratings. This is presented here as a decision point for
+the author: either (a) proceed with the ~1,000-2,000-action purposive target
+as currently planned, treating it as a plausible and logistically feasible
+starting point, or (b) conduct a formal precision- or power-based
+calculation first and adjust the target accordingly. As of this writing,
+option (a) is the operative plan, and this should be understood as a
+provisional rather than a finalized decision.
+
+## Judges/raters
+
+Raters will be recruited to span an expertise gradient, including both
+domain experts (e.g., coaches or other football professionals) and
+non-expert but high-exposure viewers (e.g., committed spectators without
+formal coaching or playing credentials). This recruitment plan directly
+operationalizes the Amabile-versus-Plucker/Kaufman expertise debate outlined
+in the Introduction [@amabile1982; @kaufman2008; @kaufman2008b;
+@plucker2009; @baer2015; @castel2007; @ceh2021]: rather than assuming a
+single "correct" level of expertise, the design will allow expertise and
+exposure effects on agreement and rater severity to be estimated directly
+from the data.
+
+The rater panel will be organized into two overlapping subsets. A fixed
+benchmark panel of **10 raters** will rate every action in the benchmark
+subset, enabling full pairwise ICC and agreement comparisons at every
+candidate judge count from a single judge up to the full panel of 10 (see
+Analysis Plan (a); the rationale for this panel size is given in Design
+overview above). A larger pairwise/rotating subset of actions will be rated
+by only two to three judges per action, drawn from the benchmark panel
+and/or a separate pool of additional pairwise-only raters; the exact size of
+this additional pool is not yet fixed and will depend on recruitment
+logistics -- this is stated explicitly here as an open item, not invented.
+The total rater pool for the study is therefore the 10-rater benchmark panel
+plus this additional, as-yet-unsized pairwise-only pool.
+
+Raters assigned to the pairwise subset will be allocated to actions via
+random assignment constrained to preserve a connected rater-by-action
+network -- that is, assignment will not be fully unconstrained, but
+constrained so that the resulting rater-by-action bipartite graph remains
+connected, a standard requirement for JRT/MFRM parameter identifiability.
+This constraint partially de-risks, but does not eliminate, the
+rater-by-action sparsity concern discussed in Limitations below:
+connectivity is guaranteed by design, but the realized degree of overlap
+remains unknown until data collection occurs.
+
+## Rating instrument
+
+Actions will be rated on a 7-point unipolar novelty x appropriateness scale,
+with behaviorally anchored verbal descriptions at each scale point, following
+psychometric guidance on selecting an appropriate number of response
+categories. In addition to the primary creativity rating, judges will also
+rate two secondary dimensions -- aesthetic appeal and technical correctness
+-- for construct-validity purposes, following Amabile's [-@amabile1982]
+recommendation that secondary constructs be rated alongside creativity
+whenever CAT is applied to a new domain, and following the standard
+definitional consensus that creativity itself reflects the joint presence of
+novelty and appropriateness [@runco2012]. Judges will undergo a
+frame-of-reference (FOR) training procedure prior to rating, intended to
+calibrate their use of the scale's anchor points before live ratings begin:
+raters will review a set of worked/anchor examples at each of the scale's
+seven points, followed by a short calibration rating set with feedback,
+before proceeding to live rating. This training session is expected to take
+approximately 30-45 minutes, and raters will be required to reach an
+agreement of at least .70 (e.g., intraclass correlation or an equivalent
+percentage-agreement-within-one-scale-point criterion, with the exact index
+to be finalized alongside the main analysis pipeline) with criterion or
+consensus ratings on the calibration set before being approved to proceed to
+live rating; raters who do not meet this threshold will repeat calibration
+with an additional set of worked examples. This calibration protocol is a
+plausible, generic design choice consistent with standard FOR-training
+practice, and has not itself been piloted. Raters will view full match
+footage and context, including player and team identity, rather than
+blinded or anonymized clips, prioritizing ecological validity -- creativity
+judgments grounded in naturalistic match footage rather than standardized,
+blinded stimuli -- over experimental blinding (see Limitations for the
+corresponding halo-effect risk). An explicit conversion bridge will be
+specified between this 7-point scale and the 0-10 scale used by Kempe and
+Memmert [-@kempe2018], to allow cross-study comparability with that
+benchmark study.
+
+## Procedure
+
+Ratings will be collected via a dedicated rating platform presenting actions
+in randomized order and exporting structured rating data for analysis; the
+specific platform has not yet been selected and is flagged here, like the
+additional pairwise-rater-pool size above and the pre-selection criteria in
+"Stimuli," as an open item to be finalized by the author before data
+collection. A pilot phase will precede full data collection, in which
+per-session rating capacity will be established by monitoring agreement and
+rating consistency as a function of position within the rating session;
+this pilot directly informs RQ5 and follows the design logic of a prior
+study examining CAT reliability over extended sessions [@barth2020].
+
+## Analysis plan
+
+Six analyses are planned. Five map directly onto the five research
+questions above; the sixth, (b), is an auxiliary/supporting analysis for
+RQ2 rather than an independent research question of its own (see (b)
+below). All six analyses (a)-(f) commit, as a matter of design, to
+reporting confidence intervals and effect sizes alongside, or instead of,
+significance tests.
+
+**(a) Judge-count convergence (RQ1).** Intraclass correlation coefficients
+(e.g., ICC(2,k) or ICC(3,k), as appropriate to the design) will be computed
+on the benchmark subset and examined as a function of the number of raters
+averaged into the aggregate rating (k = 1 through the full 10-rater panel),
+with a possible Spearman-Brown-type reliability projection to candidate
+judge counts beyond those directly observed. A target reliability of
+ICC(2,k) >= .80 is pre-specified as the criterion for declaring ratings
+"stable/convergent" for the purposes of RQ1, with ICC(2,k) >= .70 noted as
+a minimum acceptable floor, following standard convention in the
+reliability/psychometrics literature; the number of judges "needed" will be
+read off the ICC-by-judge-count curve against this pre-specified threshold,
+not chosen post hoc. This analysis is motivated by Cseh and Jeffries'
+[-@cseh2019] critique and follows the empirical, G-theory-informed template
+set out by Hass et al. [-@hass2018], providing a direct, domain-specific
+counterpart to the generic "five to ten judges" heuristic [@kaufman2008].
+
+**(b) Variance-source mixed model (auxiliary analysis for RQ2).** A
+mixed-effects model of the form
+`rating ~ covariates + (1|rater) + (1|player) + (1|match)` will be fit to
+partition variability in ratings across rater, player, and match sources
+and to estimate the effect of any relevant covariates, including rater
+expertise. This model is an auxiliary, supporting analysis for RQ2 rather
+than an independent sixth research question: it decomposes rating variance
+into rater/player/match sources and allows expertise to be entered as a
+covariate or moderator, directly informing the H2a/H2b comparison described
+in the Introduction.
+
+**(c) Rater-severity diagnostics via JRT and MFRM (RQ3).** Rater severity
+and leniency will be modeled using Judge Response Theory and/or the
+Many-Facet Rasch Model, and the resulting rater-corrected estimates will be
+compared against simple mean aggregation [@myszkowski2019; @myszkowski2021;
+@myszkowski2024; @myszkowski2025; @eckes2015; @myford2003; @myford2004;
+@primi2019; @hung2012].
+
+**(d) Expertise-group comparison (RQ2).** Agreement statistics (ICC) and/or
+rater-severity parameters from the JRT/MFRM models will be compared across
+expertise groups; expertise will also be entered as a covariate or moderator
+in the mixed model described above.
+
+**(e) Factor analysis (RQ4).** An exploratory and/or confirmatory factor
+analysis will be conducted across the creativity, aesthetic-appeal, and
+technical-correctness ratings to evaluate their dimensional structure
+[@amabile1982].
+
+**(f) Fatigue/session-duration reliability (RQ5).** Agreement and rating
+consistency will be examined as a function of session position or
+time-on-task, using the pilot data described above, following the design
+logic of Barth and Stadtmann [-@barth2020].
+
+### Software and estimation
+
+The full analysis pipeline will be implemented within a single open-source,
+reproducible R environment. JRT models will be fit using the `jrt` R package
+[@myszkowski2021]. MFRM models will be fit using an R-based implementation:
+the Test Analysis Modules package (TAM) for a standard many-facet Rasch
+model, or, as an alternative, a Bayesian many-facet Rasch model fit via
+`brms`, with rater, player/examinee, and item specified as crossed random
+facets [@eckes2015; @myford2003; @myford2004]. Commercial Facets software
+will not be used. This keeps JRT estimation, MFRM estimation, the mixed
+models, and the factor analysis all reproducible from a single R codebase.
+
+## Ethics statement
+
+Ethics approval for this project was obtained from the Ethics Committee of
+the German Sport University Cologne (approval no. 248/2025). This study was
+not preregistered.
+
+# Results
+
+This section anticipates the results bearing on the five research questions
+set out above -- the number of judges needed for convergent ratings, the
+effect of rater expertise, whether JRT and MFRM rater-severity models
+improve on naive averaging, the factor structure separating creativity from
+adjacent constructs, and the reliability of ratings over session duration.
+No data have yet been collected, and no numerical results are reported in
+this section. What follows is a structural description of the results that
+will be reported once data collection and analysis are complete, organized
+in the same order as the research questions above. Each planned result is
+linked to the corresponding placeholder object.
+
+## Sample description
+
+Once data collection is complete, @tbl-sample-description will report the
+achieved number of distinct football actions rated, the number of matches
+and competitions sampled, the number of judges recruited (against the
+10-rater benchmark-panel target plus the additional pairwise-only rater
+pool, whose size is still to be finalized), and the number of ratings
+obtained per action in both the benchmark and pairwise subsets, set against
+the ~1,000-2,000-action purposive target specified in Methods.
+
+::: {#tbl-sample-description}
+<!-- {{< embed analysis/results.ipynb#tbl-sample-description >}} -->
+
+Description of the collected sample: number of distinct football actions
+rated, number of matches and competitions sampled, number of judges/raters
+recruited (against the 10-rater benchmark-panel target plus the additional
+pairwise-only rater pool, size still to be finalized), and ratings per
+action (benchmark vs. pairwise subset), reported against the planned
+purposive target of ~1,000-2,000 actions.
+:::
+
+<!-- TODO: notebook does not exist yet; tbl-sample-description will be
+populated by results-embedder once analysis/results.ipynb exists. -->
+
+## RQ1: Judge-count convergence
+
+@fig-icc-by-judge-count will show inter-rater reliability (ICC) as a
+function of the number of judges included in the aggregate rating (k = 1
+through 10), computed on the 10-rater benchmark subset rated by all judges.
+@tbl-agreement-by-judge-count will tabulate the corresponding agreement and
+reliability statistics, along with category-usage checks, across a set of
+candidate judge counts (2, 3, 5, and 10 judges, all achievable from the
+10-rater benchmark panel). Both will be read against the pre-specified
+ICC(2,k) >= .80 target and .70 minimum floor stated in Methods, Analysis
+Plan (a), to identify the number of judges needed for stable, convergent
+ratings. Together these will address RQ1 and H1, and provide the empirical
+counterpart to the general "five to ten judges" heuristic discussed in the
+Introduction -- a comparison the 10-rater benchmark-panel design was built
+to support directly.
+
+::: {#fig-icc-by-judge-count}
+<!-- {{< embed analysis/results.ipynb#fig-icc-by-judge-count >}} -->
+
+Inter-rater reliability (ICC) as a function of the number of judges
+included in the aggregate rating (k = 1-10), computed on the 10-rater
+benchmark subset, with reference lines at the pre-specified ICC(2,k) >= .80
+target and .70 minimum floor.
+:::
+
+::: {#tbl-agreement-by-judge-count}
+<!-- {{< embed analysis/results.ipynb#tbl-agreement-by-judge-count >}} -->
+
+Summary agreement/reliability statistics (e.g., ICC with 95% CIs and
+category-usage checks) tabulated across candidate numbers of judges (2, 3,
+5, and 10, all achievable from the 10-rater benchmark panel), with the
+pre-specified ICC(2,k) >= .80 target / .70 floor noted alongside the
+achieved values.
+:::
+
+<!-- TODO: notebooks/objects do not exist yet for either artifact above. -->
+
+## RQ2: Expertise effects
+
+@fig-expertise-agreement will compare rater agreement and validity metrics
+across expertise groups (e.g., domain experts vs. non-expert, high-exposure
+raters), framed against the competing H2a/H2b hypotheses stated in the
+Introduction, and @tbl-expertise-effects will report mixed-model estimates
+of rater expertise as a predictor of rating level and/or variance, with
+rater, player, and match modeled as random effects, per the
+variance-source model specified in Methods (analysis (b) above, an
+auxiliary analysis supporting RQ2). Whether the general
+variance-decomposition mixed model (Methods, analysis (b)) is reported as
+its own dedicated table in addition to @tbl-expertise-effects, or folded
+entirely into that table, remains an open editorial decision for a future
+results-embedder pass once the model has actually been fit.
+
+::: {#fig-expertise-agreement}
+<!-- {{< embed analysis/results.ipynb#fig-expertise-agreement >}} -->
+
+Rater agreement/validity metrics compared across rater-expertise groups
+(e.g., expert vs. novice/high-viewership judges).
+:::
+
+::: {#tbl-expertise-effects}
+<!-- {{< embed analysis/results.ipynb#tbl-expertise-effects >}} -->
+
+Mixed-model estimates of rater expertise as a predictor of rating
+level/variance, with rater/player/match random effects.
+:::
+
+<!-- TODO: notebooks/objects do not exist yet for either artifact above. -->
+
+## RQ3: Rater-severity and aggregation (JRT/MFRM)
+
+@fig-rater-severity-jrt will present rater severity estimates from the
+JRT and/or MFRM models (fit via the `jrt` R package and TAM or `brms`,
+respectively), ordered by rater and shown with uncertainty intervals.
+@tbl-rater-fit-diagnostics will report rater fit diagnostics (e.g., infit
+and outfit statistics, or their JRT equivalents) flagging any raters with
+atypical response patterns, and will present a comparison between the
+rater-corrected estimates and simple mean aggregation, addressing RQ3.
+
+::: {#fig-rater-severity-jrt}
+<!-- {{< embed analysis/results.ipynb#fig-rater-severity-jrt >}} -->
+
+Judge Response Theory (via the R `jrt` package) / Many-Facet Rasch Model
+(via TAM or brms) rater severity estimates, ordered by rater, with
+uncertainty intervals.
+:::
+
+::: {#tbl-rater-fit-diagnostics}
+<!-- {{< embed analysis/results.ipynb#tbl-rater-fit-diagnostics >}} -->
+
+Rater fit diagnostics (e.g., infit/outfit statistics or JRT-equivalent)
+flagging raters with atypical response patterns.
+:::
+
+<!-- TODO: notebooks/objects do not exist yet for either artifact above. -->
+
+## RQ4: Construct and factor validity
+
+@fig-factor-structure will present the factor or correlation structure
+relating creativity (novelty x appropriateness), aesthetic-appeal, and
+technical-correctness ratings, and @tbl-factor-loadings will report the
+corresponding factor loadings and model fit indices, addressing RQ4.
+
+::: {#fig-factor-structure}
+<!-- {{< embed analysis/results.ipynb#fig-factor-structure >}} -->
+
+Factor structure / correlation structure among creativity (novelty x
+appropriateness), aesthetic, and technical-correctness ratings.
+:::
+
+::: {#tbl-factor-loadings}
+<!-- {{< embed analysis/results.ipynb#tbl-factor-loadings >}} -->
+
+Factor loadings and fit indices for the proposed factor model relating
+creativity, aesthetic appeal, and technical correctness dimensions.
+:::
+
+<!-- TODO: notebooks/objects do not exist yet for either artifact above. -->
+
+## RQ5: Reliability over session duration
+
+Findings addressing RQ5 -- whether agreement or rating consistency declines
+as a function of session position or time-on-task, based on the pilot
+fatigue-monitoring procedure described in Methods -- will be reported
+narratively in this subsection once the pilot data are available. No
+dedicated figure or table placeholder currently exists for this analysis
+(see Limitations); the finding will therefore be described in prose only,
+and/or folded into the sample-description reporting above, pending a future
+results-embedder pass once real pilot data exist.
+
+# Discussion
+
+## Contribution and place in the literature
+
+This paper is intended as a direct empirical response to Cseh and Jeffries'
+[-@cseh2019] call for domain-specific evidence on CAT's design parameters,
+and as an applied test, at scale, of the rater-effects modeling program
+initiated by Myszkowski and Storme [-@myszkowski2019]. Whatever the eventual
+results, generating a large-scale, systematically varied multi-rater
+creativity-rating dataset for football actions is itself a contribution:
+prior sport-creativity research has never varied judge number or expertise
+systematically, nor compared rater-effects models against naive averaging in
+this domain.
+
+**[TBC -- author to confirm once data are available]** The judge-count
+finding (RQ1) will bear on what number of judges should be recommended for
+football, and by extension similarly naturalistic, product-based creativity
+studies, read against the pre-specified ICC(2,k) >= .80 target (.70 minimum
+floor; Methods, Analysis Plan (a)). This eventual recommendation should be
+explicitly compared against the generic "five to ten judges" heuristic
+[@kaufman2008] (noting that the precise page-level source of this figure
+remains unverified) and against the generalizability-theory-derived numbers
+found in other rating domains [@hass2018] -- a comparison the 10-rater
+benchmark-panel design was built to support directly. Whether the
+football-specific number converges with, falls below, or exceeds these
+comparators is not yet known.
+
+**[TBC -- author to confirm once data are available]** The expertise finding
+(RQ2) will indicate whether football creativity rating resolves toward
+hypothesis H2a, Amabile's [-@amabile1982] position that expertise need not
+be uniform across judges, or toward hypothesis H2b, the position that
+domain expertise does not straightforwardly improve agreement
+[@plucker2009; @kaufman2008b]. The practical question of who should be
+recruited as a rater in future football-creativity studies -- coaches and
+other domain experts, or high-exposure non-expert viewers -- depends
+directly on this result.
+
+**[TBC -- author to confirm once data are available]** The rater-severity
+finding (RQ3) will speak to whether JRT and/or MFRM modeling is worth the
+added analytic complexity relative to naive averaging for this kind of
+naturalistic, non-parallel rating data. This positions the present study as
+an applied test of the JRT research program [@myszkowski2021;
+@myszkowski2024; @myszkowski2025] and of MFRM as an established alternative
+[@primi2019; @hung2012; @eckes2015], with both estimated throughout in R
+(`jrt`; TAM or `brms`) for full reproducibility.
+
+**[TBC -- author to confirm once data are available]** The factor-structure
+finding (RQ4) will indicate whether creativity is empirically discriminable
+from aesthetic appeal and technical correctness in this domain, connecting
+back to the taxonomy/facet-clarity argument that different facets of
+creativity require distinct measurement treatment [@barbot2019b] and to
+Amabile's [-@amabile1982] construct-validity rationale for rating secondary
+dimensions alongside creativity.
+
+**[TBC -- author to confirm once data are available]** The fatigue/
+session-length finding (RQ5) will provide practical guidance for designing
+CAT rating protocols generally, not only in sport, extending the precedent
+set by Barth and Stadtmann [-@barth2020].
+
+## Generalizability
+
+Taken together, the eventual findings are intended to inform CAT practice
+broadly, directly answering Cseh and Jeffries' [-@cseh2019] call for
+domain-specific empirical evidence on judge number, expertise, and
+aggregation method. At the same time, a single applied domain -- football --
+cannot by itself resolve a domain-general question; the extent to which
+these findings transfer to other creative-product domains remains an open
+question for future replication.
+
+## Limitations
+
+- This study addresses a single applied domain (football); generalization
+  of any findings to other creative-product domains is an open question.
+  Football's naturalistic, non-parallel-stimulus character (Methods, "Design
+  overview") makes it a demanding test case, however, so findings that hold
+  here are plausible candidates for transfer to other applied domains.
+- Rater recruitment is convenience- and plan-dependent, and the exact
+  operationalization of "expertise" (e.g., which credentials or exposure
+  thresholds distinguish expert from non-expert raters) still needs to be
+  finalized before data collection. Recruiting explicitly along an expertise
+  gradient (Methods, "Judges/raters") is nonetheless the design feature that
+  makes RQ2 testable at all, rather than an incidental shortcoming.
+- The "five to ten judges" heuristic's exact source page has not been
+  independently verified; it should not be cited as a precisely sourced
+  figure until confirmed.
+- The identifiability of the MFRM/JRT models depends on the realized
+  sparsity of the rater-by-action rating matrix, which is not yet known and
+  cannot be guaranteed in advance of data collection; the constrained
+  random-assignment rule described in Methods ("Judges/raters") guarantees
+  a connected rater-by-action network by design, which partially de-risks
+  but does not eliminate this concern -- the realized degree of overlap
+  remains unknown until data collection occurs.
+- Raters will view full match footage and context, including player and
+  team identity, rather than blinded or anonymized clips (Methods, "Rating
+  instrument"), prioritizing ecological validity over blinding; this
+  introduces a plausible halo-effect risk, in which recognizable players or
+  teams could influence creativity judgments independently of the action
+  itself. The Many-Facet Rasch Model (Sub-debate C; Analysis Plan (c)) is
+  explicitly intended to help diagnose such rater idiosyncrasies, including
+  halo effects, but cannot fully substitute for blinding.
+- Rater fatigue and motivation effects in a large-scale, potentially
+  online/remote rating task are a genuine risk; no dedicated Results
+  artifact is currently planned for the fatigue/session-length finding
+  (RQ5), and a dedicated fatigue-analysis output still needs to be finalized
+  in a future results-embedder pass once pilot data exist. The planned pilot
+  phase (Methods, "Procedure") is designed explicitly to surface this risk
+  before full-scale data collection begins.
+- The purposive (non-random) sampling of "plausible creative-moment"
+  actions means that prevalence or base-rate claims about creativity in
+  football cannot be supported by this sample; only relative, psychometric
+  comparisons (judge-count, expertise, aggregation method) are licensed by
+  this design.
+- No formal a priori sample-size or power calculation was performed for the
+  ~1,000-2,000-action target; it reflects a plausibility-based design
+  decision rather than a precision-targeted calculation (see Methods).
+  Methods already sets out how such a calculation could be performed
+  ("Sample-size justification"), leaving a clear path to strengthen this
+  before data collection if the author chooses.
+- This study was not preregistered.
+
+# Conclusion
+
+This paper proposes an empirically grounded, reproducible methodological
+template for consensual-assessment-technique-based creative-product rating
+in sport, directly addressing a domain-specificity gap that the broader
+creativity-assessment literature has repeatedly flagged but rarely
+operationalized [@cseh2019].
+
+**[TBC -- author to confirm once data are available]** Once the planned
+analyses are complete, this paper will offer practical recommendations for
+future sport-creativity CAT studies concerning the number of judges to
+recruit, the expertise mix of the rater panel, and whether rater-effects
+modeling (JRT/MFRM) is worth adopting over simple averaging. Resolving the
+expertise question (RQ2) in particular is intended as one of the paper's
+principal applied contributions to sport science, since it bears directly
+on who should be recruited as a rater in future studies. These
+recommendations are contingent on the Results and Discussion above and are
+not stated as specific numbers here.
+
+This paper is the first of a planned three-paper sequence. A companion
+application paper will examine the relationship between rated creativity
+and performance outcomes such as the value of possessions added (VAEP) and
+player market value; a further companion paper will explore automated,
+machine-learning-based creativity scoring, using the human ratings generated
+here as ground truth -- following a precedent, in the same target journal,
+for validating automated scoring against consensual-assessment-technique
+ratings of creative products [@distefano2024]. Both are named here only as
+future work and are not elaborated further. Getting the human measurement
+foundation right is treated here as a precondition for both of these
+follow-on efforts.
+
+# References
+
+::: {#refs}
+:::

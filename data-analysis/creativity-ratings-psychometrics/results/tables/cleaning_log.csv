@@ -1,0 +1,5 @@
+step,n_rows_before,n_rows_after,n_rows_affected,description
+drop_missing_id,10128,10128,0,Zeilen mit fehlender action_id/rater_id entfernt
+drop_out_of_range,10128,10125,3,"Ratingwerte ausserhalb {1,...,7} bzw. nicht-ganzzahlig entfernt"
+drop_missing_rating,10125,10122,3,Zeilen mit fehlendem oder nicht konvertierbarem Rating entfernt
+resolve_duplicates,10122,10116,6,"Duplikate aufgeloest: letzter Eintrag je (action_id, rater_id) behalten"

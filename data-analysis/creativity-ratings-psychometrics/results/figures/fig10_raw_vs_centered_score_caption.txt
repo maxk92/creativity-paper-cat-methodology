@@ -1,0 +1,1 @@
+Rohmittelwert vs. raterzentrierter Mittelwert je Aktion, eingefaerbt nach Anzahl Ratings.

@@ -1,0 +1,28 @@
+# Per-paper configuration. Copy this file into each paper project and edit.
+# Switch `paper_type` to select a profile; the agents read everything from here.
+
+paper_type: imrad-apa        # one of: imrad-apa | cs-ieee
+
+# Paths (edit per project) -------------------------------------------------
+vault_path:   ~/drive/KNOWLEDGE/
+brief:        ~/drive/KNOWLEDGE/Paper_CreativityAssessmentInSportsCAT.md   # the paper's concept note
+notebook:     None #data-analysis/results.ipynb
+bibliography: ~/drive/phd_library.bib
+build_dir:    manuscript
+
+# Profiles -----------------------------------------------------------------
+profiles:
+
+  imrad-apa:
+    venue: "Creativity Research Journal"
+    template: ~/drive/utils/paper-orchestra/templates/imrad-apa.qmd
+    csl:      ~/csl/apa.csl              # your local APA CSL
+    structure: [Abstract, Introduction, Methods, Results, Discussion, Conclusion, References]
+    review_criteria:
+      - "Clear research question and hypotheses"
+      - "Sample, design and procedures fully reproducible"
+      - "Appropriate statistics; effect sizes and CIs reported, not just p-values"
+      - "Practical/applied relevance for sport science articulated"
+      - "Limitations honest and explicit"
+      - "APA 7th formatting and citation style"
+

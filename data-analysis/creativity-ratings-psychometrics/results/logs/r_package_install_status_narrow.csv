@@ -1,0 +1,10 @@
+"package","installed"
+"nloptr",TRUE
+"lme4",TRUE
+"lmerTest",TRUE
+"glmmTMB",TRUE
+"jrt",FALSE
+"mirt",FALSE
+"arrow",FALSE
+"quarto",FALSE
+"tidybayes",FALSE

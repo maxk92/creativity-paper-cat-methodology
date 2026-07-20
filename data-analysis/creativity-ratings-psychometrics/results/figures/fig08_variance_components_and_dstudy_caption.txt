@@ -1,0 +1,1 @@
+Links: geschaetzte Varianzkomponenten des linearen gekreuzten Modells mit 95%-Credible-Intervallen. Rechts: D-Study-Kurven fuer absolute und relative Reliabilitaet des Aktionsmittelwerts in Abhaengigkeit von der Anzahl Rater k, mit 95%-Credible-Band ueber die Posteriorverteilung.
