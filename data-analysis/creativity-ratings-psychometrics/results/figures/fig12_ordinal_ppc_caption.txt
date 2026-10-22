@@ -1,1 +1,0 @@
-Posterior predictive checks of the ordinal facette model: category frequencies (left, with an uncertainty band over posterior draws), rater means (middle), and action means (right), each observed vs. model-replicated data.

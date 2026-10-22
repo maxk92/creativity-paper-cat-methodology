@@ -1,1 +1,0 @@
-Rater severity estimates (posterior mean of the linear crossed model) with 95% credible intervals, sorted from strictest to most lenient rater.

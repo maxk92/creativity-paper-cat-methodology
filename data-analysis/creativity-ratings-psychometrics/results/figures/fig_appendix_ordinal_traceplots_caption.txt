@@ -1,1 +1,0 @@
-Trace plots of the variance components of the ordinal model.

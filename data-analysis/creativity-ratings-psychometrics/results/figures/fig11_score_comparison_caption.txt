@@ -1,1 +1,0 @@
-Comparison of score methods: raw mean vs. LMM-BLUP (left), raw mean vs. ordinal model (middle), score difference stratified by number of ratings (right). Shows that shrinkage is stronger for actions with few ratings.

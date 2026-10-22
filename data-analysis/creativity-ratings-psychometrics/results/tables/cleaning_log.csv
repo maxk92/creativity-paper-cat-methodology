@@ -1,6 +1,6 @@
 step,n_rows_before,n_rows_after,n_rows_affected,description
-drop_action_not_recognized,8750,7502,1248,Rows where the rater flagged the action as not recognized were excluded
-drop_missing_id,7502,7502,0,Rows with missing action_id/rater_id removed
-drop_out_of_range,7502,7501,1,"Rating values outside {1,...,7} or non-integer removed"
-drop_missing_rating,7501,7501,0,Rows with missing or non-convertible rating removed
-resolve_duplicates,7501,7495,6,"Duplicates resolved: last entry per (action_id, rater_id) kept"
+drop_action_not_recognized,9148,7858,1290,Rows where the rater flagged the action as not recognized were excluded
+drop_missing_id,7858,7858,0,Rows with missing action_id/rater_id removed
+drop_out_of_range,7858,7857,1,"Rating values outside {1,...,7} or non-integer removed"
+drop_missing_rating,7857,7857,0,Rows with missing or non-convertible rating removed
+resolve_duplicates,7857,7844,13,"Duplicates resolved: last entry per (action_id, rater_id) kept"

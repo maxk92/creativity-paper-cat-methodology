@@ -1,93 +1,48 @@
 # ============================================================
-# Reproduzierbare R-Paketinstallation
+# R package installation for the JRT pipeline in R/ (01_data_design.R ... 06_summary.R)
 # ============================================================
-# Diese Datei ersetzt eine vollstaendige renv.lock-Datei, weil renv
-# eine bereits initialisierte, mit dem Internet synchronisierte
-# renv-Umgebung voraussetzt. Stattdessen: ein deterministisches
-# Installationsskript mit fixiertem CRAN-Snapshot (Posit Package
-# Manager), das denselben Reproduzierbarkeitszweck erfuellt.
-#
-# Verwendung:
+# Usage (from this folder):
 #   Rscript install_r_packages.R
 #
-# Danach kann optional "renv::init(); renv::snapshot()" ausgefuehrt
-# werden, um ein renv.lock aus der so entstandenen Bibliothek zu
-# erzeugen.
+# Installs only Depends/Imports/LinkingTo (no Suggests): installing with
+# dependencies = TRUE pulls in a huge, irrelevant Suggests tree.
+# Packages are taken from a date-pinned Posit Package Manager snapshot
+# for reproducibility; anything missing there (e.g. mirt for very
+# new R versions) is retried from the regular CRAN mirror.
 # ============================================================
 
-# Fixierter Zeitpunkt-Snapshot fuer reproduzierbare Paketversionen.
-# (Posit Package Manager CRAN-Spiegel, gefroren auf ein festes Datum)
-options(repos = c(CRAN = "https://packagemanager.posit.co/cran/2026-07-01"))
+snapshot_repo <- "https://packagemanager.posit.co/cran/2026-07-01"
+fallback_repo <- "https://cloud.r-project.org"
 
-pkgs_core <- c(
-  "tidyverse", "data.table", "janitor", "skimr", "naniar",
-  "igraph", "here", "renv"
+pkgs <- c(
+  # data handling and plots
+  "dplyr", "tidyr", "readr", "ggplot2", "svglite",
+  # design checks
+  "igraph",
+  # IRT / facet models
+  "mirt", "sirt",
+  # naive indices
+  "psych", "irr"
 )
 
-pkgs_models <- c(
-  "lme4", "lmerTest", "performance", "insight", "broom.mixed",
-  "sjPlot", "ggeffects", "ordinal", "glmmTMB", "irr", "psych"
-)
-
-# Krippendorffs Alpha: bevorzugtes Paket laut Analyseauftrag.
-# Stand 2026 heisst das CRAN-Paket "krippendorffsalpha"; falls es
-# nicht verfuegbar ist, wird ersatzweise "irr::kripp.alpha" (nur
-# intervall-/nominal-/ordinalskaliert, ohne fehlende Werte pro
-# Design-Zelle in derselben Flexibilitaet) sowie eine transparente
-# Eigenimplementierung im Notebook verwendet.
-pkgs_agreement <- c("krippendorffsalpha")
-
-# Bayesianischer ordinaler Workflow. ACHTUNG: brms benoetigt im
-# Hintergrund Stan (rstan oder cmdstanr) inkl. C++-Toolchain und
-# Kompilierung -- dies kann in einer frischen Umgebung 15-30+
-# Minuten dauern und schlaegt ohne funktionierenden C++-Compiler
-# fehl. Das Skript versucht die Installation, bricht aber den
-# Gesamtlauf nicht ab, falls sie scheitert (siehe try()).
-pkgs_bayes <- c("brms", "posterior", "bayesplot", "loo", "tidybayes")
-
-# Judge Response Theory / Many-Facet-Rasch.
-pkgs_irt <- c("jrt", "mirt", "TAM")
-
-pkgs_io <- c("arrow", "quarto")
-
-install_safely <- function(pkgs) {
-  for (p in pkgs) {
-    if (!requireNamespace(p, quietly = TRUE)) {
-      message(sprintf("---- installiere %s ----", p))
-      ok <- tryCatch({
-        install.packages(p, dependencies = TRUE)
-        TRUE
-      }, error = function(e) {
-        message(sprintf("FEHLER bei %s: %s", p, conditionMessage(e)))
-        FALSE
-      })
-      if (!ok || !requireNamespace(p, quietly = TRUE)) {
-        message(sprintf("WARNUNG: %s konnte nicht installiert werden. ",
-                         p),
-                "Abhaengige Notebook-Abschnitte sind entsprechend als ",
-                "eval=FALSE markiert bzw. geben eine klare Warnung aus.")
-      }
-    } else {
-      message(sprintf("%s bereits installiert.", p))
-    }
-  }
+install_safely <- function(p, repo) {
+  tryCatch(
+    install.packages(p, repos = repo,
+                     dependencies = c("Depends", "Imports", "LinkingTo")),
+    error = function(e) message(sprintf("ERROR installing %s: %s", p, conditionMessage(e)))
+  )
 }
 
-install_safely(pkgs_core)
-install_safely(pkgs_models)
-install_safely(pkgs_agreement)
-install_safely(pkgs_irt)
-install_safely(pkgs_io)
-install_safely(pkgs_bayes)
+for (p in pkgs) {
+  if (requireNamespace(p, quietly = TRUE)) {
+    message(sprintf("%s already installed.", p))
+    next
+  }
+  message(sprintf("---- installing %s ----", p))
+  install_safely(p, snapshot_repo)
+  if (!requireNamespace(p, quietly = TRUE)) install_safely(p, fallback_repo)
+}
 
-# Protokolliere den Installationsstatus fuer den Reproduzierbarkeits-Log.
-all_pkgs <- c(pkgs_core, pkgs_models, pkgs_agreement, pkgs_irt, pkgs_io,
-              pkgs_bayes)
-status <- data.frame(
-  package = all_pkgs,
-  installed = vapply(all_pkgs, requireNamespace, logical(1), quietly = TRUE)
-)
-dir.create("results/logs", showWarnings = FALSE, recursive = TRUE)
-write.csv(status, "results/logs/r_package_install_status.csv",
-          row.names = FALSE)
-print(status)
+status <- data.frame(package = pkgs,
+                     installed = vapply(pkgs, requireNamespace, logical(1), quietly = TRUE))
+print(status, row.names = FALSE)

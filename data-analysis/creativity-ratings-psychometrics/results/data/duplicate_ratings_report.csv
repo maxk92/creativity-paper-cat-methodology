@@ -1,0 +1,13 @@
+product_id,rater_id,n_entries,ratings,conflicting,resolution_in_00
+08bff696-7883-4789-bfb9-cd0ccb5e37f7,R04,2,5.0 | 5.0,FALSE,last entry kept
+0a9c032f-abc4-4769-a5a7-c1a7bf349592,R11,2,1.0 | 1.0,FALSE,last entry kept
+0e4345d1-fc1e-4551-b068-1c8009c42882,R11,2,5.0 | 5.0,FALSE,last entry kept
+1e9c102b-a136-4e5a-bd0c-a6fc3c3a7a7c,R15,2,2.0 | 2.0,FALSE,last entry kept
+20bb4549-e015-4cba-9b1f-603b05173d56,R07,2,1.0 | 1.0,FALSE,last entry kept
+2541577f-83c0-42ae-9d71-e70411f210e2,R11,2,3.0 | 3.0,FALSE,last entry kept
+26cf6395-b68f-4f5f-8e7d-65c3b6331a9e,R22,3,4.0 | 4.0 | 4.0,FALSE,last entry kept
+28ee9cab-bac5-4b8f-94da-d1f788534f94,R11,2,4.0 | 4.0,FALSE,last entry kept
+2e17dd71-a4ba-4289-8c49-a66baf0594dd,R11,2,1.0 | 1.0,FALSE,last entry kept
+36a6bfe9-af61-4c28-b27f-205c9706b4cc,R14,2,2.0 | 1.0,TRUE,last entry kept
+9c6f3751-3a40-49b6-bca4-5ac365619317,R15,2,3.0 | 3.0,FALSE,last entry kept
+aafa61a9-c79c-475c-a74d-9669373480f9,R16,2,4.0 | 4.0,FALSE,last entry kept

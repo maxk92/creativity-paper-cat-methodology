@@ -1,1 +1,0 @@
-Left: estimated variance components of the linear crossed model with 95% credible intervals. Right: D-study curves for absolute and relative reliability of the action mean as a function of the number of raters k, with a 95% credible band over the posterior distribution.
