@@ -31,7 +31,8 @@ script_dir <- function() {
   if (length(arg) == 1) return(dirname(normalizePath(sub("^--file=", "", arg))))
   normalizePath("R")  # interactive use from the analysis folder
 }
-ROOT <- normalizePath(file.path(script_dir(), ".."))
+# JRT_ROOT overrides the analysis folder (used to test the pipeline on a toy copy).
+ROOT <- normalizePath(Sys.getenv("JRT_ROOT", file.path(script_dir(), "..")))
 INPUT_CSV <- file.path(ROOT, "data", "processed", "ratings_long_clean.csv")
 RES <- file.path(ROOT, "results")
 DIR_DATA <- file.path(RES, "data")
@@ -61,7 +62,7 @@ THETA_POINTS <- c(-2, -1, 0, 1, 2)
 MIRT_METHOD <- "EM"
 MIRT_QUADPTS <- 61L
 MIRT_SE_TYPE <- "Oakes"
-MIRT_TOL <- 1e-5
+MIRT_TOL <- 1e-4  # mirt default for EM, written out
 MIRT_NCYCLES <- 2000L
 
 # --- output helpers ---------------------------------------------------------
@@ -162,7 +163,7 @@ convergence_row <- function(mod, label) {
     AIC = extract.mirt(mod, "AIC"),
     BIC = extract.mirt(mod, "BIC"),
     SABIC = extract.mirt(mod, "SABIC"),
-    n_products = extract.mirt(mod, "nrow"),
+    n_products = nrow(extract.mirt(mod, "data")),
     n_ratings = sum(!is.na(extract.mirt(mod, "data"))),
     stringsAsFactors = FALSE
   )
