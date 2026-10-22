@@ -26,7 +26,7 @@ pkgs <- c(
   # Bayesian
   "brms", "loo",
   # rendering
-  "knitr", "rmarkdown"
+  "knitr", "rmarkdown", "svglite"
 )
 
 install_safely <- function(p, repo) {
