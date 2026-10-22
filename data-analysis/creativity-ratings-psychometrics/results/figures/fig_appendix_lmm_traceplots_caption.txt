@@ -1,1 +1,0 @@
-Trace plots of the hyperparameters of the linear model.

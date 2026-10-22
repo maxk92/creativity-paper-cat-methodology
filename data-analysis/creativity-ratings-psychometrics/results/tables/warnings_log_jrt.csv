@@ -1,5 +1,0 @@
-notebook,timestamp,message
-jrt,2026-10-21T10:07:48.203283+00:00,Max R-hat = 1.1782 >= 1.01 for the JRT model.
-jrt,2026-10-21T10:07:48.203412+00:00,"Min ESS (bulk 83, tail 37) < 400 for the JRT model."
-jrt,2026-10-21T10:08:24.682024+00:00,"Equal-discrimination model convergence: max R-hat 1.1549, min ESS 39, divergences 0."
-jrt,2026-10-21T10:08:42.597336+00:00,More than 5% of observations have Pareto-k > 0.7 - LOO is unreliable for these.

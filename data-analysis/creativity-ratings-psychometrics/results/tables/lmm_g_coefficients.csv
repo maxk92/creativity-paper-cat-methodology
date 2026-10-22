@@ -1,6 +1,0 @@
-coefficient,estimate,ci_low,ci_high
-"ICC(A,1) = Phi(1), absolute, single rating",0.42095992556331313,0.3670235773014977,0.46141741457124996
-"ICC(C,1) = E rho^2(1), relative, single rating",0.4948531474449568,0.4700229092934461,0.5183737214089831
-"Phi(k=1.73), absolute, current harmonic-mean k",0.5562138407513939,0.5002462718785917,0.5966087042434667
-"E rho^2(k=1.73), relative, current harmonic-mean k",0.6283331107107405,0.6049037211657955,0.6501094102432886
-Empirical reliability of the fair scores (BLUPs),0.6438105892724575,,

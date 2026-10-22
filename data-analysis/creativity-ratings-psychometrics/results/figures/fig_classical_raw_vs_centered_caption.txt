@@ -1,1 +1,0 @@
-Raw mean vs. rater-centered mean per action, colored by number of ratings.

@@ -1,1 +1,0 @@
-Rater parameters of the JRT model with 95% credible intervals: (A) discrimination a_j (dashed line: pool discrimination exp(mu_log_a)), (B) leniency lambda_j relative to the average rater (dashed line: 0). Raters are sorted by discrimination.

@@ -1,7 +1,0 @@
-raters,n_raters,response_style_index,spearman_rho,p_value
-all raters,22,central_category_rate,-0.5309234891183331,0.011011380663822285
-all raters,22,extreme_category_rate,0.5810276679841898,0.004572404506057984
-all raters,22,rating_sd,0.637492941840768,0.0014160746840986924
-raters with >= 50 ratings,19,central_category_rate,-0.4456140350877193,0.05586260497614909
-raters with >= 50 ratings,19,extreme_category_rate,0.5421052631578946,0.016496928456990488
-raters with >= 50 ratings,19,rating_sd,0.6789473684210526,0.0013913709079646781

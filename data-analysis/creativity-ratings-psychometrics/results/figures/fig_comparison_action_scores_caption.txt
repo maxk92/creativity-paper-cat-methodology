@@ -1,1 +1,0 @@
-Raw mean vs. LMM fair score (left) and vs. the MFRM expected rating (middle), coloured by number of ratings; right: raw mean minus LMM fair score by number of ratings, showing stronger shrinkage for actions with few ratings.

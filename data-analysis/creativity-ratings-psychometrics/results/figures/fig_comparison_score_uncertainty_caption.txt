@@ -1,1 +1,0 @@
-95% uncertainty intervals for a sample of actions stratified by number of ratings: LMM fair score (blue, bottom) vs. MFRM latent score (orange, top).

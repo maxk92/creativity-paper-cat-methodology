@@ -1,1 +1,0 @@
-Posterior predictive check of the linear Gaussian model.

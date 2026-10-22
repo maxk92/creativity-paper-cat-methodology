@@ -1,29 +1,21 @@
-# Python dependencies for the creativity-ratings analysis notebooks.
+# Python dependencies for the data notebooks (00, 01).
 # Install (from the repo root venv):
 #   pip install -r requirements.txt
 # Tested with Python 3.12.9. Exact versions of each run are logged to
 # results/logs/session_info_python.json.
+# The models are fitted in R (see install_r_packages.R and R/).
 
 # Data handling
 pandas>=2.2
 numpy>=1.26
 openpyxl>=3.1        # pd.read_excel in 00_data_loading_preprocessing
 duckdb>=1.0          # StatsBomb event database in 00_data_loading_preprocessing
+tabulate>=0.9        # DataFrame.to_markdown for embedded tables
 
-# Statistics / psychometrics
+# Design diagnostics (01)
 scipy>=1.11
-statsmodels>=0.14
-scikit-learn>=1.4
 networkx>=3.2
-krippendorff>=0.6
-
-# Bayesian models (02_creativity_ratings_python). PyMC 6 requires arviz>=1.1.
-pymc>=6.0
-arviz>=1.1
-
-# Plotting
 matplotlib>=3.8
-seaborn>=0.13
 
 # Notebook tooling
 jupyter>=1.0

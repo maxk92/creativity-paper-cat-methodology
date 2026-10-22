@@ -1,1 +1,0 @@
-Rater parameters across approaches: severity from the linear vs. the ordinal facet model (left); JRT discrimination vs. classical leave-one-out consistency (right).

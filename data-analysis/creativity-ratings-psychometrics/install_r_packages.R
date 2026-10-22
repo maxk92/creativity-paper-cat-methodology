@@ -1,5 +1,5 @@
 # ============================================================
-# R package installation for notebooks/02_creativity_ratings_R.qmd
+# R package installation for the JRT pipeline in R/ (01_data_design.R ... 06_summary.R)
 # ============================================================
 # Usage (from this folder):
 #   Rscript install_r_packages.R
@@ -7,7 +7,7 @@
 # Installs only Depends/Imports/LinkingTo (no Suggests): installing with
 # dependencies = TRUE pulls in a huge, irrelevant Suggests tree.
 # Packages are taken from a date-pinned Posit Package Manager snapshot
-# for reproducibility; anything missing there (e.g. jrt, mirt for very
+# for reproducibility; anything missing there (e.g. mirt for very
 # new R versions) is retried from the regular CRAN mirror.
 # ============================================================
 
@@ -15,18 +15,14 @@ snapshot_repo <- "https://packagemanager.posit.co/cran/2026-07-01"
 fallback_repo <- "https://cloud.r-project.org"
 
 pkgs <- c(
-  # data handling
-  "tidyverse", "here", "janitor", "glue", "scales",
-  # design / agreement
-  "igraph", "irr", "psych", "krippendorffsalpha",
-  # mixed models
-  "nloptr", "lme4", "lmerTest", "performance", "ordinal",
+  # data handling and plots
+  "dplyr", "tidyr", "readr", "ggplot2", "svglite",
+  # design checks
+  "igraph",
   # IRT / facet models
-  "sirt", "mirt", "jrt",
-  # Bayesian
-  "brms", "loo",
-  # rendering
-  "knitr", "rmarkdown", "svglite"
+  "mirt", "sirt",
+  # naive indices
+  "psych", "irr"
 )
 
 install_safely <- function(p, repo) {

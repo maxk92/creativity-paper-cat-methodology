@@ -1,1 +1,0 @@
-Bland-Altman-style plots (with jitter due to the discrete scale) for the two rater pairs with the largest number of jointly rated actions.

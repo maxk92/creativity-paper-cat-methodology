@@ -1,1 +1,0 @@
-Spearman-Brown projection of Krippendorff's alpha (interval and ordinal) to the reliability of a k-rating mean, with 95% cluster-bootstrap bands.
