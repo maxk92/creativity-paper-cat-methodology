@@ -1,0 +1,1 @@
+Trace plots (left) and per-chain posterior densities (right) of the JRT thresholds and hyperparameters; colours denote the four chains.

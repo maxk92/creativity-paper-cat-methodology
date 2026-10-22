@@ -1,0 +1,1 @@
+Rater severity (leniency) on the logit scale of the ordinal facet model, posterior means with 95% credible intervals.

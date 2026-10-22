@@ -1,0 +1,1 @@
+Left: variance components of the linear crossed model with 95% credible intervals. Right: D-study curves for the absolute (Phi) and relative (E rho^2) reliability of a k-rating mean, with 95% credible bands.

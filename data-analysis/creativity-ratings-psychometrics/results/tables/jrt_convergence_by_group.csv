@@ -1,0 +1,6 @@
+parameter_group,n_parameters,max_r_hat,min_ess_bulk,min_ess_tail
+action creativity (theta),3669,1.178151,83.051176,37.167593
+rater leniency (lambda_j),22,1.019848,144.476405,125.911439
+rater discrimination (a_j),22,1.038863,113.750456,98.349023
+thresholds (tau_k),6,1.026162,268.660859,184.568079
+hyperparameters,3,1.022533,149.860432,149.413466

@@ -6,7 +6,11 @@ paper_type: imrad-apa        # one of: imrad-apa | cs-ieee
 # Paths (edit per project) -------------------------------------------------
 vault_path:   ~/drive/KNOWLEDGE/
 brief:        ~/drive/KNOWLEDGE/Paper_CreativityAssessmentInSportsCAT.md   # the paper's concept note
-notebook:     None #data-analysis/results.ipynb
+# JRT-only paper: 02a/02b/02c, 03_approach_comparison and 02_creativity_ratings_R.qmd are excluded on purpose.
+notebook:
+  - data-analysis/creativity-ratings-psychometrics/notebooks/00_data_loading_preprocessing.ipynb
+  - data-analysis/creativity-ratings-psychometrics/notebooks/01_data_overview.ipynb
+  - data-analysis/creativity-ratings-psychometrics/notebooks/02d_judge_response_theory.ipynb
 bibliography: ~/drive/phd_library.bib
 build_dir:    manuscript
 
@@ -16,7 +20,7 @@ profiles:
   imrad-apa:
     venue: "Creativity Research Journal"
     template: ~/drive/utils/paper-orchestra/templates/imrad-apa.qmd
-    csl:      ~/csl/apa.csl              # your local APA CSL
+    csl:      ~/drive/utils/csl/apa-7th-edition.csl   # APA 7th edition
     structure: [Abstract, Introduction, Methods, Results, Discussion, Conclusion, References]
     review_criteria:
       - "Clear research question and hypotheses"

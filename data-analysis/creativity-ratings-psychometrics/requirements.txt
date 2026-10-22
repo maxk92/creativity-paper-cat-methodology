@@ -1,47 +1,32 @@
-# ============================================================
-# Python-Abhaengigkeiten fuer die psychometrische Analyse
-# unvollstaendig gekreuzter Kreativitaetsratings
-# ============================================================
-# Installation (aus dem Projektordner):
-#   python3 -m venv .venv
-#   source .venv/bin/activate
+# Python dependencies for the creativity-ratings analysis notebooks.
+# Install (from the repo root venv):
 #   pip install -r requirements.txt
-#
-# Getestet mit Python 3.12.9 (siehe README.md fuer die exakten
-# Versionen, die beim letzten Analyselauf tatsaechlich installiert
-# waren -- diese werden zusaetzlich automatisch in
-# results/logs/session_info_python.txt protokolliert).
-# ============================================================
+# Tested with Python 3.12.9. Exact versions of each run are logged to
+# results/logs/session_info_python.json.
 
+# Data handling
 pandas>=2.2
 numpy>=1.26
+openpyxl>=3.1        # pd.read_excel in 00_data_loading_preprocessing
+duckdb>=1.0          # StatsBomb event database in 00_data_loading_preprocessing
+
+# Statistics / psychometrics
 scipy>=1.11
 statsmodels>=0.14
-patsy>=0.5
 scikit-learn>=1.4
 networkx>=3.2
-matplotlib>=3.8
-plotnine>=0.13
-pingouin>=0.5
 krippendorff>=0.6
-pyarrow>=15.0
-openpyxl>=3.1
-python-dotenv>=1.0
+
+# Bayesian models (02_creativity_ratings_python). PyMC 6 requires arviz>=1.1.
+pymc>=6.0
+arviz>=1.1
+
+# Plotting
+matplotlib>=3.8
+seaborn>=0.13
+
+# Notebook tooling
 jupyter>=1.0
 nbformat>=5.10
 nbconvert>=7.16
 ipykernel>=6.29
-
-# Bayesianischer ordinaler Facetten-Workflow (Abschnitt 11.3 / 12.4).
-# PyMC wird als primaere Python-Engine gewaehlt, weil es rein
-# pip-installierbar ist (kein separates CmdStan-Toolchain-Setup
-# noetig, anders als cmdstanpy). Falls cmdstanpy/Stan bevorzugt wird,
-# siehe Kommentar im Notebook Abschnitt 11.
-pymc>=5.10
-arviz>=0.17
-bambi>=0.13
-
-# Optional, falls Stan/CmdStan statt PyMC verwendet werden soll.
-# Erfordert zusaetzlich "python -m cmdstanpy.install_cmdstan"
-# (kompiliert lokal, kann 10-20 Minuten dauern).
-# cmdstanpy>=1.2

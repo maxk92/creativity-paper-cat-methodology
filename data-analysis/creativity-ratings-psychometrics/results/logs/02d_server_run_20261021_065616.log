@@ -1,0 +1,305 @@
+[NbConvertApp] Converting notebook _smoke_02d.ipynb to notebook
+[IPKernelApp] WARNING | Kernel is running over TCP without encryption. All communication (including code and outputs) is sent in plain text and is susceptible to eavesdropping. Use IPC transport or launch with kernel manager-provisioned CurveZMQ keys to enable transport encryption.
+Traceback (most recent call last):
+  File "/home/mklemp/jrt/.venv-jrt/bin/jupyter-nbconvert", line 6, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/jupyter_core/application.py", line 284, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/traitlets/config/application.py", line 1080, in launch_instance
+    app.start()
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/nbconvert/nbconvertapp.py", line 420, in start
+    self.convert_notebooks()
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/nbconvert/nbconvertapp.py", line 597, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/nbconvert/nbconvertapp.py", line 563, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/nbconvert/nbconvertapp.py", line 487, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/nbconvert/exporters/exporter.py", line 201, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/nbconvert/exporters/exporter.py", line 220, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/nbconvert/exporters/notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/nbconvert/exporters/exporter.py", line 154, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/nbconvert/exporters/exporter.py", line 353, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/nbconvert/preprocessors/base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/nbconvert/preprocessors/execute.py", line 103, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/nbconvert/preprocessors/execute.py", line 124, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/jupyter_core/utils/__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/nbclient/client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/home/mklemp/jrt/.venv-jrt/lib/python3.12/site-packages/nbclient/client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+import pytensor.tensor as pt
+
+import os
+
+# Sampler settings; JRT_DRAWS / JRT_TUNE override them for a quick smoke test
+# (see server/run_jrt_server.sh). Results for the paper use the defaults.
+N_DRAWS = int(os.environ.get("JRT_DRAWS", 2000))
+N_TUNE = int(os.environ.get("JRT_TUNE", 2000))
+N_CHAINS, TARGET_ACCEPT = 4, 0.95
+
+def build_jrt_model(equal_discrimination=False):
+    coords = {"action": action_levels_o, "rater": rater_levels_o, "cut": range(6)}
+    with pm.Model(coords=coords) as model:
+        theta = pm.Normal("theta", 0, 1, dims="action")  # fixed scale: Var(theta) = 1
+
+        sigma_lambda = pm.Exponential("sigma_lambda", 1.0)
+        lam = pm.ZeroSumNormal("leniency", sigma=sigma_lambda, dims="rater")
+
+        mu_log_a = pm.Normal("mu_log_a", 0, 1)
+        if equal_discrimination:
+            log_a = pm.Deterministic("log_a", mu_log_a + pt.zeros(len(rater_levels_o)), dims="rater")
+        else:
+            sigma_log_a = pm.Exponential("sigma_log_a", 2.0)
+            log_a_raw = pm.Normal("log_a_raw", 0, 1, dims="rater")
+            log_a = pm.Deterministic("log_a", mu_log_a + log_a_raw * sigma_log_a, dims="rater")
+        a_j = pm.Deterministic("discrimination", pm.math.exp(log_a), dims="rater")
+
+        cutpoints = pm.Normal(
+            "cutpoints", mu=np.linspace(-2.5, 2.5, 6), sigma=1.5,
+            transform=pm.distributions.transforms.ordered, dims="cut",
+        )
+        # Note: no initval= (it breaks pm.compute_log_likelihood for ordered transforms).
+
+        eta = a_j[rater_idx_o] * theta[action_idx_o] + lam[rater_idx_o]
+        pm.OrderedLogistic("y_obs", eta=eta, cutpoints=cutpoints, observed=y_ord)
+    return model
+
+def shrink_log_likelihood(idata):
+    # Pointwise log-likelihood (n_draws x n_ratings) is the largest array; float32 halves it.
+    ll = idata["log_likelihood"]
+    idata["log_likelihood"] = (ll.to_dataset() if hasattr(ll, "to_dataset") else ll).astype("float32")
+    return idata
+
+jrt_model = build_jrt_model(equal_discrimination=False)
+with jrt_model:
+    idata_jrt = pm.sample(draws=N_DRAWS, tune=N_TUNE, chains=N_CHAINS, cores=N_CHAINS,
+                          target_accept=TARGET_ACCEPT, random_seed=SEED, progressbar=False)
+    pm.compute_log_likelihood(idata_jrt, progressbar=False)
+idata_jrt = shrink_log_likelihood(idata_jrt)
+
+idata_jrt.to_netcdf(str(RESULTS_MODELS / "jrt_discrimination_model.nc"))
+print(f"Sampler: {N_CHAINS} chains x {N_DRAWS} draws after {N_TUNE} tuning steps, "
+      f"target_accept = {TARGET_ACCEPT}")
+print("Model saved: results/models/jrt_discrimination_model.nc")
+------------------
+
+----- stderr -----
+Only 60 samples per chain. Reliable r-hat and ESS diagnostics require longer chains for accurate estimate.
+----- stderr -----
+Initializing NUTS using jitter+adapt_diag...
+----- stderr -----
+Multiprocess sampling (4 chains in 4 jobs)
+----- stderr -----
+NUTS: [theta, sigma_lambda, leniency, mu_log_a, sigma_log_a, log_a_raw, cutpoints]
+----- stderr -----
+Sampling 4 chains for 60 tune and 60 draw iterations (240 + 240 draws total) took 72 seconds.
+----- stderr -----
+The number of samples is too small to check convergence reliably.
+------------------
+
+[31m---------------------------------------------------------------------------[39m
+[31mKeyError[39m                                  Traceback (most recent call last)
+[36mFile [39m[32m~/jrt/.venv-jrt/lib/python3.12/site-packages/xarray/backends/file_manager.py:219[39m, in [36mCachingFileManager._acquire_with_cache_info[39m[34m(self, needs_lock)[39m
+[32m    218[39m [38;5;28;01mtry[39;00m:
+[32m--> [39m[32m219[39m     file = [30;43mself[39;49m[30;43m.[39;49m[30;43m_cache[39;49m[30;43m[[39;49m[30;43mself[39;49m[30;43m.[39;49m[30;43m_key[39;49m[30;43m][39;49m
+[32m    220[39m [38;5;28;01mexcept[39;00m [38;5;167;01mKeyError[39;00m:
+
+[36mFile [39m[32m~/jrt/.venv-jrt/lib/python3.12/site-packages/xarray/backends/lru_cache.py:56[39m, in [36mLRUCache.__getitem__[39m[34m(self, key)[39m
+[32m     55[39m [38;5;28;01mwith[39;00m [38;5;28mself[39m._lock:
+[32m---> [39m[32m56[39m     value = [30;43mself[39;49m[30;43m.[39;49m[30;43m_cache[39;49m[30;43m[[39;49m[30;43mkey[39;49m[30;43m][39;49m
+[32m     57[39m     [38;5;28mself[39m._cache.move_to_end(key)
+
+[31mKeyError[39m: [<class 'h5netcdf.core.File'>, ('/home/mklemp/jrt/results/models/jrt_discrimination_model.nc',), 'a', (('decode_vlen_strings', True), ('driver', None), ('format', 'NETCDF4'), ('invalid_netcdf', None)), '855805d3-6132-435a-a439-9cb8f2b806b3']
+
+During handling of the above exception, another exception occurred:
+
+[31mImportError[39m                               Traceback (most recent call last)
+[36mCell[39m[36m [39m[32mIn[6][39m[32m, line 51[39m
+[32m     47[39m                           target_accept=TARGET_ACCEPT, random_seed=SEED, progressbar=[38;5;28;01mFalse[39;00m)
+[32m     48[39m     pm.compute_log_likelihood(idata_jrt, progressbar=[38;5;28;01mFalse[39;00m)
+[32m     49[39m idata_jrt = shrink_log_likelihood(idata_jrt)
+[32m     50[39m 
+[32m---> [39m[32m51[39m idata_jrt.to_netcdf(str(RESULTS_MODELS / [33m"jrt_discrimination_model.nc"[39m))
+[32m     52[39m print(f"Sampler: {N_CHAINS} chains x {N_DRAWS} draws after {N_TUNE} tuning steps, "
+[32m     53[39m       f"target_accept = {TARGET_ACCEPT}")
+[32m     54[39m print([33m"Model saved: results/models/jrt_discrimination_model.nc"[39m)
+
+[36mFile [39m[32m~/jrt/.venv-jrt/lib/python3.12/site-packages/xarray/core/datatree.py:2098[39m, in [36mDataTree.to_netcdf[39m[34m(self, filepath, mode, encoding, unlimited_dims, format, engine, group, write_inherited_coords, compute, **kwargs)[39m
+[32m   2038[39m [38;5;250m[39m[33;03m"""[39;00m
+[32m   2039[39m [33;03mWrite datatree contents to a netCDF file.[39;00m
+[32m   2040[39m 
+[32m   (...)[39m[32m   2094[39m [33;03m    is always ``"/"`` overriding any given ``DataTree`` root node name.[39;00m
+[32m   2095[39m [33;03m"""[39;00m
+[32m   2096[39m [38;5;28;01mfrom[39;00m[38;5;250m [39m[34;01mxarray[39;00m[34;01m.[39;00m[34;01mbackends[39;00m[34;01m.[39;00m[34;01mwriters[39;00m[38;5;250m [39m[38;5;28;01mimport[39;00m _datatree_to_netcdf
+[32m-> [39m[32m2098[39m [38;5;28;01mreturn[39;00m [30;43m_datatree_to_netcdf[39;49m[30;43m([39;49m
+[32m   2099[39m [30;43m    [39;49m[30;43mself[39;49m[30;43m,[39;49m
+[32m   2100[39m [30;43m    [39;49m[30;43mfilepath[39;49m[30;43m,[39;49m
+[32m   2101[39m [30;43m    [39;49m[30;43mmode[39;49m[30;43m=[39;49m[30;43mmode[39;49m[30;43m,[39;49m
+[32m   2102[39m [30;43m    [39;49m[30;43mencoding[39;49m[30;43m=[39;49m[30;43mencoding[39;49m[30;43m,[39;49m
+[32m   2103[39m [30;43m    [39;49m[30;43munlimited_dims[39;49m[30;43m=[39;49m[30;43munlimited_dims[39;49m[30;43m,[39;49m
+[32m   2104[39m [30;43m    [39;49m[30;43mformat[39;49m[30;43m=[39;49m[30;43mformat[39;49m[30;43m,[39;49m
+[32m   2105[39m [30;43m    [39;49m[30;43mengine[39;49m[30;43m=[39;49m[30;43mengine[39;49m[30;43m,[39;49m
+[32m   2106[39m [30;43m    [39;49m[30;43mgroup[39;49m[30;43m=[39;49m[30;43mgroup[39;49m[30;43m,[39;49m
+[32m   2107[39m [30;43m    [39;49m[30;43mwrite_inherited_coords[39;49m[30;43m=[39;49m[30;43mwrite_inherited_coords[39;49m[30;43m,[39;49m
+[32m   2108[39m [30;43m    [39;49m[30;43mcompute[39;49m[30;43m=[39;49m[30;43mcompute[39;49m[30;43m,[39;49m
+[32m   2109[39m [30;43m    [39;49m[30;43m*[39;49m[30;43m*[39;49m[30;43mkwargs[39;49m[30;43m,[39;49m
+[32m   2110[39m [30;43m[39;49m[30;43m)[39;49m
+
+[36mFile [39m[32m~/jrt/.venv-jrt/lib/python3.12/site-packages/xarray/backends/writers.py:878[39m, in [36m_datatree_to_netcdf[39m[34m(dt, filepath, mode, encoding, unlimited_dims, format, engine, group, write_inherited_coords, compute, invalid_netcdf, auto_complex)[39m
+[32m    873[39m have_chunks = [38;5;28many[39m(
+[32m    874[39m     v.chunks [38;5;129;01mis[39;00m [38;5;129;01mnot[39;00m [38;5;28;01mNone[39;00m [38;5;28;01mfor[39;00m node [38;5;129;01min[39;00m dt.subtree [38;5;28;01mfor[39;00m v [38;5;129;01min[39;00m node.variables.values()
+[32m    875[39m )
+[32m    876[39m autoclose = have_chunks [38;5;129;01mand[39;00m scheduler [38;5;129;01min[39;00m [[33m"[39m[33mdistributed[39m[33m"[39m, [33m"[39m[33mmultiprocessing[39m[33m"[39m]
+[32m--> [39m[32m878[39m root_store = [30;43mget_writable_netcdf_store[39;49m[30;43m([39;49m
+[32m    879[39m [30;43m    [39;49m[30;43mtarget[39;49m[30;43m,[39;49m
+[32m    880[39m [30;43m    [39;49m[30;43mengine[39;49m[30;43m,[39;49m[30;43m  [39;49m[30;43;03m# type: ignore[arg-type][39;49;00m
+[32m    881[39m [30;43m    [39;49m[30;43mmode[39;49m[30;43m=[39;49m[30;43mmode[39;49m[30;43m,[39;49m
+[32m    882[39m [30;43m    [39;49m[30;43mformat[39;49m[30;43m=[39;49m[30;43mformat[39;49m[30;43m,[39;49m
+[32m    883[39m [30;43m    [39;49m[30;43mautoclose[39;49m[30;43m=[39;49m[30;43mautoclose[39;49m[30;43m,[39;49m
+[32m    884[39m [30;43m    [39;49m[30;43minvalid_netcdf[39;49m[30;43m=[39;49m[30;43minvalid_netcdf[39;49m[30;43m,[39;49m
+[32m    885[39m [30;43m    [39;49m[30;43mauto_complex[39;49m[30;43m=[39;49m[30;43mauto_complex[39;49m[30;43m,[39;49m
+[32m    886[39m [30;43m[39;49m[30;43m)[39;49m
+[32m    888[39m writer = ArrayWriter()
+[32m    890[39m [38;5;66;03m# TODO: allow this work (setting up the file for writing array data)[39;00m
+[32m    891[39m [38;5;66;03m# to be parallelized with dask[39;00m
+
+[36mFile [39m[32m~/jrt/.venv-jrt/lib/python3.12/site-packages/xarray/backends/writers.py:78[39m, in [36mget_writable_netcdf_store[39m[34m(target, engine, format, mode, autoclose, invalid_netcdf, auto_complex)[39m
+[32m     75[39m [38;5;28;01mif[39;00m auto_complex [38;5;129;01mis[39;00m [38;5;129;01mnot[39;00m [38;5;28;01mNone[39;00m:
+[32m     76[39m     kwargs[[33m"[39m[33mauto_complex[39m[33m"[39m] = auto_complex
+[32m---> [39m[32m78[39m [38;5;28;01mreturn[39;00m [30;43mstore_open[39;49m[30;43m([39;49m[30;43mtarget[39;49m[30;43m,[39;49m[30;43m [39;49m[30;43mmode[39;49m[30;43m=[39;49m[30;43mmode[39;49m[30;43m,[39;49m[30;43m [39;49m[30;43mformat[39;49m[30;43m=[39;49m[30;43mformat[39;49m[30;43m,[39;49m[30;43m [39;49m[30;43m*[39;49m[30;43m*[39;49m[30;43mkwargs[39;49m[30;43m)[39;49m
+
+[36mFile [39m[32m~/jrt/.venv-jrt/lib/python3.12/site-packages/xarray/backends/h5netcdf_.py:258[39m, in [36mH5NetCDFStore.open[39m[34m(cls, filename, mode, format, group, lock, autoclose, invalid_netcdf, phony_dims, decode_vlen_strings, driver, driver_kwds, storage_options, open_kwargs)[39m
+[32m    251[39m manager_cls = (
+[32m    252[39m     CachingFileManager
+[32m    253[39m     [38;5;28;01mif[39;00m [38;5;28misinstance[39m(filename, [38;5;28mstr[39m) [38;5;129;01mand[39;00m [38;5;129;01mnot[39;00m is_remote_uri(filename)
+[32m    254[39m     [38;5;28;01melse[39;00m PickleableFileManager
+[32m    255[39m )
+[32m    256[39m manager = manager_cls(h5netcdf.File, filename, mode=mode, kwargs=kwargs)
+[32m--> [39m[32m258[39m [38;5;28;01mreturn[39;00m [30;43mcls[39;49m[30;43m([39;49m
+[32m    259[39m [30;43m    [39;49m[30;43mmanager[39;49m[30;43m,[39;49m
+[32m    260[39m [30;43m    [39;49m[30;43mgroup[39;49m[30;43m=[39;49m[30;43mgroup[39;49m[30;43m,[39;49m
+[32m    261[39m [30;43m    [39;49m[30;43mformat[39;49m[30;43m=[39;49m[30;43mformat[39;49m[30;43m,[39;49m
+[32m    262[39m [30;43m    [39;49m[30;43mmode[39;49m[30;43m=[39;49m[30;43mmode[39;49m[30;43m,[39;49m
+[32m    263[39m [30;43m    [39;49m[30;43mlock[39;49m[30;43m=[39;49m[30;43mlock[39;49m[30;43m,[39;49m
+[32m    264[39m [30;43m    [39;49m[30;43mautoclose[39;49m[30;43m=[39;49m[30;43mautoclose[39;49m[30;43m,[39;49m
+[32m    265[39m [30;43m[39;49m[30;43m)[39;49m
+
+[36mFile [39m[32m~/jrt/.venv-jrt/lib/python3.12/site-packages/xarray/backends/h5netcdf_.py:152[39m, in [36mH5NetCDFStore.__init__[39m[34m(self, manager, group, mode, format, lock, autoclose)[39m
+[32m    149[39m [38;5;28mself[39m.format = [38;5;28mformat[39m [38;5;129;01mor[39;00m [33m"[39m[33mNETCDF4[39m[33m"[39m
+[32m    150[39m [38;5;66;03m# todo: utilizing find_root_and_group seems a bit clunky[39;00m
+[32m    151[39m [38;5;66;03m#  making filename available on h5netcdf.Group seems better[39;00m
+[32m--> [39m[32m152[39m [38;5;28mself[39m._filename = find_root_and_group([30;43mself[39;49m[30;43m.[39;49m[30;43mds[39;49m)[[32m0[39m].filename
+[32m    153[39m [38;5;28mself[39m.is_remote = is_remote_uri([38;5;28mself[39m._filename)
+[32m    154[39m [38;5;28mself[39m.lock = ensure_lock(lock)
+
+[36mFile [39m[32m~/jrt/.venv-jrt/lib/python3.12/site-packages/xarray/backends/h5netcdf_.py:276[39m, in [36mH5NetCDFStore.ds[39m[34m(self)[39m
+[32m    274[39m [38;5;129m@property[39m
+[32m    275[39m [38;5;28;01mdef[39;00m[38;5;250m [39m[34mds[39m([38;5;28mself[39m):
+[32m--> [39m[32m276[39m     [38;5;28;01mreturn[39;00m [30;43mself[39;49m[30;43m.[39;49m[30;43m_acquire[39;49m[30;43m([39;49m[30;43m)[39;49m
+
+[36mFile [39m[32m~/jrt/.venv-jrt/lib/python3.12/site-packages/xarray/backends/h5netcdf_.py:268[39m, in [36mH5NetCDFStore._acquire[39m[34m(self, needs_lock)[39m
+[32m    267[39m [38;5;28;01mdef[39;00m[38;5;250m [39m[34m_acquire[39m([38;5;28mself[39m, needs_lock=[38;5;28;01mTrue[39;00m):
+[32m--> [39m[32m268[39m [30;43m    [39;49m[30;43;01mwith[39;49;00m[30;43m [39;49m[30;43mself[39;49m[30;43m.[39;49m[30;43m_manager[39;49m[30;43m.[39;49m[30;43macquire_context[39;49m[30;43m([39;49m[30;43mneeds_lock[39;49m[30;43m)[39;49m[30;43m [39;49m[30;43;01mas[39;49;00m[30;43m [39;49m[30;43mroot[39;49m[30;43m:[39;49m
+[32m    269[39m [30;43m        [39;49m[30;43mds[39;49m[30;43m [39;49m[30;43m=[39;49m[30;43m [39;49m[30;43m_nc4_require_group[39;49m[30;43m([39;49m
+[32m    270[39m [30;43m            [39;49m[30;43mroot[39;49m[30;43m,[39;49m[30;43m [39;49m[30;43mself[39;49m[30;43m.[39;49m[30;43m_group[39;49m[30;43m,[39;49m[30;43m [39;49m[30;43mself[39;49m[30;43m.[39;49m[30;43m_mode[39;49m[30;43m,[39;49m[30;43m [39;49m[30;43mcreate_group[39;49m[30;43m=[39;49m[30;43m_h5netcdf_create_group[39;49m
+[32m    271[39m [30;43m        [39;49m[30;43m)[39;49m
+[32m    272[39m     [38;5;28;01mreturn[39;00m ds
+
+[36mFile [39m[32m/usr/lib/python3.12/contextlib.py:137[39m, in [36m_GeneratorContextManager.__enter__[39m[34m(self)[39m
+[32m    135[39m [38;5;28;01mdel[39;00m [38;5;28mself[39m.args, [38;5;28mself[39m.kwds, [38;5;28mself[39m.func
+[32m    136[39m [38;5;28;01mtry[39;00m:
+[32m--> [39m[32m137[39m     [38;5;28;01mreturn[39;00m [30;43mnext[39;49m[30;43m([39;49m[30;43mself[39;49m[30;43m.[39;49m[30;43mgen[39;49m[30;43m)[39;49m
+[32m    138[39m [38;5;28;01mexcept[39;00m [38;5;167;01mStopIteration[39;00m:
+[32m    139[39m     [38;5;28;01mraise[39;00m [38;5;167;01mRuntimeError[39;00m([33m"[39m[33mgenerator didn[39m[33m'[39m[33mt yield[39m[33m"[39m) [38;5;28;01mfrom[39;00m[38;5;250m [39m[38;5;28;01mNone[39;00m
+
+[36mFile [39m[32m~/jrt/.venv-jrt/lib/python3.12/site-packages/xarray/backends/file_manager.py:207[39m, in [36mCachingFileManager.acquire_context[39m[34m(self, needs_lock)[39m
+[32m    204[39m [38;5;129m@contextmanager[39m
+[32m    205[39m [38;5;28;01mdef[39;00m[38;5;250m [39m[34macquire_context[39m([38;5;28mself[39m, needs_lock: [38;5;28mbool[39m = [38;5;28;01mTrue[39;00m) -> Iterator[T_File]:
+[32m    206[39m [38;5;250m    [39m[33;03m"""Context manager for acquiring a file."""[39;00m
+[32m--> [39m[32m207[39m     file, cached = [30;43mself[39;49m[30;43m.[39;49m[30;43m_acquire_with_cache_info[39;49m[30;43m([39;49m[30;43mneeds_lock[39;49m[30;43m)[39;49m
+[32m    208[39m     [38;5;28;01mtry[39;00m:
+[32m    209[39m         [38;5;28;01myield[39;00m file
+
+[36mFile [39m[32m~/jrt/.venv-jrt/lib/python3.12/site-packages/xarray/backends/file_manager.py:225[39m, in [36mCachingFileManager._acquire_with_cache_info[39m[34m(self, needs_lock)[39m
+[32m    223[39m     kwargs = kwargs.copy()
+[32m    224[39m     kwargs[[33m"[39m[33mmode[39m[33m"[39m] = [38;5;28mself[39m._mode
+[32m--> [39m[32m225[39m file = [30;43mself[39;49m[30;43m.[39;49m[30;43m_opener[39;49m[30;43m([39;49m[30;43m*[39;49m[30;43mself[39;49m[30;43m.[39;49m[30;43m_args[39;49m[30;43m,[39;49m[30;43m [39;49m[30;43m*[39;49m[30;43m*[39;49m[30;43mkwargs[39;49m[30;43m)[39;49m
+[32m    226[39m [38;5;28;01mif[39;00m [38;5;28mself[39m._mode == [33m"[39m[33mw[39m[33m"[39m:
+[32m    227[39m     [38;5;66;03m# ensure file doesn't get overridden when opened again[39;00m
+[32m    228[39m     [38;5;28mself[39m._mode = [33m"[39m[33ma[39m[33m"[39m
+
+[36mFile [39m[32m~/jrt/.venv-jrt/lib/python3.12/site-packages/h5netcdf/core.py:1892[39m, in [36mFile.__init__[39m[34m(self, path, mode, format, invalid_netcdf, phony_dims, backend, **kwargs)[39m
+[32m   1889[39m [38;5;28mself[39m._preexisting_file = [38;5;28;01mTrue[39;00m
+[32m   1891[39m [38;5;28;01mtry[39;00m:
+[32m-> [39m[32m1892[39m     [38;5;28mself[39m._backend = [30;43m_parse_backend[39;49m[30;43m([39;49m[30;43mpath[39;49m[30;43m,[39;49m[30;43m [39;49m[30;43mmode[39;49m[30;43m,[39;49m[30;43m [39;49m[30;43mbackend[39;49m[30;43m,[39;49m[30;43m [39;49m[30;43m*[39;49m[30;43m*[39;49m[30;43mkwargs[39;49m[30;43m)[39;49m
+[32m   1893[39m     [38;5;28;01mif[39;00m [38;5;28mself[39m.backend == [33m"[39m[33mpyfive[39m[33m"[39m:
+[32m   1894[39m         [38;5;28mself[39m._unsupported_hdf5_features = kwargs.pop(
+[32m   1895[39m             [33m"[39m[33munsupported_hdf5_features[39m[33m"[39m,
+[32m   1896[39m             os.environ.get([33m"[39m[33mPYFIVE_UNSUPPORTED_FEATURE[39m[33m"[39m, [33m"[39m[33merror[39m[33m"[39m),
+[32m   1897[39m         )
+
+[36mFile [39m[32m~/jrt/.venv-jrt/lib/python3.12/site-packages/h5netcdf/core.py:174[39m, in [36m_parse_backend[39m[34m(path, mode, backend, **kwargs)[39m
+[32m    167[39m no_backend = {
+[32m    168[39m     [33m"[39m[33mpyfive[39m[33m"[39m: no_pyfive,
+[32m    169[39m     [33m"[39m[33mh5py[39m[33m"[39m: no_h5py,
+[32m    170[39m     [33m"[39m[33mh5pyd[39m[33m"[39m: no_h5pyd,
+[32m    171[39m }
+[32m    173[39m [38;5;28;01mif[39;00m no_backend.get(backend, [38;5;28;01mFalse[39;00m):
+[32m--> [39m[32m174[39m     [38;5;28;01mraise[39;00m [38;5;167;01mImportError[39;00m(
+[32m    175[39m         [33mf[39m[33m"[39m[33mNo module named [39m[38;5;132;01m{[39;00mbackend[38;5;132;01m!r}[39;00m[33m, backend not available. [39m[33m"[39m
+[32m    176[39m         [33mf[39m[33m"[39m[33mPlease install [39m[38;5;132;01m{[39;00mbackend[38;5;132;01m!r}[39;00m[33m into your Python environment.[39m[33m"[39m
+[32m    177[39m     )
+[32m    179[39m [38;5;28;01mreturn[39;00m backend
+
+[31mImportError[39m: No module named 'h5py', backend not available. Please install 'h5py' into your Python environment.
+
+Command exited with non-zero status 1
+	Command being timed: "jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.kernel_name=python3 _smoke_02d.ipynb"
+	User time (seconds): 297.03
+	System time (seconds): 3.07
+	Percent of CPU this job got: 224%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:13.47
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1111756
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 33
+	Minor (reclaiming a frame) page faults: 673864
+	Voluntary context switches: 4128
+	Involuntary context switches: 4575
+	Swaps: 0
+	File system inputs: 39400
+	File system outputs: 17152
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

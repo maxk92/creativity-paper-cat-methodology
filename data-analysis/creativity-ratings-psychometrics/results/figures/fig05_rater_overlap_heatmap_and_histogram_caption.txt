@@ -1,1 +1,0 @@
-Left: heatmap of jointly rated actions per rater pair. Right: histogram of overlap counts across all rater pairs with at least one shared action.

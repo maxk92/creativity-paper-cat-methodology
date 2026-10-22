@@ -1,0 +1,31 @@
+
+The linear variance-component model (02b) attributes 42.0% of the rating variance to
+differences between actions, 15.2% to systematic differences between raters, and
+42.8% to residual variation (action x rater interaction, measurement error, other
+unmodelled influences). This indicates a noticeable rater-level effect. A single
+rating has ICC(A,1) = 0.42 (severity counted as error) and ICC(C,1) = 0.49
+(severity removed).
+
+With the current harmonic-mean number of ratings per action (k = 1.73), the absolute
+reliability of the raw action means is Phi = 0.56. Removing rater severity would allow up
+to E rho^2 = 0.63. Averaging seven ratings would raise Phi to 0.84, which is
+particularly relevant for the 898 actions that currently have a single rating.
+
+Krippendorff's ordinal alpha is 0.39 (95% cluster-bootstrap CI
+[0.36, 0.42]),
+describing agreement of single ratings across the incomplete design.
+
+The empirical reliability of the model-based scores is 0.64 (LMM),
+0.64 (ordinal facet model) and 0.66 (JRT).
+Relative to the raw mean, the rank correlation is 0.95 for the LMM
+fair score, 0.95 for the ordinal facet score and
+0.95 for the JRT score; 78% of
+the top-10% actions by raw mean remain in the top 10% after LMM rater correction.
+
+The comparison between the ordinal facet model and the JRT extension with rater-specific
+discrimination gave elpd_diff = 170.3 (SE 20.4; JRT minus equal-discrimination model, positive = JRT predicts better out of sample). Differences within about two standard errors favour the simpler model on parsimony grounds.
+
+The rater-action graph has 1 connected component(s). All rater severity estimates are therefore interpretable on a common scale.
+
+This summary refers to the present incompletely crossed design. Actions with a single rating
+contribute to the model-based estimation but carry no within-action agreement information.

@@ -1,0 +1,1 @@
+Frequency of the seven rating categories across all ratings.

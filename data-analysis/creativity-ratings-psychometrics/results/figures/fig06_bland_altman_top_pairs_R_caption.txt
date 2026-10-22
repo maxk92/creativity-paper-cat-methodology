@@ -1,1 +1,0 @@
-Bland-Altman-style plots for the two rater pairs with the strongest overlap.

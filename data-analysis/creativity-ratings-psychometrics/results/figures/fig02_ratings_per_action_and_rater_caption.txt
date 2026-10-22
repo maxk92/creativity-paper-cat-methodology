@@ -1,1 +1,0 @@
-Distribution of the number of ratings per action (left) and the number of rated actions per rater (right).

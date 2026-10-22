@@ -1,0 +1,4 @@
+notebook,timestamp,message
+classical,2026-10-15T08:30:59.450677+00:00,Krippendorff's alpha values from different subsets (e.g. >=2 vs. >=3 ratings) are not directly comparable due to differing action heterogeneity.
+jrt,2026-10-15T08:47:33.740449+00:00,Max R-hat = 1.0166 >= 1.01 for the JRT model.
+comparison,2026-10-15T08:49:05.311476+00:00,2 quality controls (see qc_checklist.csv) not passed.

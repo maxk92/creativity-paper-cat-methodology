@@ -1,0 +1,16 @@
+quantity,value
+Total number of ratings,7844.0
+Number of actions,3669.0
+Number of raters,22.0
+Actions with 1 rating,898.0
+Actions with 2 ratings,2080.0
+Actions with >=3 ratings,691.0
+Harmonic-mean ratings per action (largest component),1.73
+Number of connected components,1.0
+Actions in the largest component,3669.0
+Krippendorff's alpha (ordinal),0.391
+sigma^2_action (LMM),1.042
+sigma^2_rater (LMM),0.376
+sigma^2_residual (LMM),1.063
+"ICC(A,1) (LMM)",0.421
+"ICC(C,1) (LMM)",0.495

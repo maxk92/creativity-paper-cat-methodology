@@ -1,1 +1,0 @@
-Distribution of rater means, rater SD, category usage, and extreme/central tendency across all raters.

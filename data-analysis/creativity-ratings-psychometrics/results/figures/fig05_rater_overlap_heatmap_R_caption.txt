@@ -1,1 +1,0 @@
-Heatmap of jointly rated actions per rater pair.
