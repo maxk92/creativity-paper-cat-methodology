@@ -47,6 +47,13 @@ for (d in c(DIR_DATA, DIR_GRM, DIR_GRM_FIG, DIR_CMP, DIR_NAIVE, DIR_SUM, DIR_LOG
   dir.create(d, recursive = TRUE, showWarnings = FALSE)
 }
 
+# Raters with fewer ratings than this are excluded from the whole pipeline
+# (decision 2026-10-22): with up to 7 parameters per rater in the GRM, their
+# parameters are not identified (all-raters run: R21 a = -0.09, R22 a = -3.86
+# with huge SEs). Applied once, in 01_data_design.R; listed in
+# results/data/excluded_raters.csv.
+MIN_RATINGS_PER_RATER <- 15L
+
 # Category coding: the 1-7 rating scale is coded 0-6 internally (rating - 1).
 SCALE_MIN <- 1L
 SCALE_MAX <- 7L

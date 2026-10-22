@@ -1,25 +1,29 @@
 quantity,value
-n_ratings,7844
-n_products,3669
-n_raters,22
+n_ratings,7820
+n_products,3668
+n_raters,19
+min_ratings_per_rater (exclusion cut-off),15
+raters_excluded,R20;R21;R22
+ratings_excluded,24
+products_dropped,1
 n_categories,7
 scale,1-7
 internal_coding,rating - 1 (0-6)
-ratings_per_product_mean,2.13791223766694
+ratings_per_product_mean,2.1319520174482
 ratings_per_product_median,2
 ratings_per_product_min,1
-ratings_per_product_max,12
-ratings_per_product_harmonic_mean,1.72632034132518
-products_with_1_rating,898
-ratings_per_rater_min,2
+ratings_per_product_max,10
+ratings_per_product_harmonic_mean,1.72615922960609
+products_with_1_rating,897
+ratings_per_rater_min,50
 ratings_per_rater_max,1174
-matrix_fill,0.0971778289848609
+matrix_fill,0.112208000918326
 n_components,1
-rater_pairs_total,231
-rater_pairs_without_overlap,37
-rater_pairs_overlap_median,7
-raters_with_category_gaps,8
-raters_with_internal_gap,2
+rater_pairs_total,171
+rater_pairs_without_overlap,17
+rater_pairs_overlap_median,13
+raters_with_category_gaps,5
+raters_with_internal_gap,0
 duplicate_pairs_resolved_in_00,12
 duplicate_pairs_conflicting,1
-data_fingerprint,3669 products x 22 raters | 7844 ratings | md5 97f73b63787cac607c25fd66394f5085
+data_fingerprint,3668 products x 19 raters | 7820 ratings | md5 a547bcc70af59d7a6a6d7686b2052e47

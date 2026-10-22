@@ -1,0 +1,1651 @@
+>> 01_data_design  (16:43:26)
+01 data/design: reading /home/max/drive/projects/3_Creativity/11-paper-CAT-methodology/data-analysis/creativity-ratings-psychometrics/data/processed/ratings_long_clean.csv
+  wrote results/data/duplicate_ratings_report.csv
+  duplicates resolved upstream: 12 pairs, 1 with conflicting values
+  wrote results/data/excluded_raters.csv
+  excluded raters (< 15 ratings): R20, R21, R22; 24 ratings removed, 1 products dropped
+  wrote results/data/ratings_long.csv
+  wrote results/data/ratings_wide.csv
+  wrote results/data/category_usage.csv
+  raters with category gaps: 5 of 19 (internal gap: )
+  wrote results/data/connectivity.csv
+  design is connected (1 component)
+  wrote results/data/rater_overlap.csv
+  wrote results/data/design_summary_ratings_per_product.csv
+  wrote results/data/design_summary_raters.csv
+  wrote results/data/design_summary.csv
+# A tibble: 28 × 2
+   quantity                                  value                              
+   <chr>                                     <chr>                              
+ 1 n_ratings                                 7820                               
+ 2 n_products                                3668                               
+ 3 n_raters                                  19                                 
+ 4 min_ratings_per_rater (exclusion cut-off) 15                                 
+ 5 raters_excluded                           R20;R21;R22                        
+ 6 ratings_excluded                          24                                 
+ 7 products_dropped                          1                                  
+ 8 n_categories                              7                                  
+ 9 scale                                     1-7                                
+10 internal_coding                           rating - 1 (0-6)                   
+11 ratings_per_product_mean                  2.1319520174482                    
+12 ratings_per_product_median                2                                  
+13 ratings_per_product_min                   1                                  
+14 ratings_per_product_max                   10                                 
+15 ratings_per_product_harmonic_mean         1.72615922960609                   
+16 products_with_1_rating                    897                                
+17 ratings_per_rater_min                     50                                 
+18 ratings_per_rater_max                     1174                               
+19 matrix_fill                               0.112208000918326                  
+20 n_components                              1                                  
+21 rater_pairs_total                         171                                
+22 rater_pairs_without_overlap               17                                 
+23 rater_pairs_overlap_median                13                                 
+24 raters_with_category_gaps                 5                                  
+25 raters_with_internal_gap                  0                                  
+26 duplicate_pairs_resolved_in_00            12                                 
+27 duplicate_pairs_conflicting               1                                  
+28 data_fingerprint                          3668 products x 19 raters | 7820 r…
+  wrote results/logs/warnings_jrt_audit_01_data_design.csv
+01 data/design: done
+	Command being timed: "Rscript R/01_data_design.R"
+	User time (seconds): 2.95
+	System time (seconds): 0.62
+	Percent of CPU this job got: 105%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:03.40
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 424424
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 112880
+	Voluntary context switches: 3194
+	Involuntary context switches: 107
+	Swaps: 0
+	File system inputs: 8
+	File system outputs: 1504
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+>> 02_grm  (16:43:29)
+02 GRM: fitting mirt graded model (3668 products x 19 raters)
+  wrote results/grm/convergence.csv
+  converged=TRUE after 165 EM cycles; information matrix PD=TRUE
+  wrote results/grm/rater_parameters.csv
+  wrote results/grm/rater_parameters_slope_intercept.csv
+  extreme parameters: a>4: 0, |b|>5: 1 raters
+  wrote results/grm/rater_fit.csv
+  wrote results/grm/q3.csv
+  wrote results/grm/global_fit.csv
+  wrote grm_category_response_functions.{png,svg}
+  wrote results/logs/warnings_jrt_audit_02_grm.csv
+02 GRM: done
+	Command being timed: "Rscript R/02_grm.R"
+	User time (seconds): 47.54
+	System time (seconds): 0.64
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:48.28
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 528176
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 114
+	Minor (reclaiming a frame) page faults: 134818
+	Voluntary context switches: 1152
+	Involuntary context switches: 1245
+	Swaps: 0
+	File system inputs: 35432
+	File system outputs: 3472
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+>> 03_grm_information  (16:44:17)
+  wrote results/grm/rater_information_grid.csv
+  wrote results/grm/rater_information_summary.csv
+  wrote results/grm/rater_information_shares.csv
+  wrote grm_rater_information.{png,svg}
+  wrote grm_rater_information_shares.{png,svg}
+  wrote results/grm/panel_information_grid.csv
+  wrote grm_panel_information_reliability.{png,svg}
+  wrote results/grm/product_scores.csv
+  wrote results/grm/reliability_summary.csv
+  wrote results/grm/reliability_by_n_ratings.csv
+  wrote results/grm/reliability_consistency_largest_differences.csv
+  wrote grm_rel_post_histogram.{png,svg}
+  wrote grm_rel_post_by_n_ratings.{png,svg}
+  wrote grm_rel_post_by_theta.{png,svg}
+  wrote grm_rel_consistency.{png,svg}
+# A tibble: 18 × 2
+   quantity                                                           value
+   <chr>                                                              <dbl>
+ 1 empirical_marginal_reliability (primary; actual scores)           0.672 
+ 2 model_based_marginal_reliability_mirt (hypothetical full panel)   0.960 
+ 3 model_based_marginal_reliability_grid (check)                     0.960 
+ 4 var_theta_eap                                                     0.672 
+ 5 mean_psd_squared                                                  0.328 
+ 6 rel_post_min                                                      0.0568
+ 7 rel_post_p10                                                      0.485 
+ 8 rel_post_q1                                                       0.596 
+ 9 rel_post_median                                                   0.698 
+10 rel_post_q3                                                       0.769 
+11 rel_post_p90                                                      0.813 
+12 rel_post_max                                                      0.929 
+13 rel_post_mean                                                     0.672 
+14 rel_post_iqr                                                      0.173 
+15 consistency_cor_rel_post_rel_info                                 0.935 
+16 consistency_mean_diff_rel_info_minus_rel_post                     0.0163
+17 consistency_max_abs_diff                                          0.413 
+18 products_abs_diff_gt_0.1                                        320     
+  wrote results/logs/warnings_jrt_audit_03_grm_information.csv
+03 GRM information: done
+	Command being timed: "Rscript R/03_grm_information.R"
+	User time (seconds): 8.03
+	System time (seconds): 0.81
+	Percent of CPU this job got: 102%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:08.60
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 456852
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 123484
+	Voluntary context switches: 4459
+	Involuntary context switches: 355
+	Swaps: 0
+	File system inputs: 424
+	File system outputs: 7552
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+>> 04_model_comparison  (16:44:26)
+04: fitting sirt::rm.facets (M1, 321-point grid)
+...........................................................
+Iteration 1     2026-10-22 16:44:29.45468 
+  M steps b.rater parameter  |----  4 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=26878.3745
+    Maximum b.rater parameter change=0.219581
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=1.780002
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.965 
+...........................................................
+Iteration 2     2026-10-22 16:44:30.233309 
+  M steps b.rater parameter  |---  3 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24638.857 | Deviance change=2239.517526
+    Maximum b.rater parameter change=0.116077
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.531937
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.967 
+...........................................................
+Iteration 3     2026-10-22 16:44:30.893538 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24506.9866 | Deviance change=131.87042
+    Maximum b.rater parameter change=0.036373
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.299216
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.967 
+...........................................................
+Iteration 4     2026-10-22 16:44:31.507624 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24456.9829 | Deviance change=50.003643
+    Maximum b.rater parameter change=0.016536
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.225567
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.966 
+...........................................................
+Iteration 5     2026-10-22 16:44:31.887328 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24427.0551 | Deviance change=29.927781
+    Maximum b.rater parameter change=0.008039
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.179274
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.965 
+...........................................................
+Iteration 6     2026-10-22 16:44:32.480165 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24408.0041 | Deviance change=19.051048
+    Maximum b.rater parameter change=0.0064
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.143804
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.965 
+...........................................................
+Iteration 7     2026-10-22 16:44:32.844177 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24395.6758 | Deviance change=12.328307
+    Maximum b.rater parameter change=0.00585
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.115675
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.965 
+...........................................................
+Iteration 8     2026-10-22 16:44:33.224087 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24387.6605 | Deviance change=8.015302
+    Maximum b.rater parameter change=0.004998
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.093379
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.965 
+...........................................................
+Iteration 9     2026-10-22 16:44:33.601967 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24382.4424 | Deviance change=5.218028
+    Maximum b.rater parameter change=0.00412
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.075582
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.965 
+...........................................................
+Iteration 10     2026-10-22 16:44:34.19231 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24379.0439 | Deviance change=3.398576
+    Maximum b.rater parameter change=0.00332
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.061381
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.965 
+...........................................................
+Iteration 11     2026-10-22 16:44:34.552795 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24376.8285 | Deviance change=2.215371
+    Maximum b.rater parameter change=0.002627
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.050024
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.966 
+...........................................................
+Iteration 12     2026-10-22 16:44:34.916331 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24375.3817 | Deviance change=1.446851
+    Maximum b.rater parameter change=0.002043
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.040928
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.966 
+...........................................................
+Iteration 13     2026-10-22 16:44:35.343429 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24374.4336 | Deviance change=0.948041
+    Maximum b.rater parameter change=0.001561
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.033608
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.967 
+...........................................................
+Iteration 14     2026-10-22 16:44:36.027596 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24373.8094 | Deviance change=0.624224
+    Maximum b.rater parameter change=0.001169
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.02772
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.968 
+...........................................................
+Iteration 15     2026-10-22 16:44:36.442936 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24373.3955 | Deviance change=0.413927
+    Maximum b.rater parameter change=0.00098
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.022959
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.968 
+...........................................................
+Iteration 16     2026-10-22 16:44:36.919238 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24373.1185 | Deviance change=0.276949
+    Maximum b.rater parameter change=0.000843
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.01911
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.969 
+...........................................................
+Iteration 17     2026-10-22 16:44:37.416253 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24372.931 | Deviance change=0.187467
+    Maximum b.rater parameter change=0.000728
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.015983
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.97 
+...........................................................
+Iteration 18     2026-10-22 16:44:37.853237 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24372.8023 | Deviance change=0.128726
+    Maximum b.rater parameter change=0.000634
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.013438
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.971 
+...........................................................
+Iteration 19     2026-10-22 16:44:38.648391 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24372.7124 | Deviance change=0.089881
+    Maximum b.rater parameter change=0.000556
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.011353
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.971 
+...........................................................
+Iteration 20     2026-10-22 16:44:39.060844 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24372.6485 | Deviance change=0.063953
+    Maximum b.rater parameter change=0.00049
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.009647
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.972 
+...........................................................
+Iteration 21     2026-10-22 16:44:39.802324 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24372.602 | Deviance change=0.046456
+    Maximum b.rater parameter change=0.000444
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.00824
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.973 
+...........................................................
+Iteration 22     2026-10-22 16:44:40.243014 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |---  3 Step(s) 
+   Deviance=24372.5675 | Deviance change=0.034481
+    Maximum b.rater parameter change=0.00043
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.00651
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.974 
+...........................................................
+Iteration 23     2026-10-22 16:44:40.653203 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |---  3 Step(s) 
+   Deviance=24372.5432 | Deviance change=0.02436
+    Maximum b.rater parameter change=0.000472
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.00571
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.974 
+...........................................................
+Iteration 24     2026-10-22 16:44:41.404213 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |---  3 Step(s) 
+   Deviance=24372.5235 | Deviance change=0.019637
+    Maximum b.rater parameter change=0.000448
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.005057
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.975 
+...........................................................
+Iteration 25     2026-10-22 16:44:41.7895 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |---  3 Step(s) 
+   Deviance=24372.5076 | Deviance change=0.015918
+    Maximum b.rater parameter change=0.000426
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.004498
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.975 
+...........................................................
+Iteration 26     2026-10-22 16:44:42.196546 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.4946 | Deviance change=0.013007
+    Maximum b.rater parameter change=0.000407
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.003581
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.976 
+...........................................................
+Iteration 27     2026-10-22 16:44:42.545721 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.4846 | Deviance change=0.010025
+    Maximum b.rater parameter change=0.000403
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.003282
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.977 
+...........................................................
+Iteration 28     2026-10-22 16:44:43.433183 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.4761 | Deviance change=0.008539
+    Maximum b.rater parameter change=0.000377
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.003002
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.977 
+...........................................................
+Iteration 29     2026-10-22 16:44:43.872991 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.4688 | Deviance change=0.007263
+    Maximum b.rater parameter change=0.000353
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.002745
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.977 
+...........................................................
+Iteration 30     2026-10-22 16:44:44.287108 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.4626 | Deviance change=0.00618
+    Maximum b.rater parameter change=0.00033
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.002515
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.978 
+...........................................................
+Iteration 31     2026-10-22 16:44:44.675043 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.4574 | Deviance change=0.005265
+    Maximum b.rater parameter change=0.000309
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.002304
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.978 
+...........................................................
+Iteration 32     2026-10-22 16:44:45.009736 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.4529 | Deviance change=0.00449
+    Maximum b.rater parameter change=0.000289
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.002112
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.979 
+...........................................................
+Iteration 33     2026-10-22 16:44:45.380322 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.449 | Deviance change=0.003832
+    Maximum b.rater parameter change=0.00027
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.001938
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.979 
+...........................................................
+Iteration 34     2026-10-22 16:44:46.008923 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.4458 | Deviance change=0.003274
+    Maximum b.rater parameter change=0.000253
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.001778
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.979 
+...........................................................
+Iteration 35     2026-10-22 16:44:46.348315 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.443 | Deviance change=0.002799
+    Maximum b.rater parameter change=0.000236
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.001633
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.98 
+...........................................................
+Iteration 36     2026-10-22 16:44:46.690325 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.4406 | Deviance change=0.002395
+    Maximum b.rater parameter change=0.00022
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.001501
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.98 
+...........................................................
+Iteration 37     2026-10-22 16:44:47.02649 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.4385 | Deviance change=0.00205
+    Maximum b.rater parameter change=0.000206
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.001379
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.98 
+...........................................................
+Iteration 38     2026-10-22 16:44:47.726605 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.4368 | Deviance change=0.001756
+    Maximum b.rater parameter change=0.000192
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.001268
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.98 
+...........................................................
+Iteration 39     2026-10-22 16:44:48.224835 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |-  1 Step(s) 
+   Deviance=24372.4353 | Deviance change=0.001505
+    Maximum b.rater parameter change=0.000179
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.000923
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.981 
+*********************************
+Item Parameters
+        item    N     M tau.Cat1 tau.Cat2 tau.Cat3 tau.Cat4 tau.Cat5 tau.Cat6 a
+1 creativity 7820 1.715   -0.855   -0.714   -0.088    1.017    2.978    5.811 1
+  delta delta_cent
+1 0.968          0
+*********************************
+Rater Parameters
+   rater    N     M      b a thresh b.cent a.cent
+1    R01 1174 1.164  0.691 1  0.691  0.691      1
+2    R02  873 2.032 -0.110 1 -0.110 -0.110      1
+3    R03  720 1.750 -0.004 1 -0.004 -0.004      1
+4    R04  620 1.821  0.108 1  0.108  0.108      1
+5    R05  633 1.716  0.158 1  0.158  0.158      1
+6    R06  520 0.760  1.316 1  1.316  1.316      1
+7    R07  547 1.404  0.425 1  0.425  0.425      1
+8    R08  522 2.000 -0.170 1 -0.170 -0.170      1
+9    R09  400 2.643 -0.614 1 -0.614 -0.614      1
+10   R10  383 1.997 -0.232 1 -0.232 -0.232      1
+11   R11  369 1.333  0.474 1  0.474  0.474      1
+12   R12  264 2.360 -0.434 1 -0.434 -0.434      1
+13   R13  254 2.681 -0.632 1 -0.632 -0.632      1
+14   R14  259 1.220  0.738 1  0.738  0.738      1
+15   R15   73 2.466 -0.484 1 -0.484 -0.484      1
+16   R16   52 2.442 -0.305 1 -0.305 -0.305      1
+17   R17   52 1.077  0.625 1  0.625  0.625      1
+18   R18   55 2.836 -0.802 1 -0.802 -0.802      1
+19   R19   50 2.680 -0.748 1 -0.748 -0.748      1
+*********************************
+EAP Reliability= 0.626 
+04: fitting sirt::rm.facets (original call, sirt default grid)
+...........................................................
+Iteration 1     2026-10-22 16:44:48.73043 
+  M steps b.rater parameter  |----  4 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=26878.205
+    Maximum b.rater parameter change=0.218783
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=1.781941
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.965 
+...........................................................
+Iteration 2     2026-10-22 16:44:48.787742 
+  M steps b.rater parameter  |---  3 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24639.1488 | Deviance change=2239.056231
+    Maximum b.rater parameter change=0.119983
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.532051
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.967 
+...........................................................
+Iteration 3     2026-10-22 16:44:48.870636 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24506.8232 | Deviance change=132.325591
+    Maximum b.rater parameter change=0.036203
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.298976
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.967 
+...........................................................
+Iteration 4     2026-10-22 16:44:48.942367 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24456.7738 | Deviance change=50.049374
+    Maximum b.rater parameter change=0.016322
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.225226
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.966 
+...........................................................
+Iteration 5     2026-10-22 16:44:48.979749 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24426.879 | Deviance change=29.894774
+    Maximum b.rater parameter change=0.007843
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.178831
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.966 
+...........................................................
+Iteration 6     2026-10-22 16:44:49.014278 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24407.8728 | Deviance change=19.006177
+    Maximum b.rater parameter change=0.006365
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.143215
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.965 
+...........................................................
+Iteration 7     2026-10-22 16:44:49.052696 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24395.5902 | Deviance change=12.282639
+    Maximum b.rater parameter change=0.005801
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.115135
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.965 
+...........................................................
+Iteration 8     2026-10-22 16:44:49.084685 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24387.6135 | Deviance change=7.976718
+    Maximum b.rater parameter change=0.004946
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.092838
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.965 
+...........................................................
+Iteration 9     2026-10-22 16:44:49.117143 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24382.4271 | Deviance change=5.18643
+    Maximum b.rater parameter change=0.004075
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.07512
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.965 
+...........................................................
+Iteration 10     2026-10-22 16:44:49.153736 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24379.0528 | Deviance change=3.374285
+    Maximum b.rater parameter change=0.003283
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.060963
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.965 
+...........................................................
+Iteration 11     2026-10-22 16:44:49.185091 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24376.8554 | Deviance change=2.197355
+    Maximum b.rater parameter change=0.002599
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.049667
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.965 
+...........................................................
+Iteration 12     2026-10-22 16:44:49.215562 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24375.4217 | Deviance change=1.433692
+    Maximum b.rater parameter change=0.002024
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.040615
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.966 
+...........................................................
+Iteration 13     2026-10-22 16:44:49.2537 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24374.4832 | Deviance change=0.938548
+    Maximum b.rater parameter change=0.001549
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.033354
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.967 
+...........................................................
+Iteration 14     2026-10-22 16:44:49.284509 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24373.8657 | Deviance change=0.6175
+    Maximum b.rater parameter change=0.001161
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.027503
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.967 
+...........................................................
+Iteration 15     2026-10-22 16:44:49.314538 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24373.4565 | Deviance change=0.409167
+    Maximum b.rater parameter change=0.000885
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.022783
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.968 
+...........................................................
+Iteration 16     2026-10-22 16:44:49.349079 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24373.1829 | Deviance change=0.273643
+    Maximum b.rater parameter change=0.000767
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.018963
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.969 
+...........................................................
+Iteration 17     2026-10-22 16:44:49.378665 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24372.9977 | Deviance change=0.185151
+    Maximum b.rater parameter change=0.000668
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.015864
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.97 
+...........................................................
+Iteration 18     2026-10-22 16:44:49.413844 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24372.8706 | Deviance change=0.127105
+    Maximum b.rater parameter change=0.000586
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.013336
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.97 
+...........................................................
+Iteration 19     2026-10-22 16:44:49.444663 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24372.7819 | Deviance change=0.088747
+    Maximum b.rater parameter change=0.000517
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.011277
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.971 
+...........................................................
+Iteration 20     2026-10-22 16:44:49.474836 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24372.7187 | Deviance change=0.063171
+    Maximum b.rater parameter change=0.000462
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.009582
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.972 
+...........................................................
+Iteration 21     2026-10-22 16:44:49.509462 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=24372.6728 | Deviance change=0.045913
+    Maximum b.rater parameter change=0.000446
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.008191
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.973 
+...........................................................
+Iteration 22     2026-10-22 16:44:49.539505 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |---  3 Step(s) 
+   Deviance=24372.6387 | Deviance change=0.034106
+    Maximum b.rater parameter change=0.000432
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.006475
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.973 
+...........................................................
+Iteration 23     2026-10-22 16:44:49.571519 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |---  3 Step(s) 
+   Deviance=24372.6145 | Deviance change=0.024124
+    Maximum b.rater parameter change=0.000474
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.005682
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.974 
+...........................................................
+Iteration 24     2026-10-22 16:44:49.598194 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |---  3 Step(s) 
+   Deviance=24372.5951 | Deviance change=0.019465
+    Maximum b.rater parameter change=0.00045
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.005036
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.974 
+...........................................................
+Iteration 25     2026-10-22 16:44:49.631965 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |---  3 Step(s) 
+   Deviance=24372.5793 | Deviance change=0.015797
+    Maximum b.rater parameter change=0.000428
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.004482
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.975 
+...........................................................
+Iteration 26     2026-10-22 16:44:49.658977 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.5664 | Deviance change=0.012926
+    Maximum b.rater parameter change=0.000408
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.003571
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.976 
+...........................................................
+Iteration 27     2026-10-22 16:44:49.683802 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.5564 | Deviance change=0.009979
+    Maximum b.rater parameter change=0.000404
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.003276
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.976 
+...........................................................
+Iteration 28     2026-10-22 16:44:49.711121 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.5479 | Deviance change=0.008509
+    Maximum b.rater parameter change=0.000379
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.002997
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.977 
+...........................................................
+Iteration 29     2026-10-22 16:44:49.737183 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.5406 | Deviance change=0.007246
+    Maximum b.rater parameter change=0.000354
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.002744
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.977 
+...........................................................
+Iteration 30     2026-10-22 16:44:49.763492 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.5345 | Deviance change=0.006174
+    Maximum b.rater parameter change=0.000331
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.002514
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.977 
+...........................................................
+Iteration 31     2026-10-22 16:44:49.797316 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.5292 | Deviance change=0.005266
+    Maximum b.rater parameter change=0.00031
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.002305
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.978 
+...........................................................
+Iteration 32     2026-10-22 16:44:49.822999 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.5247 | Deviance change=0.004497
+    Maximum b.rater parameter change=0.00029
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.002115
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.978 
+...........................................................
+Iteration 33     2026-10-22 16:44:49.854214 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.5208 | Deviance change=0.003843
+    Maximum b.rater parameter change=0.000272
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.001941
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.979 
+...........................................................
+Iteration 34     2026-10-22 16:44:49.882141 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.5176 | Deviance change=0.003288
+    Maximum b.rater parameter change=0.000254
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.001784
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.979 
+...........................................................
+Iteration 35     2026-10-22 16:44:49.910205 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.5147 | Deviance change=0.002815
+    Maximum b.rater parameter change=0.000237
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.001638
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.979 
+...........................................................
+Iteration 36     2026-10-22 16:44:49.93897 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.5123 | Deviance change=0.002411
+    Maximum b.rater parameter change=0.000222
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.001506
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.979 
+...........................................................
+Iteration 37     2026-10-22 16:44:49.98138 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.5103 | Deviance change=0.002067
+    Maximum b.rater parameter change=0.000207
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.001385
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.98 
+...........................................................
+Iteration 38     2026-10-22 16:44:50.011085 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=24372.5085 | Deviance change=0.001772
+    Maximum b.rater parameter change=0.000193
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.001275
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.98 
+...........................................................
+Iteration 39     2026-10-22 16:44:50.036869 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |-  1 Step(s) 
+   Deviance=24372.507 | Deviance change=0.001521
+    Maximum b.rater parameter change=0.000181
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.000928
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.98 
+*********************************
+Item Parameters
+        item    N     M tau.Cat1 tau.Cat2 tau.Cat3 tau.Cat4 tau.Cat5 tau.Cat6 a
+1 creativity 7820 1.715   -0.855   -0.714   -0.089    1.015    2.975    5.807 1
+  delta delta_cent
+1 0.968          0
+*********************************
+Rater Parameters
+   rater    N     M      b a thresh b.cent a.cent
+1    R01 1174 1.164  0.691 1  0.691  0.691      1
+2    R02  873 2.032 -0.110 1 -0.110 -0.110      1
+3    R03  720 1.750 -0.004 1 -0.004 -0.004      1
+4    R04  620 1.821  0.108 1  0.108  0.108      1
+5    R05  633 1.716  0.159 1  0.159  0.159      1
+6    R06  520 0.760  1.316 1  1.316  1.316      1
+7    R07  547 1.404  0.425 1  0.425  0.425      1
+8    R08  522 2.000 -0.170 1 -0.170 -0.170      1
+9    R09  400 2.643 -0.614 1 -0.614 -0.614      1
+10   R10  383 1.997 -0.231 1 -0.231 -0.231      1
+11   R11  369 1.333  0.474 1  0.474  0.474      1
+12   R12  264 2.360 -0.433 1 -0.433 -0.433      1
+13   R13  254 2.681 -0.632 1 -0.632 -0.632      1
+14   R14  259 1.220  0.738 1  0.738  0.738      1
+15   R15   73 2.466 -0.485 1 -0.485 -0.485      1
+16   R16   52 2.442 -0.305 1 -0.305 -0.305      1
+17   R17   52 1.077  0.624 1  0.624  0.624      1
+18   R18   55 2.836 -0.802 1 -0.802 -0.802      1
+19   R19   50 2.680 -0.748 1 -0.748 -0.748      1
+*********************************
+EAP Reliability= 0.626 
+04: fitting mirt rsm (record only) (rsm)
+04: fitting M2_PCM (Rasch)
+04: fitting M3_GPCM (gpcm)
+  wrote results/comparison/model_fit.csv
+  wrote results/comparison/lr_tests.csv
+  wrote results/comparison/theta_correlations.csv
+  wrote results/comparison/rater_parameters_by_model.csv
+  wrote results/comparison/threshold_order.csv
+  wrote results/comparison/discrimination_m3.csv
+  wrote results/comparison/discrimination_summary.csv
+  wrote results/comparison/rater_fit_m1.csv
+  wrote results/comparison/marginal_reliability.csv
+...........................................................
+Iteration 1     2026-10-22 16:45:17.130281 
+  M steps b.rater parameter  |---  3 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=19342.1266
+    Maximum b.rater parameter change=0.084793
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.918562
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.935 
+...........................................................
+Iteration 2     2026-10-22 16:45:17.277862 
+  M steps b.rater parameter  |---  3 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17468.3424 | Deviance change=1873.784224
+    Maximum b.rater parameter change=0.084523
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.252783
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.93 
+...........................................................
+Iteration 3     2026-10-22 16:45:17.427756 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17331.4943 | Deviance change=136.848165
+    Maximum b.rater parameter change=0.02342
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.249894
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.913 
+...........................................................
+Iteration 4     2026-10-22 16:45:17.548196 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17276.0537 | Deviance change=55.440585
+    Maximum b.rater parameter change=0.002578
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.24068
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.892 
+...........................................................
+Iteration 5     2026-10-22 16:45:17.686386 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17231.7399 | Deviance change=44.313751
+    Maximum b.rater parameter change=0.002389
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.222333
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.872 
+...........................................................
+Iteration 6     2026-10-22 16:45:17.827148 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17194.3857 | Deviance change=37.354194
+    Maximum b.rater parameter change=0.003564
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.202848
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.852 
+...........................................................
+Iteration 7     2026-10-22 16:45:18.001815 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17163.3228 | Deviance change=31.062934
+    Maximum b.rater parameter change=0.003833
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.183248
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.833 
+...........................................................
+Iteration 8     2026-10-22 16:45:18.101031 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17137.9547 | Deviance change=25.368064
+    Maximum b.rater parameter change=0.003804
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.163977
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.817 
+...........................................................
+Iteration 9     2026-10-22 16:45:18.199875 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17117.6158 | Deviance change=20.338952
+    Maximum b.rater parameter change=0.003622
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.145408
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.802 
+...........................................................
+Iteration 10     2026-10-22 16:45:18.301836 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17101.6001 | Deviance change=16.015627
+    Maximum b.rater parameter change=0.003344
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.127853
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.79 
+...........................................................
+Iteration 11     2026-10-22 16:45:18.411058 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17089.2032 | Deviance change=12.396973
+    Maximum b.rater parameter change=0.003012
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.111558
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.779 
+...........................................................
+Iteration 12     2026-10-22 16:45:18.509887 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17079.7577 | Deviance change=9.445486
+    Maximum b.rater parameter change=0.002653
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.096679
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.769 
+...........................................................
+Iteration 13     2026-10-22 16:45:18.626172 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17072.6626 | Deviance change=7.09509
+    Maximum b.rater parameter change=0.002291
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.083288
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.761 
+...........................................................
+Iteration 14     2026-10-22 16:45:18.742785 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17067.3991 | Deviance change=5.263542
+    Maximum b.rater parameter change=0.001942
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.071391
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.755 
+...........................................................
+Iteration 15     2026-10-22 16:45:18.857314 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17063.5352 | Deviance change=3.863823
+    Maximum b.rater parameter change=0.001618
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.060941
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.749 
+...........................................................
+Iteration 16     2026-10-22 16:45:18.969822 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17060.7233 | Deviance change=2.811934
+    Maximum b.rater parameter change=0.001324
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.051845
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.745 
+...........................................................
+Iteration 17     2026-10-22 16:45:19.101396 
+  M steps b.rater parameter  |--  2 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17058.6906 | Deviance change=2.032665
+    Maximum b.rater parameter change=0.001064
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.043992
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.741 
+...........................................................
+Iteration 18     2026-10-22 16:45:19.233188 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17057.2284 | Deviance change=1.462234
+    Maximum b.rater parameter change=0.000836
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.037257
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.739 
+...........................................................
+Iteration 19     2026-10-22 16:45:19.382195 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17056.1796 | Deviance change=1.048766
+    Maximum b.rater parameter change=0.000645
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.031514
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.736 
+...........................................................
+Iteration 20     2026-10-22 16:45:19.50072 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17055.4282 | Deviance change=0.751404
+    Maximum b.rater parameter change=0.000482
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.026636
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.735 
+...........................................................
+Iteration 21     2026-10-22 16:45:19.622726 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17054.8895 | Deviance change=0.538714
+    Maximum b.rater parameter change=0.000346
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.022508
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.733 
+...........................................................
+Iteration 22     2026-10-22 16:45:20.053272 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17054.5023 | Deviance change=0.387197
+    Maximum b.rater parameter change=0.000234
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.019024
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.733 
+...........................................................
+Iteration 23     2026-10-22 16:45:20.167109 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17054.2228 | Deviance change=0.27948
+    Maximum b.rater parameter change=0.000143
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.01609
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.732 
+...........................................................
+Iteration 24     2026-10-22 16:45:20.265962 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17054.0199 | Deviance change=0.202934
+    Maximum b.rater parameter change=7e-05
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.013622
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.731 
+...........................................................
+Iteration 25     2026-10-22 16:45:20.377821 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17053.8714 | Deviance change=0.148466
+    Maximum b.rater parameter change=2.2e-05
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.011548
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.731 
+...........................................................
+Iteration 26     2026-10-22 16:45:20.507101 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17053.7618 | Deviance change=0.109597
+    Maximum b.rater parameter change=4.9e-05
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.009806
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.731 
+...........................................................
+Iteration 27     2026-10-22 16:45:20.669499 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17053.6801 | Deviance change=0.08173
+    Maximum b.rater parameter change=7.5e-05
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.008343
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.731 
+...........................................................
+Iteration 28     2026-10-22 16:45:20.827095 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17053.6185 | Deviance change=0.061629
+    Maximum b.rater parameter change=9.3e-05
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.007114
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.731 
+...........................................................
+Iteration 29     2026-10-22 16:45:20.976402 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17053.5715 | Deviance change=0.047014
+    Maximum b.rater parameter change=0.000111
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.00608
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.731 
+...........................................................
+Iteration 30     2026-10-22 16:45:21.146557 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |----  4 Step(s) 
+   Deviance=17053.5352 | Deviance change=0.036293
+    Maximum b.rater parameter change=0.000124
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.00521
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.731 
+...........................................................
+Iteration 31     2026-10-22 16:45:21.274765 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |---  3 Step(s) 
+   Deviance=17053.5068 | Deviance change=0.028348
+    Maximum b.rater parameter change=0.000132
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.003649
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.732 
+...........................................................
+Iteration 32     2026-10-22 16:45:21.376103 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |---  3 Step(s) 
+   Deviance=17053.4886 | Deviance change=0.018204
+    Maximum b.rater parameter change=0.00011
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.003167
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.732 
+...........................................................
+Iteration 33     2026-10-22 16:45:21.472746 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=17053.4734 | Deviance change=0.015174
+    Maximum b.rater parameter change=0.000113
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.002025
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.732 
+...........................................................
+Iteration 34     2026-10-22 16:45:21.563235 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |--  2 Step(s) 
+   Deviance=17053.4641 | Deviance change=0.009357
+    Maximum b.rater parameter change=9e-05
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.001815
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.732 
+...........................................................
+Iteration 35     2026-10-22 16:45:21.650061 
+  M steps b.rater parameter  |-  1 Step(s) 
+  M steps tau.item parameter |-  1 Step(s) 
+   Deviance=17053.4558 | Deviance change=0.008287
+    Maximum b.rater parameter change=9.1e-05
+    Maximum a.rater parameter change=0
+    Maximum tau.item parameter change=0.000925
+    Maximum a.item parameter change=0
+ Trait M  =0 
+ Trait SD =0.732 
+*********************************
+Item Parameters
+  item    N    M tau.Cat1 tau.Cat2 tau.Cat3 tau.Cat4 tau.Cat5 tau.Cat6 a  delta
+1    c 4790 3.03   -1.286   -2.035   -2.346   -2.105     -1.4   -0.164 1 -0.027
+  delta_cent
+1          0
+*********************************
+Rater Parameters
+  rater   N     M      b a thresh b.cent a.cent
+1     1 801 3.745 -0.476 1 -0.476 -0.476      1
+2     2 780 3.356 -0.207 1 -0.207 -0.207      1
+3     3 810 3.140 -0.056 1 -0.056 -0.056      1
+4     4 825 2.875  0.092 1  0.092  0.092      1
+5     5 766 2.671  0.242 1  0.242  0.242      1
+6     6 808 2.396  0.405 1  0.405  0.405      1
+*********************************
+EAP Reliability= 0.638 
+  wrote results/comparison/software_crosscheck.csv
+     model        software
+1   M1_RSM sirt::rm.facets
+2   M2_PCM            mirt
+3  M3_GPCM            mirt
+4      GRM            mirt
+5 mirt_rsm            mirt
+                                                                                       status
+1                                                                                   estimated
+2                                                                                   estimated
+3                                                                                   estimated
+4                                                                                   estimated
+5 not estimable: Rating scale models require that items to have the same number of categories
+     logLik npar      AIC      BIC    SABIC
+1 -12186.22   25 24422.44 24577.62 24498.18
+2 -11817.49  109 23852.98 24529.59 24183.24
+3 -11756.51  127 23767.02 24555.36 24151.82
+4 -11733.23  127 23720.45 24508.79 24105.25
+5        NA   NA       NA       NA       NA
+                                comparison       X2 df df_expected_formula
+1      M1 vs M2: rater-specific thresholds 737.4570 84                  90
+2 M2 vs M3: rater-specific discriminations 121.9579 18                  18
+              p
+1 4.215277e-105
+2  1.790532e-17
+  wrote results/logs/warnings_jrt_audit_04_model_comparison.csv
+04 model comparison: done
+	Command being timed: "Rscript R/04_model_comparison.R"
+	User time (seconds): 54.42
+	System time (seconds): 1.05
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:55.61
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 641268
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 12
+	Minor (reclaiming a frame) page faults: 233420
+	Voluntary context switches: 831
+	Involuntary context switches: 1277
+	Swaps: 0
+	File system inputs: 6152
+	File system outputs: 24736
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+>> 05_naive_indices  (16:45:22)
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+In smc, smcs > 1 were set to 1.0
+In smc, smcs < 0 were set to .0
+  wrote results/naive/cronbach_crossed_blocks.csv
+  wrote results/naive/cronbach_alpha.csv
+  wrote results/naive/krippendorff_alpha.csv
+# A tibble: 2 × 4
+  variant                              raw_alpha n_raters n_products_contribut…¹
+  <chr>                                    <dbl>    <int>                  <int>
+1 pairwise covariances, all usable ra…     0.928       14                   1900
+2 fully crossed block (listwise compl…     0.658        3                    139
+# ℹ abbreviated name: ¹​n_products_contributing
+# A tibble: 1 × 4
+  alpha ci_low ci_high n_boot
+  <dbl>  <dbl>   <dbl>  <int>
+1 0.392  0.362   0.417   1000
+  wrote results/logs/warnings_jrt_audit_05_naive_indices.csv
+05 naive indices: done
+	Command being timed: "Rscript R/05_naive_indices.R"
+	User time (seconds): 740.63
+	System time (seconds): 0.69
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 12:22.91
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 412296
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 777
+	Minor (reclaiming a frame) page faults: 106062
+	Voluntary context switches: 2225
+	Involuntary context switches: 21281
+	Swaps: 0
+	File system inputs: 72080
+	File system outputs: 56
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+>> 06_summary  (16:57:44)
+  wrote results/summary/reliability_overview.csv
+  wrote results/summary/REPORT.md
+06 summary: done
+	Command being timed: "Rscript R/06_summary.R"
+	User time (seconds): 3.07
+	System time (seconds): 0.47
+	Percent of CPU this job got: 96%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:03.66
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 298764
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 139
+	Minor (reclaiming a frame) page faults: 79670
+	Voluntary context switches: 1424
+	Involuntary context switches: 91
+	Swaps: 0
+	File system inputs: 92856
+	File system outputs: 32
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

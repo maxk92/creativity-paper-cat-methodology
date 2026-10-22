@@ -1,19 +1,19 @@
 quantity,value
-empirical_marginal_reliability (primary; actual scores),0.6718603784893629
-model_based_marginal_reliability_mirt (hypothetical full panel),0.9618575133091835
-model_based_marginal_reliability_grid (check),0.961875832179469
-var_theta_eap,0.6720015973607875
-mean_psd_squared,0.32820859344067366
-rel_post_min,7.149105188485327e-4
-rel_post_p10,0.4829531278345821
-rel_post_q1,0.5952338667126883
-rel_post_median,0.6977984454273358
-rel_post_q3,0.7685996109896464
-rel_post_p90,0.8140414604561002
-rel_post_max,0.9283630577593913
-rel_post_mean,0.6717914065593263
-rel_post_iqr,0.17336574427695806
-consistency_cor_rel_post_rel_info,0.9352091112051163
-consistency_mean_diff_rel_info_minus_rel_post,0.016251163257340058
-consistency_max_abs_diff,0.41256299998276447
+empirical_marginal_reliability (primary; actual scores),0.6719904364064179
+model_based_marginal_reliability_mirt (hypothetical full panel),0.9598591226840253
+model_based_marginal_reliability_grid (check),0.9598777163577791
+var_theta_eap,0.6721244630949195
+mean_psd_squared,0.3280749842204595
+rel_post_min,0.056823023425504604
+rel_post_p10,0.48535628728496494
+rel_post_q1,0.5958977279568323
+rel_post_median,0.6980320316762489
+rel_post_q3,0.7690031500415206
+rel_post_p90,0.8129319135187509
+rel_post_max,0.9286964071208785
+rel_post_mean,0.6719250157795406
+rel_post_iqr,0.17310542208468838
+consistency_cor_rel_post_rel_info,0.9345790551885743
+consistency_mean_diff_rel_info_minus_rel_post,0.01625671014656803
+consistency_max_abs_diff,0.4126498641702593
 products_abs_diff_gt_0.1,320

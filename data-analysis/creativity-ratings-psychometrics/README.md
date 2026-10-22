@@ -79,5 +79,7 @@ and bootstrap replications for a quick check; those outputs are not for the pape
   `data/raw/rater_pseudonym_key.csv` (columns `original_rater_id`, `rater_id`). Never write its output to `results/`.
 - Only the creativity rating is modelled. `technical_correctness` and `aesthetic_appeal`
   stay in the data but go into no model.
+- Raters with fewer than 15 ratings (`MIN_RATINGS_PER_RATER` in `R/jrt_functions.R`) are excluded from
+  the whole pipeline in `R/01_data_design.R`; they are listed in `results/data/excluded_raters.csv`.
 - All 7 categories are kept. Raters with unused categories are flagged (`results/data/category_usage.csv`).
 - Package versions and the seed are written to `results/logs/session_info_*`.

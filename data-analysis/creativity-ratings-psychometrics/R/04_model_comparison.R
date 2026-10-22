@@ -24,8 +24,9 @@
 # Nesting with category gaps: an unused END category has probability 0 in the
 # ML solution of M2, so mirt's M2 with fewer categories for that rater is the
 # limit of the full-category PCM and M1 stays nested. A rater with an INTERNAL
-# gap (R20, R22) is rescored by mirt (categories above the gap move down), so
-# for these raters M1 is not strictly nested in M2. They are flagged, not removed.
+# gap is rescored by mirt (categories above the gap move down), so for such a
+# rater M1 is not strictly nested in M2 (flagged; R20 and R22 had internal gaps
+# but are excluded by the minimum of MIN_RATINGS_PER_RATER ratings).
 #
 # Latent scale: latent mean 0 in all models. RSM and PCM estimate the latent
 # variance (slopes 1); GPCM and GRM fix it to 1. M2 is nested in M3, df = J - 1.
@@ -168,9 +169,10 @@ lr_row <- function(a, b, label, df_formula, note) {
 lr_tests <- bind_rows(
   lr_row("M1_RSM", "M2_PCM", "M1 vs M2: rater-specific thresholds", (J - 1) * (K - 2),
          paste0("Across software (rm.facets vs mirt). df differ from (J-1)(K-2) when raters ",
-                "leave END categories unused (fewer step parameters in M2). Raters with internal ",
-                "category gaps (", paste(internal_gap_raters, collapse = ", "),
-                ") make the nesting approximate.")),
+                "leave END categories unused (fewer step parameters in M2). ",
+                if (length(internal_gap_raters)) paste0("Raters with internal category gaps (",
+                  paste(internal_gap_raters, collapse = ", "), ") make the nesting approximate.")
+                else "No rater has an internal category gap, so M1 is nested in M2.")),
   lr_row("M2_PCM", "M3_GPCM", "M2 vs M3: rater-specific discriminations", J - 1, "mirt, same object")
 )
 # Cross-check with mirt's own LR test for M2 vs M3.
@@ -375,9 +377,10 @@ if (is_fit(mfrm_default)) {
 } else {
   eq_lines <- c(eq_lines, paste0("The original call failed: `", mfrm_default$error, "`."))
 }
-eq_lines <- c(eq_lines, "",
+eq_lines <- c(eq_lines, "", if (length(internal_gap_raters))
   sprintf("Raters with internal category gaps (%s): the M1-vs-M2 test is approximate for them, because mirt rescores their categories in M2.",
-          paste(internal_gap_raters, collapse = ", ")))
+          paste(internal_gap_raters, collapse = ", ")) else
+  "No rater has an internal category gap, so M1 is strictly nested in M2 (end gaps only).")
 writeLines(eq_lines, file.path(DIR_CMP, "mfrm_equivalence.md"))
 
 print(model_fit %>% select(any_of(c("model", "software", "status", "logLik", "npar", "AIC", "BIC", "SABIC"))))

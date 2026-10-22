@@ -5,7 +5,8 @@
 #   results/data/ratings_long.csv     product_id, rater_id, rating (1-7), rating_internal (0-6)
 #   results/data/ratings_wide.csv     products x raters, internal coding 0-6, NA = not rated
 #   results/data/data_fingerprint.txt asserted by every later script
-# plus the design checks (duplicates, categories, connectivity, overlap, descriptives).
+# plus the design checks (duplicates, rater exclusion, categories, connectivity,
+# overlap, descriptives). Raters with < MIN_RATINGS_PER_RATER ratings are excluded.
 # Light: no models are fitted here, so this script can run locally.
 #
 # Run from the analysis folder:  Rscript R/01_data_design.R
@@ -53,6 +54,22 @@ dup_report <- if (file.exists(flagged_path)) {
 save_csv(dup_report, DIR_DATA, "duplicate_ratings_report")
 message(sprintf("  duplicates resolved upstream: %d pairs, %d with conflicting values",
                 nrow(dup_report), sum(dup_report$conflicting)))
+
+# --- rater exclusion: minimum number of ratings -----------------------------------
+# Raters below MIN_RATINGS_PER_RATER are removed here, so no later script sees
+# them. Products whose only ratings came from excluded raters drop out.
+n_before <- c(ratings = nrow(long), products = n_distinct(long$product_id),
+              raters = n_distinct(long$rater_id))
+excluded <- long %>% count(rater_id, name = "n_ratings") %>%
+  filter(n_ratings < MIN_RATINGS_PER_RATER) %>%
+  mutate(reason = sprintf("fewer than %d ratings", MIN_RATINGS_PER_RATER))
+long <- long %>% filter(!rater_id %in% excluded$rater_id)
+products_dropped <- n_before[["products"]] - n_distinct(long$product_id)
+save_csv(excluded %>% mutate(rater_id = factor(rater_id, levels = rater_order(rater_id))) %>%
+           arrange(rater_id), DIR_DATA, "excluded_raters")
+message(sprintf("  excluded raters (< %d ratings): %s; %d ratings removed, %d products dropped",
+                MIN_RATINGS_PER_RATER, paste(rater_order(excluded$rater_id), collapse = ", "),
+                n_before[["ratings"]] - nrow(long), products_dropped))
 
 save_csv(long, DIR_DATA, "ratings_long")
 
@@ -142,7 +159,9 @@ save_csv(rater_desc, DIR_DATA, "design_summary_raters")
 
 pair_overlap <- overlap[upper.tri(overlap)]
 design_summary <- tibble(
-  quantity = c("n_ratings", "n_products", "n_raters", "n_categories", "scale",
+  quantity = c("n_ratings", "n_products", "n_raters",
+               "min_ratings_per_rater (exclusion cut-off)", "raters_excluded",
+               "ratings_excluded", "products_dropped", "n_categories", "scale",
                "internal_coding", "ratings_per_product_mean", "ratings_per_product_median",
                "ratings_per_product_min", "ratings_per_product_max",
                "ratings_per_product_harmonic_mean", "products_with_1_rating",
@@ -151,7 +170,10 @@ design_summary <- tibble(
                "rater_pairs_overlap_median", "raters_with_category_gaps",
                "raters_with_internal_gap", "duplicate_pairs_resolved_in_00",
                "duplicate_pairs_conflicting", "data_fingerprint"),
-  value = c(nrow(long), nrow(wide), ncol(wide), K_CATEGORIES, "1-7", "rating - 1 (0-6)",
+  value = c(nrow(long), nrow(wide), ncol(wide),
+            MIN_RATINGS_PER_RATER, if (nrow(excluded)) paste(rater_order(excluded$rater_id), collapse = ";") else "none",
+            n_before[["ratings"]] - nrow(long), products_dropped,
+            K_CATEGORIES, "1-7", "rating - 1 (0-6)",
             mean(per_product$n_ratings), median(per_product$n_ratings),
             min(per_product$n_ratings), max(per_product$n_ratings),
             1 / mean(1 / per_product$n_ratings), sum(per_product$n_ratings == 1),
