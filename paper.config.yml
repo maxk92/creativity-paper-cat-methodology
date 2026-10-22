@@ -6,11 +6,14 @@ paper_type: imrad-apa        # one of: imrad-apa | cs-ieee
 # Paths (edit per project) -------------------------------------------------
 vault_path:   ~/drive/KNOWLEDGE/
 brief:        ~/drive/KNOWLEDGE/Paper_CreativityAssessmentInSportsCAT.md   # the paper's concept note
-# JRT-only paper: 02a/02b/02c, 03_approach_comparison and 02_creativity_ratings_R.qmd are excluded on purpose.
+# JRT paper (since the 2026-10-22 audit): the results come from the R pipeline in
+# data-analysis/creativity-ratings-psychometrics/R/ (GRM by MML, model ladder, naive
+# indices; see AUDIT.md there). 02_jrt_results.ipynb displays its outputs as labelled
+# tables/figures. The former Bayesian notebook 02d has been removed.
 notebook:
   - data-analysis/creativity-ratings-psychometrics/notebooks/00_data_loading_preprocessing.ipynb
   - data-analysis/creativity-ratings-psychometrics/notebooks/01_data_overview.ipynb
-  - data-analysis/creativity-ratings-psychometrics/notebooks/02d_judge_response_theory.ipynb
+  - data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb
 bibliography: ~/drive/phd_library.bib
 build_dir:    manuscript
 
