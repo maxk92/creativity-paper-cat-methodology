@@ -28,3 +28,9 @@ data-analysis/creativity-ratings-psychometrics/jrt_server_bundle.tar.gz
 data-analysis/creativity-ratings-psychometrics/jrt_results.tar.gz
 data-analysis/creativity-ratings-psychometrics/.venv-jrt/
 data-analysis/creativity-ratings-psychometrics/.pytensor_cache/
+
+# JRT audit pipeline: rating-level data copies (same policy as data/) and fitted models
+data-analysis/creativity-ratings-psychometrics/results/data/ratings_long.csv
+data-analysis/creativity-ratings-psychometrics/results/data/ratings_wide.csv
+data-analysis/creativity-ratings-psychometrics/jrt_audit_server_bundle.tar.gz
+data-analysis/creativity-ratings-psychometrics/jrt_audit_results.tar.gz
