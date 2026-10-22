@@ -1,108 +1,80 @@
 # Psychometric analysis of incompletely crossed creativity ratings
 
-Analysis of creativity ratings (CAT-style, unipolar 7-point scale) of football
-actions. Raters were assigned to actions in an unbalanced, incompletely crossed
-design, so each action has a different number of ratings from a different
-subset of raters. The analysis follows the brief in
-`../../psychometrie_kreativitaetsratings_llm_anleitung.md`.
+Creativity ratings (CAT-style, unipolar 7-point scale) of football actions. Raters
+were assigned to actions in an unbalanced, incompletely crossed design, so each
+action has a different number of ratings from a different subset of raters.
 
-The scoring problem is approached in four ways, each in its own notebook. See
-**[`APPROACHES.md`](APPROACHES.md)** for what each approach assumes, how they
-relate, and references.
+The central model is **Judge Response Theory (JRT) as a graded response model
+(GRM)**: raters are treated as items and actions (products) as persons, and the
+model is fitted by marginal maximum likelihood in `mirt`. Its scores, information
+and reliability are what the paper uses. An adjacent-category ladder (rating
+scale model / MFRM → partial credit model → generalized partial credit model) and
+two naive indices (Cronbach's α, Krippendorff's α) are computed for comparison
+only. The specification is `../../ANLEITUNG_JRT_Audit.md`. The audit of the earlier
+analysis against it, with every deviation and correction, is in
+[`AUDIT.md`](AUDIT.md). The models are described in [`APPROACHES.md`](APPROACHES.md).
 
 ## Pipeline
 
-| Notebook | Purpose | Main outputs |
-|---|---|---|
-| `00_data_loading_preprocessing.ipynb` | Downloads the ratings from the Google Sheet. Joins StatsBomb event details from `../../../00-data/statsbomb_event_data.duckdb`. Maps columns to the analysis schema, drops "action not recognized" ratings, then type checks, duplicate handling and rating order. | `data/raw/*.csv`, `data/processed/ratings_long_clean.csv`, `cleaning_log.csv`, `flagged_*.csv` |
-| `01_data_overview.ipynb` | Data volume, rough agreement, connectivity, assignment recommendations. Design diagnostics: rating distribution, rater response styles, drift, degrees, rater × action-type check. Rater tendencies, secondary dimensions. | `rater_descriptive_statistics.csv`, `fig_overview_*` |
-| `02a_classical_consensus.ipynb` | **A**: raw/centred mean scores, pairwise agreement, Krippendorff's α, Spearman–Brown, leave-one-rater-out consistency | `scores_classical.csv`, `raters_classical.csv` |
-| `02b_linear_mixed_model.ipynb` | **B**: crossed LMM (PyMC), variance components, ICC/G-theory coefficients, D-study, fair scores, severity, drift, match facet | `scores_lmm.csv`, `raters_lmm.csv` |
-| `02c_ordinal_facet_model.ipynb` | **C**: Bayesian ordinal many-facet model, latent scores, severity, infit/outfit, separation reliability | `scores_mfrm.csv`, `raters_mfrm.csv` |
-| `02d_judge_response_theory.ipynb` | **D**: JRT with rater-specific discrimination and leniency, convergence diagnostics and PPC, nested equal-discrimination model + LOO, information functions, marginal reliability. Self-contained. | `scores_jrt.csv`, `raters_jrt.csv` |
-| `03_approach_comparison.ipynb` | Compares A–D, builds exploratory rater flags, writes the final files, interpretation, QC | `data/processed/action_scores.csv`, `rater_diagnostics.csv`, `comparison_*`, `qc_checklist.csv` |
-| `02_creativity_ratings_R.qmd` | R counterpart: lme4 LMM, many-facet Rasch (`sirt`), graded IRT/JRT (`mirt`, `jrt`), brms ordinal model | `*_R.csv` tables and figures |
+| Step | File | Runs | Main outputs |
+|---|---|---|---|
+| 0 | `notebooks/00_data_loading_preprocessing.ipynb` | local | Downloads the ratings (Google Sheet) and joins StatsBomb event details. Pseudonymises raters (`R01`…), drops "action not recognised" ratings, checks types and ranges, and resolves duplicates. Writes `data/processed/ratings_long_clean.csv`, `results/tables/cleaning_log.csv` and `flagged_*.csv` |
+| 1 | `notebooks/01_data_overview.ipynb` | local | Descriptive design overview for the manuscript: ratings per action, rater overlap, rating distribution, response styles, degree distributions |
+| 2 | `R/01_data_design.R` | local (seconds) | Spec §2: the single data basis of all models (`results/data/`), duplicate report, category use per rater, connectivity (hard stop), rater overlap, descriptives |
+| 3 | `R/02_grm.R` | **server** | Spec §3: GRM fit, convergence, IRT parameters with SEs, rater fit, Q3, C2, category response functions (`results/grm/`) |
+| 4 | `R/03_grm_information.R` | server | Spec §4: rater and panel information, product-level reliability from each product's own raters, empirical and model-based marginal reliability |
+| 5 | `R/04_model_comparison.R` | **server** | Spec §5: M1 RSM/MFRM (`sirt::rm.facets`), M2 PCM, M3 GPCM (`mirt`), LR tests, information criteria, θ̂ correlations (`results/comparison/`) |
+| 6 | `R/05_naive_indices.R` | **server** | Spec §6: Cronbach's α (pairwise and on a crossed block), ordinal Krippendorff's α with a bootstrap CI (`results/naive/`) |
+| 7 | `R/06_summary.R` | server/local | Spec §7: `results/summary/reliability_overview.csv` and `REPORT.md` |
+| 8 | `notebooks/02_jrt_results.ipynb` | local (seconds) | Display notebook: labelled tables and figures from steps 2–7 for embedding in the manuscript |
 
-Every approach notebook runs on its own after `00`. Each one writes
-`results/tables/scores_<key>.csv`, `raters_<key>.csv` and
-`model_diagnostics_<key>.csv` in a common format, which `03` reads. `02d`
-fits its nested equal-discrimination model itself and does not need `02c`.
+`R/jrt_functions.R` holds the shared settings: paths, seed `20260713`, MML settings,
+the I/(I+1) reliability helpers, and the data fingerprint that every script asserts.
 
-**Paper scope.** The manuscript in `../../manuscript/` uses only `00`, `01` and
-`02d`. Rater IDs are pseudonymised (`R01`…) in `00` since 2026-10-20; `02a`–`02c`,
-`03` and the R qmd have not been re-run since, so their outputs are stale
-(and still carry the old rater IDs).
+## Running
+
+```bash
+# local
+cd notebooks
+jupyter nbconvert --to notebook --execute --inplace 00_data_loading_preprocessing.ipynb
+jupyter nbconvert --to notebook --execute --inplace 01_data_overview.ipynb
+cd .. && Rscript R/01_data_design.R
+
+# server (see server/README.md)
+bash server/pack_jrt_audit_for_server.sh   # then scp, unpack, run server/run_jrt_audit_server.sh
+
+# local, after unpacking the server results
+cd notebooks && jupyter nbconvert --to notebook --execute --inplace 02_jrt_results.ipynb
+```
+
+`JRT_SMOKE=1` (or `run_jrt_audit_server.sh --smoke`) lowers the number of imputations
+and bootstrap replications for a quick check; those outputs are not for the paper.
 
 ## Folder layout
 
 ```text
 .
-├── README.md
-├── APPROACHES.md             guide to the four scoring approaches
-├── requirements.txt          Python dependencies
-├── install_r_packages.R      R dependencies
-├── notebooks/                the notebooks above
+├── README.md, APPROACHES.md, AUDIT.md, ANALYSIS_TODO.md
+├── requirements.txt          Python (notebooks 00, 01, 02_jrt_results)
+├── install_r_packages.R      R (pipeline in R/)
+├── R/                        JRT pipeline (spec §§2–7)
+├── notebooks/                00, 01, 02_jrt_results
+├── server/                   bundle + runner for the server
 ├── data/                     gitignored, regenerated by 00
-│   ├── raw/
-│   └── processed/
 └── results/
-    ├── tables/   CSV
-    ├── figures/  PNG + SVG + caption .txt
-    ├── models/   PyMC traces (.nc), gitignored (several GB)
-    └── logs/     session info
+    ├── tables/, figures/     outputs of 00 and 01
+    ├── data/                 §2 (rating-level copies gitignored)
+    ├── grm/                  §3–§4 (model .rds gitignored)
+    ├── comparison/           §5
+    ├── naive/                §6
+    ├── summary/              §7
+    └── logs/                 session info, warnings, server logs
 ```
-
-## Setup
-
-```bash
-# Python (venv at the repo root)
-source ../../.venv/bin/activate
-pip install -r requirements.txt
-
-# R
-Rscript install_r_packages.R
-```
-
-## Running
-
-```bash
-cd notebooks
-jupyter nbconvert --to notebook --execute --inplace 00_data_loading_preprocessing.ipynb
-jupyter nbconvert --to notebook --execute --inplace 01_data_overview.ipynb
-for nb in 02a_classical_consensus 02b_linear_mixed_model 02c_ordinal_facet_model \
-          02d_judge_response_theory 03_approach_comparison; do
-  jupyter nbconvert --to notebook --execute --inplace \
-    --ExecutePreprocessor.timeout=3600 $nb.ipynb
-done
-quarto render 02_creativity_ratings_R.qmd   # HTML next to the qmd (gitignored)
-```
-
-Runtime:
-- `02a`: under 1 min
-- `02b`: a few minutes (two Gaussian models)
-- `02c`: about 10 min (ordinal model)
-- `02d`: about 40 min (two JRT models, 4 x 2000 draws each)
-- `01` and `03`: seconds
-
-Lower the `pm.sample()` draws while debugging. In R, `brms` (Stan compilation)
-and `lme4::bootMer` are the slow parts.
 
 ## Notes
 
-- **arviz 1.x API** (required by PyMC 6). InferenceData is now an
-  `xarray.DataTree`, which changes a few calls:
-  - there is no `.extend()`; assign groups instead
-    (`idata["posterior_predictive"] = pp["posterior_predictive"]`)
-  - `az.plot_ppc` is now `az.plot_ppc_dist`
-  - `az.plot_trace` takes no `ax=`; call it, then use `plt.gcf()`
-- The Gaussian model trace is saved *before* posterior-predictive draws are
-  merged in. Otherwise the `.nc` file roughly doubles in size.
-- Methodological rules followed throughout:
-  - absolute agreement, relative consistency, single-rating reliability and
-    aggregate reliability are reported separately
-  - rater severity is only interpreted within a connected component of the
-    rater–action graph
-  - no action score without its number of ratings and an uncertainty interval
-  - unavailable values are `NaN`, not 0
-- Seed `20260713` is used in both languages. Package versions are logged to
-  `results/logs/`.
+- Rater IDs are pseudonymised in `00`; the key in `data/raw/` is never copied to the server.
+- Only the creativity rating is modelled. `technical_correctness` and `aesthetic_appeal`
+  stay in the data but go into no model.
+- All 7 categories are kept. Raters with unused categories are flagged (`results/data/category_usage.csv`).
+- Package versions and the seed are written to `results/logs/session_info_*`.

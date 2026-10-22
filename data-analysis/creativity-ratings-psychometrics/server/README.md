@@ -1,71 +1,44 @@
-# Running the JRT notebook on a server
+# Running the JRT pipeline on a server
 
-`02d_judge_response_theory.ipynb` fits two Bayesian JRT models (4 chains x 2000
-draws + 2000 tuning each). This is too much memory for the laptop, so it runs on a
-server. The notebook is self-contained: it needs only the cleaned ratings.
+The R pipeline in `R/` (`01_data_design.R` … `06_summary.R`) fits the GRM, the
+model ladder (RSM via `sirt::rm.facets`, PCM, GPCM) and the naive indices. The
+model fits, the S-X² multiple imputation, C2 and the Krippendorff bootstrap are
+run on a server; only `R/01_data_design.R` is light enough for the laptop.
 
 ## What goes to the server
 
-| File | Why |
-|---|---|
-| `notebooks/02d_judge_response_theory.ipynb` | the analysis |
-| `data/processed/ratings_long_clean.csv` | cleaned ratings from `00` (rater IDs are pseudonymised, `R01`…) |
-| `server/requirements-jrt.txt` | pinned Python packages |
-| `server/run_jrt_server.sh` | sets up the environment, runs, summarises, packs results |
-
-Do **not** copy `data/raw/` (it holds the pseudonym key and the raw sheet export).
+`server/pack_jrt_audit_for_server.sh` bundles the R scripts, the cleaned ratings
+(`data/processed/ratings_long_clean.csv`, pseudonymised rater IDs), the duplicate
+report from `00`, `install_r_packages.R` and the runner. Do **not** copy
+`data/raw/` (it holds the pseudonym key).
 
 ## Steps
 
-**1. Locally — pack the bundle** (from `data-analysis/creativity-ratings-psychometrics/`):
-
 ```bash
-bash server/pack_for_server.sh          # -> jrt_server_bundle.tar.gz
-scp jrt_server_bundle.tar.gz user@server:~/
+# 1. locally, in data-analysis/creativity-ratings-psychometrics/
+bash server/pack_jrt_audit_for_server.sh
+scp jrt_audit_server_bundle.tar.gz user@server:~/
+
+# 2. on the server
+mkdir -p ~/jrt_audit && cd ~/jrt_audit && tar -xzf ~/jrt_audit_server_bundle.tar.gz
+Rscript install_r_packages.R                 # first time only
+bash server/run_jrt_audit_server.sh --smoke  # 2 imputations, 20 bootstraps; not for the paper
+
+# 3. full run, inside tmux so it survives a logout
+tmux new -s jrt_audit
+bash server/run_jrt_audit_server.sh
+
+# 4. locally: copy back and unpack in the analysis folder
+scp user@server:~/jrt_audit/jrt_audit_results.tar.gz .
+tar -xzf jrt_audit_results.tar.gz
 ```
 
-**2. On the server — unpack and smoke-test** (needs Python 3.12; set `PYTHON=/path/to/python3.12`
-if it is not on the PATH as `python3.12`):
+Needs R ≥ 4.3. A single core is enough; the log
+`results/logs/jrt_audit_server_run_<timestamp>.log` records wall time and peak memory.
 
-```bash
-mkdir -p ~/jrt && cd ~/jrt
-tar -xzf ~/jrt_server_bundle.tar.gz
-bash server/run_jrt_server.sh --smoke   # ~5 min + first-time pip install; outputs are throwaway
-```
+## What to check
 
-**3. On the server — full run**, inside `tmux`/`screen` (or `nohup`) so it survives a logout:
-
-```bash
-tmux new -s jrt
-bash server/run_jrt_server.sh           # ~40-90 min, depending on the CPU
-# detach: Ctrl-b d   reattach: tmux attach -t jrt
-```
-
-Resources: 4 CPU cores (one per chain) and **at least 8 GB free RAM**; 16 GB is
-comfortable. The log `results/logs/02d_server_run_<timestamp>.log` records peak
-memory and wall time. At the end, the script prints the convergence table, the
-LOO comparison and the warnings.
-
-**4. Copy the results back and unpack them in the analysis folder:**
-
-```bash
-scp user@server:~/jrt/jrt_results.tar.gz .
-tar -xzf jrt_results.tar.gz             # overwrites the notebook + jrt tables/figures/logs
-```
-
-`jrt_results.tar.gz` contains the executed notebook (with outputs), all
-`results/tables/*jrt*.csv`, `results/figures/fig_jrt_*` and the run log. The fitted
-models (`results/models/jrt_*.nc`, ~1-2 GB) are left on the server. Copy them only if
-you want to re-inspect the posteriors; `results/models/` is gitignored.
-
-## What to check before the paper is drafted
-
-- `jrt_convergence_by_group.csv`: every group has `max_r_hat` < 1.01 and
-  `min_ess_bulk`/`min_ess_tail` > 400. `model_diagnostics_jrt.csv` has 0 divergences.
-- `jrt_equal_discrimination_convergence.csv`: the same for the nested model.
-- `jrt_loo_comparison.csv`: `share_pareto_k_gt_0.7`. If it is above 0.05, PSIS-LOO
-  is unreliable for those ratings; see the note in the main conversation.
-- `warnings_log_jrt.csv` should be empty, or contain only warnings you accept.
-
-If convergence fails, raise `JRT_TUNE` (e.g. `JRT_TUNE=4000 bash server/run_jrt_server.sh`).
-The defaults in the notebook stay what the paper reports.
+- `results/grm/convergence.csv`: `converged = TRUE`, `information_matrix_pd = TRUE`.
+- `results/comparison/model_fit.csv`: all models estimated and converged.
+- `results/comparison/software_crosscheck.csv`: `abs_difference` close to 0.
+- `results/logs/warnings_jrt_audit_*.csv`: every warning is understood.

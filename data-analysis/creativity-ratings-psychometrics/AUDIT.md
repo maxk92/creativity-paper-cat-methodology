@@ -21,9 +21,12 @@ Branch `audit/jrt-spec`. Started 2026-10-22. The spec is `../../ANLEITUNG_JRT_Au
 
   The heavy steps run on the server. Only `R/01_data_design.R` has been run on the real
   data so far. The other scripts were checked end-to-end on a small simulated dataset.
-- **Open decisions for the author** are listed in §5 below: M1 cannot be estimated in `mirt`
-  while all 7 categories are kept; two raters have a category gap in the middle of the
-  scale; and the manuscript depends on `02d`.
+- **The author's decisions are applied** (see the table below and §5).
+  - M1 is fitted with `rm.facets`.
+  - R20 and R22 are flagged.
+  - Everything on the deletion list was removed (§4).
+  - The paper now draws on `notebooks/02_jrt_results.ipynb`, a display notebook for the R
+    outputs (`paper.config.yml`, `manuscript/_status.md`).
 
 ### Decisions taken before the audit (author, 2026-10-22)
 
@@ -33,6 +36,9 @@ Branch `audit/jrt-spec`. Started 2026-10-22. The spec is `../../ANLEITUNG_JRT_Au
 | Category gaps (8 of 22 raters do not use every category) | **Keep all 7 categories**; document the gaps, do not fix them |
 | Form of the new pipeline | R scripts plus a server runner, not notebooks |
 | Uncommitted work at the start | Baseline commit `79ae482` on the audit branch |
+| M1 cannot be estimated in mirt with 7 categories | **Use `sirt::rm.facets` as M1.** Keep raters with fewer than 15 ratings for now |
+| Internal category gaps (R20, R22) | **Flag them, do not exclude** (they may be excluded later) |
+| Deletion list (§4) | **Approved in full.** The paper switches to the GRM outputs, so `02d` is removed too |
 
 ## 1. Inventory
 
@@ -80,7 +86,7 @@ Status key:
 | G1 | `03_approach_comparison.ipynb` (all) | Compares A–D, rater flags, final `action_scores.csv`, automated text, QC. | §7 (partly) | 🗑️ / ⚠️ Stale; its role passes to `R/06_summary.R` |
 | H1 | `02_creativity_ratings_R.qmd` §3 | lme4 LMM, `sirt::rm.facets`, `mirt` graded, `jrt` without NA handling. | §3/§5 | ⚠️ Does not run (undefined helpers, `df_wide` used before it exists). The `rm.facets` call is kept and documented in `R/04` |
 | H2 | R qmd §§4–18 | Connectivity, pairwise agreement, α, lme4, brms ordinal, jrt placeholder, drift, CV, match facet, QC. | mixed | 🗑️ / ⚠️ Does not run; the spec parts are re-implemented in `R/01`–`R/06` |
-| S1 | `server/run_jrt_server.sh`, `pack_for_server.sh`, `requirements-jrt.txt`, `README.md` | Server run of the Bayesian `02d`. | — | 🗑️ only if `02d` is removed (see §5) |
+| S1 | `server/run_jrt_server.sh`, `pack_for_server.sh`, `requirements-jrt.txt`, `README.md` | Server run of the Bayesian `02d`. | — | 🗑️ deleted with `02d`; `server/README.md` rewritten for the R pipeline |
 | T1 | `results/tables/*`, `results/figures/*`, `results/models/*.nc`, `results/logs/*` from `02a`–`03` | Outputs of the notebooks above. | — | 🗑️ together with their notebooks |
 
 ### 1.2 New code (this audit)
@@ -141,12 +147,23 @@ Status as of this commit:
 - [c] Product level: information only from each product's own raters, with an assertion that this is below the full-panel information. Columns: `theta_eap`, `psd`, `rel_post = 1 − psd²`, `info_at_eap`, `rel_info`, `n_ratings`, `raters`.
 - [c] Consistency of `rel_post` and `rel_info` (correlation, mean difference, the 25 largest differences). Empirical reliability from `empirical_rxx`, asserted equal to the manual formula.
 - [c] Histogram of `rel_post`, `rel_post` by n and by θ̂. No products are filtered.
-- [x] **Reliability convention** (`grep`): every new script uses I/(I+1) (`rel_from_info`). The old 1/(1+∫φ/I) appears only in `02d`.
+- [x] **Reliability convention** (`grep`): every new script uses I/(I+1) (`rel_from_info`). The old 1/(1+∫φ/I) was used only in `02d`, which has been deleted.
 
 ### §5 Comparison (`R/04_model_comparison.R`)
 - [c] M1 `rsm`, M2 `Rasch`, M3 `gpcm` and the GRM all use the same matrix, asserted by row count, rating count and NA pattern.
 - [c] `rm.facets` parametrisation documented from `?rm.facets`. It is the RSM with a rater shift, MML via EM on a 30-point grid over [−9, 9], σ estimated, Σb_r = 0. See `mfrm_equivalence.md`.
-- [!] **Equivalence of `rm.facets` with M1 and the M1-vs-M2 LR test:** both are blocked while M1 cannot be estimated in mirt (§2 category gaps). The script records this and runs everything else. `rm.facets` itself works, because it keeps the full 0–6 category set for every rater.
+- [c] **M1 is `sirt::rm.facets`** (author decision 2026-10-22). mirt's `rsm` is still attempted, and its error is recorded in `model_fit.csv`.
+  - M1 uses a fine grid of 321 points on [−8, 8].
+  - On simulated data without category gaps, `rm.facets` and mirt's `rsm` agree:
+    - log-likelihood difference 0.04;
+    - rater locations correlate at r = −1.000 (opposite sign conventions);
+    - both latent variances are about 0.54.
+
+    `software_crosscheck.csv` recomputes this on every run, which is what justifies the cross-software M1-vs-M2 LR test.
+  - The original call (sirt's default 30-point grid on [−9, 9]) is fitted as well and compared with M1 in `mfrm_equivalence.md`.
+  - df for M1 vs M2: J + K − 1 free RSM parameters, against mirt's PCM count. They differ from (J−1)(K−2) wherever raters leave end categories unused; that difference is reported.
+  - For R20 and R22, the nesting is only approximate, because mirt rescores categories that lie above an internal gap.
+- [c] M1 rater infit/outfit is computed from the M1 parameters at the EAP estimate. The category probabilities are checked against the `rm.facets` output.
 - [c] M2 vs M3 LR test, with the df checked against J − 1. AIC, BIC and SABIC for M1–M3 and the GRM.
 - [c] θ̂ correlations (Pearson and Spearman) for M2, M3, GRM and `rm.facets`. Also the spread of a_j in M3, threshold order in M2/M3, and M1 infit/outfit (if M1 runs).
 - [c] Marginal reliability only, for comparison. It is computed on each model's own latent variance: `mirt::marginal_rxx` assumes N(0,1) and is not valid for Rasch models with a free variance.
@@ -174,7 +191,10 @@ Status as of this commit:
 | D9 | The R qmd does not run. | Helpers removed, chunks out of order. | Replaced by `R/` scripts; the qmd is a deletion candidate. |
 | D10 | No package versions or session info for the R parts. | — | `results/logs/session_info_jrt_audit_*.txt` written by every script. |
 
-## 4. Deletion candidates (🗑️) — **waiting for approval, nothing deleted yet**
+## 4. Deletion candidates (🗑️) — **approved 2026-10-22 and deleted**
+
+Everything below was removed, including `02d` and its server files after the paper was switched to the GRM.
+The gitignored model traces (`results/models/*.nc`) and `data/processed/action_scores.csv` / `rater_diagnostics.csv` were removed as well.
 
 | Candidate | Used by spec analyses? | Note |
 |---|---|---|
@@ -183,22 +203,22 @@ Status as of this commit:
 | `notebooks/02c_ordinal_facet_model.ipynb` and outputs (`*mfrm*`, `ordinal_*`, `fig_mfrm_*`, `results/models/ordinal_crossed_model.nc`) | no | Replaced by the §5 ladder. |
 | `notebooks/03_approach_comparison.ipynb` and outputs (`comparison_*`, `sample_description_summary`, `qc_checklist`, `warnings_log*.csv`, `automated_interpretation.txt`, `fig_comparison_*`, `data/processed/action_scores.csv`, `rater_diagnostics.csv`) | no | Replaced by `R/06`. |
 | `notebooks/02_creativity_ratings_R.qmd` | no | Does not run. Its `rm.facets` call is carried over and documented in `R/04`. |
-| `01_data_overview.ipynb` §4 (interval α), §6 (recommendations), §7.3 (drift), §7.5 (rater × action type), the two demo sections | **yes, the manuscript cites `01`** (`fig-overview-*`, `tbl-overview-ratings-per-action`) | Remove only the cells, not the notebook. §§2–3, 5 and 7.1–7.4 stay as manuscript figures until the paper is switched to `results/data/*`. |
-| `notebooks/02d_judge_response_theory.ipynb`, `server/run_jrt_server.sh`, `pack_for_server.sh`, `requirements-jrt.txt`, `server/README.md`, `*jrt*.csv`, `fig_jrt_*`, `results/models/jrt_*.nc`, `results/logs/02d_*` | **yes:** `manuscript/03_findings.md`, `04_outline.md` and `manuscript.qmd` cite its numbers and labels | **Flagged as a dependency, not deleted.** Remove it only once the manuscript has been switched to the GRM outputs (author decision). |
-| `APPROACHES.md`, `ANALYSIS_TODO.md` | describe A–D | Update after approval, rather than delete. |
-| `requirements.txt` entries for statsmodels, scikit-learn, PyMC and arviz | needed by `02b`–`02d` | Update after approval. |
+| `01_data_overview.ipynb` §4 (interval α), §6 (recommendations), §7.3 (drift), §7.5 (rater × action type), the two demo sections | **yes, the manuscript cites `01`** (`fig-overview-*`, `tbl-overview-ratings-per-action`) | Cells removed; the notebook was re-run. The remaining sections were renumbered (§4 connectivity, §5 design diagnostics), and the manuscript labels are unchanged. |
+| `notebooks/02d_judge_response_theory.ipynb`, `server/run_jrt_server.sh`, `pack_for_server.sh`, `requirements-jrt.txt`, `server/README.md`, `*jrt*.csv`, `fig_jrt_*`, `results/models/jrt_*.nc`, `results/logs/02d_*` | was a dependency of the manuscript | Deleted after the author switched the paper to the GRM outputs (`notebooks/02_jrt_results.ipynb`); `server/README.md` was rewritten, not deleted. |
+| `APPROACHES.md`, `ANALYSIS_TODO.md`, `README.md` | described A–D | Rewritten for the GRM pipeline. |
+| `requirements.txt` entries for statsmodels, scikit-learn, PyMC, arviz, krippendorff and seaborn; R packages lme4, brms, jrt and others in `install_r_packages.R` | needed only by removed notebooks | Pruned. |
 
 Never deleted: `00_data_loading_preprocessing.ipynb`, `data/raw/*` and `data/processed/ratings_long_clean.csv`.
 
-## 5. Open decisions for the author
+## 5. Decisions (2026-10-22) and remaining open points
 
-1. **M1 (RSM) is not estimable in mirt while 7 categories are kept.** The M1-vs-M2 LR test and the `rm.facets` ≡ M1 check depend on it. Options:
-   - (a) Collapse the sparse top categories for **all** models (e.g. 5–7 → 5 gives K = 5) and drop R20–R22, which have fewer than 15 ratings. All 19 remaining raters then use every category.
-   - (b) Use `rm.facets` (which keeps empty categories) as M1 and accept that M1 vs M2 is compared across software.
-   - (c) Drop M1 from the ladder and report M2 vs M3 plus `rm.facets` descriptively.
-2. **Internal gaps in R20 and R22** (13 and 2 ratings). Their thresholds are not comparable with those of other raters. Options: exclude them from all models, or keep them and flag them (current setting).
-3. **The manuscript depends on `02d`.** Should the paper switch to the GRM outputs? Until it does, `02d` stays.
-4. **Approve the deletion list in §4** (completely or item by item).
+1. **M1:** fitted with `sirt::rm.facets` (see §2/§5). Raters with fewer than 15 ratings (R20, R21, R22) are kept for now.
+2. **Internal gaps (R20, R22):** flagged in `category_usage.csv` and `rater_parameters.csv`, and in the `lr_tests.csv` note.
+   - The author reported that R22's ratings had been deleted. However, after `00` was re-run on 2026-10-22, the cleaned data still contain R22 (2 ratings). The sheet update removed only the former R23, who had only "not recognised" ratings and therefore never reached the models.
+   - The pseudonyms of all other raters are unchanged. **To be confirmed by the author.**
+3. **Manuscript:** switched to the GRM outputs via `notebooks/02_jrt_results.ipynb`; `paper.config.yml` is updated.
+   - The manuscript artifacts (`02_artifacts.md` … `manuscript.qmd`) are obsolete. The paper pipeline is re-run from phase 3 after the server run (`manuscript/_status.md`).
+4. **Deletion list:** done (§4).
 
 ## 6. Running the pipeline
 
