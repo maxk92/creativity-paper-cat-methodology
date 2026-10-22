@@ -52,8 +52,8 @@ if [[ $SMOKE -eq 1 ]]; then
 fi
 
 tar -czf jrt_audit_results.tar.gz \
+  --exclude='results/data/ratings_long.csv' --exclude='results/data/ratings_wide.csv' \
   results/data results/grm results/comparison results/naive results/summary \
-  results/logs/session_info_jrt_audit_*.txt results/logs/warnings_jrt_audit_*.csv "$LOG" \
-  --exclude='results/data/ratings_long.csv' --exclude='results/data/ratings_wide.csv'
+  results/logs/session_info_jrt_audit_*.txt results/logs/warnings_jrt_audit_*.csv "$LOG"
 echo; echo ">> Results packed: $ROOT/jrt_audit_results.tar.gz"
 echo "   (includes the model .rds files in results/grm and results/comparison)"

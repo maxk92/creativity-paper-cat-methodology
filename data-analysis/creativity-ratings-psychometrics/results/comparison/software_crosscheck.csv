@@ -1,0 +1,7 @@
+quantity,value
+logLik_mirt_rsm,-8526.690817767685
+logLik_rm_facets_M1_grid,-8526.72790204344
+abs_difference,0.037084275754750706
+cor_rater_locations (mirt c vs rm.facets b),-0.9999999979764392
+latent_variance_mirt,0.5439237505405712
+latent_variance_rm_facets,0.5365470862263835

@@ -1,0 +1,19 @@
+quantity,value
+empirical_marginal_reliability (primary; actual scores),0.6718603784893629
+model_based_marginal_reliability_mirt (hypothetical full panel),0.9618575133091835
+model_based_marginal_reliability_grid (check),0.961875832179469
+var_theta_eap,0.6720015973607875
+mean_psd_squared,0.32820859344067366
+rel_post_min,7.149105188485327e-4
+rel_post_p10,0.4829531278345821
+rel_post_q1,0.5952338667126883
+rel_post_median,0.6977984454273358
+rel_post_q3,0.7685996109896464
+rel_post_p90,0.8140414604561002
+rel_post_max,0.9283630577593913
+rel_post_mean,0.6717914065593263
+rel_post_iqr,0.17336574427695806
+consistency_cor_rel_post_rel_info,0.9352091112051163
+consistency_mean_diff_rel_info_minus_rel_post,0.016251163257340058
+consistency_max_abs_diff,0.41256299998276447
+products_abs_diff_gt_0.1,320

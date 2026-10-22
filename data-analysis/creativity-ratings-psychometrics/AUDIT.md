@@ -19,8 +19,19 @@ Branch `audit/jrt-spec`. Started 2026-10-22. The spec is `../../ANLEITUNG_JRT_Au
   - `R/01_data_design.R` … `R/06_summary.R`
   - `server/run_jrt_audit_server.sh`
 
-  The heavy steps run on the server. Only `R/01_data_design.R` has been run on the real
-  data so far. The other scripts were checked end-to-end on a small simulated dataset.
+  The pipeline was first checked end-to-end on a small simulated dataset. The full run on
+  the real data was done **locally on 2026-10-22** (R is not installed on the server; about
+  14½ minutes, 12¾ of them for the Krippendorff bootstrap). Log:
+  `results/logs/jrt_audit_server_run_20261022_115204.log`.
+- **Results of the run** (details in §2):
+  - All models converged with positive definite information matrices.
+  - The GRM has the lowest AIC and SABIC; its BIC ties with the PCM (24,672.6 vs 24,674.2).
+  - Both LR tests reject the restricted model.
+  - θ̂ correlates at 0.975 to 0.996 across all models.
+  - Empirical marginal reliability of the actual GRM scores is **0.67**, against 0.96 for
+    the hypothetical full panel.
+  - Raters R21 (9 ratings) and R22 (2 ratings) are not identified (negative slopes with huge
+    SEs). See §5.
 - **The author's decisions are applied** (see the table below and §5).
   - M1 is fitted with `rm.facets`.
   - R20 and R22 are flagged.
@@ -106,7 +117,7 @@ Status key:
 
 Status as of this commit:
 - **[x]** done and verified on the real data
-- **[c]** coded and tested on simulated data only; it is checked off after the server run
+  (full run on the real data, 2026-10-22)
 - **[!]** deviation or open point
 
 ### §2 Data and design (`R/01_data_design.R`, run on the real data)
@@ -126,33 +137,50 @@ Status as of this commit:
 - [x] **Descriptives:** `design_summary.csv`, `design_summary_raters.csv` (n, mean, SD) and `design_summary_ratings_per_product.csv`.
 
 ### §3 GRM (`R/02_grm.R`)
-- [c] MML via EM with 61 fixed quadrature points. TOL is 1e-4 (the mirt default) and at most 2,000 cycles; all settings are written out in `jrt_functions.R`.
-- [c] Identification: θ ~ N(0,1), all a_j and b_jk free, no constraints (asserted).
-- [c] Convergence: `converged`, EM cycles and condition number go to `convergence.csv`. All warnings are captured to `results/logs/warnings_jrt_audit_02_grm.csv`.
-- [c] SEs: `SE.type = "Oakes"`, with the positive-definite check from `extract.mirt(mod, "secondordertest")`.
-- [c] Parameters in IRT metric with SEs. Flags for a > 4 and |b| > 5 are joined with n and category use.
+- [x] MML via EM with 61 fixed quadrature points. TOL is 1e-4 (the mirt default) and at most 2,000 cycles; all settings are written out in `jrt_functions.R`.
+- [x] Identification: θ ~ N(0,1), all a_j and b_jk free, no constraints (asserted).
+- [x] Convergence: `converged`, EM cycles and condition number go to `convergence.csv`. All warnings are captured to `results/logs/warnings_jrt_audit_02_grm.csv`.
+  - **Result:** converged after 144 EM cycles; log-likelihood −11,765.85 with 139 parameters; condition number 3.9 × 10⁴.
+- [x] SEs: `SE.type = "Oakes"`, with the positive-definite check from `extract.mirt(mod, "secondordertest")`.
+  - **Result:** the information matrix is positive definite.
+- [x] Parameters in IRT metric with SEs. Flags for a > 4 and |b| > 5 are joined with n and category use.
+  - **Result:** no a > 4. The 19 raters with at least 50 ratings have a between 0.64 and 3.90; for R16 (a = 3.90, SE 1.53) and R19 (a = 3.76, SE 2.33) the SEs are large.
+  - **[!] |b| > 5:** R18 (max |b| = 6.4, low a = 0.64, 55 ratings) and R21.
+  - **[!] Not identified:** R21 (9 ratings: a = −0.09, SE 1.01, max |b| = 24.5, thresholds unordered) and R22 (2 ratings: a = −3.86, SE 7.83). R20 (13 ratings) has a = 1.04 but SE 0.68. See §5.
 - [!] **Rater fit:** mirt 1.46 has no `impute` argument any more; it is hard-coded off in `itemfit()` and `M2()`. Instead:
   - infit/outfit are computed directly on the observed ratings, which mirt supports with missing data;
   - S-X² uses an **explicit multiple imputation**: plausible values, then `imputeMissing`, then a refit with all parameters fixed, then S-X²; S-X² and df are averaged over 20 imputations with seed 20260713.
 
   With about 90% of cells imputed, S-X² leans strongly towards good fit. It is reported, but not as primary evidence.
-- [c] Q3 is computed pairwise over shared products, with `n_common` beside each pair. Pairs with fewer than 3 shared products are not computed; pairs with fewer than 30 are flagged as unstable. On test data it matches `mirt::residuals(type = "Q3")` to 3e-17.
-- [!] **Absolute fit:** `M2(type = "C2")`. mirt 1.46 has no imputation here, so the moments come from the available pairs. If the run fails, the reason is written to `global_fit.csv`.
-- [c] Category response functions for every rater: `figures/grm_category_response_functions.*`.
-- [c] EAP scores with PSD (`fscores(..., full.scores.SE = TRUE)`). The shrinkage note is in the script header and in §4.
+
+  **Result:**
+  - S-X²: no rater misfits (all p > .36, RMSEA ≈ 0). mirt warns 20 times that "imputing too much data can lead to very conservative results", which is the low power described above.
+  - **[!] infit/outfit:** 15 of 22 raters are flagged, with mean squares mostly 0.4–0.7, i.e. *overfit*. This is most likely an artefact of the sparse design: with about 2 ratings per product, the EAP estimate is drawn towards exactly those ratings, so the residuals are small. The flags are reported but not used to judge raters.
+  - z-outfit for R22 is `NA` (2 ratings; this is the "NaNs produced" warning).
+- [x] Q3 is computed pairwise over shared products, with `n_common` beside each pair. Pairs with fewer than 3 shared products are not computed; pairs with fewer than 30 are flagged as unstable. On test data it matches `mirt::residuals(type = "Q3")` to 3e-17.
+  - **Result:** on the real data it matches mirt to 1e-16. All 231 pairs are listed. The mean Q3 is −0.20, the known downward bias of Q3 when a product has only a few ratings. 20 pairs deviate from that mean by more than 0.2. 16 of them are negative, down to −0.77. The other 4 have a raw Q3 between 0.00 and 0.10 (R01–R09, R10–R11, R11–R15, R11–R18). No pair has a large positive Q3, so there is no sign of local dependence.
+- [!] **Absolute fit:** `M2(type = "C2")`. mirt 1.46 has no imputation here, so the moments come from the available pairs.
+  - **Result: not computable** on the real data. mirt stops with "missing value where TRUE/FALSE needed", most likely because 37 rater pairs share no product. This is recorded in `global_fit.csv`. Absolute GRM fit therefore rests on S-X², Q3 and the model comparison.
+- [x] Category response functions for every rater: `figures/grm_category_response_functions.*`.
+- [x] EAP scores with PSD (`fscores(..., full.scores.SE = TRUE)`). The shrinkage note is in the script header and in §4.
 
 ### §4 Information and reliability (`R/03_grm_information.R`)
-- [c] Rater information on the grid −4…4 in steps of 0.05. The per-rater summary gives the N(0,1)-weighted area, the θ of the maximum, the maximum, and the rater's share at θ = −2…2 and weighted. Plots show the curves and the stacked shares.
-- [c] Full panel: `panel_information_grid.csv` (θ, info, se, rel = I/(I+1)), plus `marginal_rxx` and a grid recomputation as a check.
-- [c] Product level: information only from each product's own raters, with an assertion that this is below the full-panel information. Columns: `theta_eap`, `psd`, `rel_post = 1 − psd²`, `info_at_eap`, `rel_info`, `n_ratings`, `raters`.
-- [c] Consistency of `rel_post` and `rel_info` (correlation, mean difference, the 25 largest differences). Empirical reliability from `empirical_rxx`, asserted equal to the manual formula.
-- [c] Histogram of `rel_post`, `rel_post` by n and by θ̂. No products are filtered.
+- [x] Rater information on the grid −4…4 in steps of 0.05. The per-rater summary gives the N(0,1)-weighted area, the θ of the maximum, the maximum, and the rater's share at θ = −2…2 and weighted. Plots show the curves and the stacked shares.
+- [x] Full panel: `panel_information_grid.csv` (θ, info, se, rel = I/(I+1)), plus `marginal_rxx` and a grid recomputation as a check.
+- [x] Product level: information only from each product's own raters, with an assertion that this is below the full-panel information. Columns: `theta_eap`, `psd`, `rel_post = 1 − psd²`, `info_at_eap`, `rel_info`, `n_ratings`, `raters`.
+- [x] Consistency of `rel_post` and `rel_info` (correlation, mean difference, the 25 largest differences). Empirical reliability from `empirical_rxx`, asserted equal to the manual formula.
+- [x] Histogram of `rel_post`, `rel_post` by n and by θ̂. No products are filtered.
+- **Results:**
+  - Full panel: model-based marginal reliability 0.962; the grid recomputation gives 0.962 as well.
+  - Actual scores: empirical marginal reliability 0.672 (Var θ̂ = 0.672, mean PSD² = 0.328).
+  - `rel_post`: median 0.698 (Q1 0.595, Q3 0.769).
+  - `rel_post` and `rel_info` correlate at 0.935, with a mean difference of 0.016. 320 products differ by more than 0.1.
 - [x] **Reliability convention** (`grep`): every new script uses I/(I+1) (`rel_from_info`). The old 1/(1+∫φ/I) was used only in `02d`, which has been deleted.
 
 ### §5 Comparison (`R/04_model_comparison.R`)
-- [c] M1 `rsm`, M2 `Rasch`, M3 `gpcm` and the GRM all use the same matrix, asserted by row count, rating count and NA pattern.
-- [c] `rm.facets` parametrisation documented from `?rm.facets`. It is the RSM with a rater shift, MML via EM on a 30-point grid over [−9, 9], σ estimated, Σb_r = 0. See `mfrm_equivalence.md`.
-- [c] **M1 is `sirt::rm.facets`** (author decision 2026-10-22). mirt's `rsm` is still attempted, and its error is recorded in `model_fit.csv`.
+- [x] M1 `rsm`, M2 `Rasch`, M3 `gpcm` and the GRM all use the same matrix, asserted by row count, rating count and NA pattern.
+- [x] `rm.facets` parametrisation documented from `?rm.facets`. It is the RSM with a rater shift, MML via EM on a 30-point grid over [−9, 9], σ estimated, Σb_r = 0. See `mfrm_equivalence.md`.
+- [x] **M1 is `sirt::rm.facets`** (author decision 2026-10-22). mirt's `rsm` is still attempted, and its error is recorded in `model_fit.csv`.
   - M1 uses a fine grid of 321 points on [−8, 8].
   - On simulated data without category gaps, `rm.facets` and mirt's `rsm` agree:
     - log-likelihood difference 0.04;
@@ -163,18 +191,44 @@ Status as of this commit:
   - The original call (sirt's default 30-point grid on [−9, 9]) is fitted as well and compared with M1 in `mfrm_equivalence.md`.
   - df for M1 vs M2: J + K − 1 free RSM parameters, against mirt's PCM count. They differ from (J−1)(K−2) wherever raters leave end categories unused; that difference is reported.
   - For R20 and R22, the nesting is only approximate, because mirt rescores categories that lie above an internal gap.
-- [c] M1 rater infit/outfit is computed from the M1 parameters at the EAP estimate. The category probabilities are checked against the `rm.facets` output.
-- [c] M2 vs M3 LR test, with the df checked against J − 1. AIC, BIC and SABIC for M1–M3 and the GRM.
-- [c] θ̂ correlations (Pearson and Spearman) for M2, M3, GRM and `rm.facets`. Also the spread of a_j in M3, threshold order in M2/M3, and M1 infit/outfit (if M1 runs).
-- [c] Marginal reliability only, for comparison. It is computed on each model's own latent variance: `mirt::marginal_rxx` assumes N(0,1) and is not valid for Rasch models with a free variance.
+  - **Result:**
+    - The cross-check on the real-data run gives a log-likelihood difference of 0.037, rater locations correlated at r = −1.000, and latent variances of 0.544 and 0.537.
+    - M1 log-likelihood is −12,229.58 with 28 parameters. mirt `rsm` failed, as expected.
+    - M1 vs M2: χ²(90) = 753.4, p < 10⁻¹⁰⁰. The df are 90, against 105 from (J−1)(K−2), because of the end gaps.
+    - The default-grid `rm.facets` gives the same θ̂ as M1 (r = 0.999999).
+- [x] M1 rater infit/outfit is computed from the M1 parameters at the EAP estimate. The category probabilities are checked against the `rm.facets` output.
+- [x] M2 vs M3 LR test, with the df checked against J − 1. AIC, BIC and SABIC for M1–M3 and the GRM.
+- [x] θ̂ correlations (Pearson and Spearman) for M2, M3, GRM and `rm.facets`. Also the spread of a_j in M3, threshold order in M2/M3, and M1 infit/outfit (if M1 runs).
+- [x] Marginal reliability only, for comparison. It is computed on each model's own latent variance: `mirt::marginal_rxx` assumes N(0,1) and is not valid for Rasch models with a free variance.
+- **Results:**
+  - **M2 vs M3:** χ²(21) = 127.8, p = 2.6 × 10⁻¹⁷. The df match J − 1.
+  - **Information criteria:**
+
+    | Model | AIC | BIC | SABIC |
+    |---|---|---|---|
+    | M1 | 24,515.2 | 24,689.0 | 24,600.0 |
+    | M2 | 23,941.7 | 24,674.2 | 24,299.3 |
+    | M3 | 23,855.9 | 24,718.8 | 24,277.1 |
+    | GRM | **23,809.7** | **24,672.6** | **24,230.9** |
+
+    The GRM and M3 have the same number of parameters (139), and the GRM's log-likelihood is higher by 23.1.
+  - **θ̂ correlations:** Pearson 0.975–0.996 and Spearman 0.978–0.996 across M1, M2, M3 and the GRM.
+  - **M3 slopes:** a ranges from 0.28 (R09) to 2.98 (R16). They are negative for R21 (−0.10) and R22 (−4.62, SE 10.7).
+  - **Thresholds:** unordered thresholds occur in M2/M3 for several raters (`threshold_order.csv`); in the GRM they are ordered by construction.
+  - **Marginal reliability:** 0.950 (M1), 0.949 (M2), 0.958 (M3) and 0.962 (GRM). The empirical reliability is 0.625, 0.636, 0.657 and 0.672 in the same order.
 
 ### §6 Naive indices (`R/05_naive_indices.R`)
-- [c] Cronbach's α from `psych::alpha` on the pairwise covariance matrix. A pair needs at least 3 shared products. Raters whose covariances cannot be computed are dropped one at a time and listed.
-- [c] No product is rated by all raters. α is therefore also reported for the largest fully crossed block of raters, searching blocks of each size.
-- [c] Krippendorff's α (ordinal) with `irr::kripp.alpha(t(wide))`. The orientation (raters × units) and the NA count are asserted. The bootstrap over products uses 1,000 replications and seed 20260713.
+- [x] Cronbach's α from `psych::alpha` on the pairwise covariance matrix. A pair needs at least 3 shared products. Raters whose covariances cannot be computed are dropped one at a time and listed.
+- [x] No product is rated by all raters. α is therefore also reported for the largest fully crossed block of raters, searching blocks of each size.
+- [x] Krippendorff's α (ordinal) with `irr::kripp.alpha(t(wide))`. The orientation (raters × units) and the NA count are asserted. The bootstrap over products uses 1,000 replications and seed 20260713.
+- **Results:**
+  - **Krippendorff's α (ordinal):** 0.391, 95% CI [0.361, 0.418].
+  - **[!] Cronbach's α (pairwise):** 0.928 over 14 raters. 8 raters (R22, R19, R21, R14, R16, R02, R12, R20) were dropped for incomplete covariances. `psych` warned that the matrix was not positive definite and smoothed it.
+  - **Cronbach's α (largest crossed block):** 0.658, from 3 raters (R07, R09, R11) on 139 products.
+  - Neither α refers to the scores actually produced.
 
 ### §7 Summary (`R/06_summary.R`)
-- [c] `results/summary/reliability_overview.csv` and `REPORT.md` are generated from the CSVs only.
+- [x] `results/summary/reliability_overview.csv` and `REPORT.md` are generated from the CSVs only.
 
 ## 3. Deviations found and corrections
 
@@ -219,11 +273,20 @@ Never deleted: `00_data_loading_preprocessing.ipynb`, `data/raw/*` and `data/pro
 3. **Manuscript:** switched to the GRM outputs via `notebooks/02_jrt_results.ipynb`; `paper.config.yml` is updated.
    - The manuscript artifacts (`02_artifacts.md` … `manuscript.qmd`) are obsolete. The paper pipeline is re-run from phase 3 after the server run (`manuscript/_status.md`).
 4. **Deletion list:** done (§4).
+5. **Open after the full run (author to decide):**
+   - **R21 and R22 are not identified** in the GRM and M3, and R20 only weakly. They barely affect θ̂, because their information is near zero, but their parameters should not be reported as estimates. The options are to exclude raters with fewer than 15 ratings (as considered on 2026-10-22), or to keep them and report their parameters as not identified.
+   - **R18:** low discrimination (a = 0.64) and an extreme threshold (|b| = 6.4) on 55 ratings. Worth checking in the raw data.
+   - **C2** is not computable (see §3). Absolute fit is argued from S-X², Q3 and the model comparison.
+   - **infit/outfit flags** are probably artefacts of the sparse design (see §3). Report the values without using the flags to judge raters.
+   - To look up raters in the raw data, map pseudonyms with `switch_rater_ids()` in `R/jrt_functions.R`, which uses the gitignored key `data/raw/rater_pseudonym_key.csv`. Original IDs never go into `results/`.
 
 ## 6. Running the pipeline
 
 ```bash
-# locally (analysis folder)
+# locally, in full (as done on 2026-10-22; analysis folder)
+nohup bash server/run_jrt_audit_server.sh > jrt_audit_run.out 2>&1 &
+
+# or on a server with R
 bash server/pack_jrt_audit_for_server.sh
 scp jrt_audit_server_bundle.tar.gz user@server:~/
 # on the server
@@ -235,5 +298,5 @@ tmux new -s jrt_audit; bash server/run_jrt_audit_server.sh
 scp user@server:~/jrt_audit/jrt_audit_results.tar.gz . && tar -xzf jrt_audit_results.tar.gz
 ```
 
-Expected run time is minutes: the mirt fits are fast. The slow parts are the 20 S-X²
-imputations, C2, the four SE computations and the 1,000 Krippendorff bootstraps.
+Run time on a laptop (2026-10-22): 14½ minutes in total. `05` takes 12¾ of them (the
+Krippendorff bootstrap), `02` 50 s, `04` 42 s, and the other steps a few seconds each.

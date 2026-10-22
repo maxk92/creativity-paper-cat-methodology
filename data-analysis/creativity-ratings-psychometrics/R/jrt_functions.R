@@ -197,3 +197,23 @@ product_information <- function(mod, theta_hat, rated) {
 
 # Pretty rater-ID order (R01, R02, ...).
 rater_order <- function(ids) ids[order(as.integer(gsub("\\D", "", ids)), ids)]
+
+# --- pseudonym key (local inspection only) ------------------------------------
+# data/raw/rater_pseudonym_key.csv (written by notebook 00, gitignored) maps the
+# original user IDs to R01, R02, ... Use these helpers interactively to look up
+# raters in the raw data. No pipeline script calls them, and their output must
+# never be written to results/.
+RATER_KEY_CSV <- file.path(ROOT, "data", "raw", "rater_pseudonym_key.csv")
+rater_key <- function() {
+  if (!file.exists(RATER_KEY_CSV)) stop("No pseudonym key at ", RATER_KEY_CSV, " (run notebook 00)")
+  key <- read_csv(RATER_KEY_CSV, col_types = cols(.default = "c"))
+  setNames(key$original_rater_id, key$rater_id)  # named vector: pseudonym -> original
+}
+# to = "original" adds/replaces with original IDs; to = "pseudonym" maps back.
+switch_rater_ids <- function(ids, to = c("original", "pseudonym")) {
+  key <- rater_key()
+  if (match.arg(to) == "pseudonym") key <- setNames(names(key), key)
+  out <- unname(key[ids])
+  if (anyNA(out[!is.na(ids)])) stop("IDs not in the key: ", paste(unique(ids[is.na(out) & !is.na(ids)]), collapse = ", "))
+  out
+}

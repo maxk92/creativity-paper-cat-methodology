@@ -74,6 +74,9 @@ and bootstrap replications for a quick check; those outputs are not for the pape
 ## Notes
 
 - Rater IDs are pseudonymised in `00`; the key in `data/raw/` is never copied to the server.
+- To look up a rater in the raw data, use `source("R/jrt_functions.R"); switch_rater_ids(c("R18", "R21"))`
+  (and `switch_rater_ids(ids, "pseudonym")` back). It reads the gitignored key
+  `data/raw/rater_pseudonym_key.csv` (columns `original_rater_id`, `rater_id`). Never write its output to `results/`.
 - Only the creativity rating is modelled. `technical_correctness` and `aesthetic_appeal`
   stay in the data but go into no model.
 - All 7 categories are kept. Raters with unused categories are flagged (`results/data/category_usage.csv`).
