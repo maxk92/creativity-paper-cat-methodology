@@ -190,18 +190,8 @@ q3_check <- tryCatch({
 }, error = function(e) paste("mirt::residuals(Q3) failed:", conditionMessage(e)))
 
 # --- absolute fit: M2 / C2 ----------------------------------------------------------------
-# mirt 1.46 computes the uni- and bivariate moments of M2-type statistics from
-# the available pairs when data are missing (no imputation option exists any
-# more). Pairs of raters with no overlap contribute nothing. If C2 fails, the
-# reason is recorded instead of forcing a result.
-global_fit <- tryCatch({
-  m2 <- with_warnings(M2(mod, type = "C2", calcNull = TRUE, quadpts = MIRT_QUADPTS), "M2 C2")
-  data.frame(statistic = "C2", as.data.frame(m2), note = paste(
-    "Computed on pairwise-available moments; rater pairs without overlap",
-    "contribute no information. Interpret with caution for this sparse design."))
-}, error = function(e) {
-  data.frame(statistic = "C2", note = paste("Not computable:", conditionMessage(e)))
-})
+# See c2_global_fit() in jrt_functions.R: C2 is undefined when rater pairs share no products.
+global_fit <- c2_global_fit(mod)
 global_fit$q3_mirt_crosscheck_max_abs_diff <- as.character(q3_check)
 save_csv(global_fit, DIR_GRM, "global_fit")
 

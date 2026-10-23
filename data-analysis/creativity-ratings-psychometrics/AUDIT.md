@@ -337,3 +337,21 @@ scp user@server:~/jrt_audit/jrt_audit_results.tar.gz . && tar -xzf jrt_audit_res
 
 Run time on a laptop (2026-10-22): 14½ minutes in total. `05` takes 12¾ of them (the
 Krippendorff bootstrap), `02` 50 s, `04` 42 s, and the other steps a few seconds each.
+
+### Additions 2026-10-23 (second round, for the manuscript)
+
+- **Raw mean vs GRM score** (`R/03_grm_information.R` → `results/grm/raw_mean_vs_grm.csv`,
+  `figures/grm_raw_mean_vs_theta.*`; notebook `tbl-raw-mean-vs-grm`, `fig-raw-mean-vs-theta`):
+  agreement of the unweighted rater mean with the GRM EAP score, overall and for products
+  with 1, 2 and 3+ ratings, plus the range of GRM scores among products with equal raw mean.
+  `rank_change()` moved to `jrt_functions.R` (shared with `04`, outputs unchanged).
+- **C2:** cause identified. `M2(type = "C2")` returns NaN because 17 of 171 rater pairs share no
+  products (undefined bivariate moments); the earlier error came from the null-model comparison
+  on that NaN. Now `c2_global_fit()` in `jrt_functions.R`; `global_fit.csv` regenerated from the
+  saved model with this function (no refit).
+- **Notebook explanations:** accepted vs rejected parameter draws, LR df 84 vs 90
+  (6 unused end categories: R01, R03, R06, R18 never use 7; R17 never uses 6 or 7), mean Q3 and
+  the flag_q3 criterion, n_boot / n_boot_failed in the naive-indices table, no misfit cut-offs.
+- Information figures: two-column legend. Notebook 01: "products" wording, integer formatting,
+  response styles shown with 3 decimals.
+- `03` re-run with the fixed seed reproduced all earlier outputs byte for byte.

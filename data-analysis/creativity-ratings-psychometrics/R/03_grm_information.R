@@ -15,7 +15,8 @@
 #
 # Outputs (results/grm/): rater_information_grid.csv, rater_information_summary.csv,
 #   rater_information_shares.csv, panel_information_grid.csv, product_scores.csv,
-#   reliability_summary.csv, reliability_ci.csv, rater_information_ci.csv, figures/grm_*.{png,svg}
+#   reliability_summary.csv, reliability_ci.csv, rater_information_ci.csv, raw_mean_vs_grm.csv,
+#   figures/grm_*.{png,svg}
 # Reloads results/grm/model.rds, no refit. The parameter draws (4d) take a few minutes.
 # ============================================================
 
@@ -66,6 +67,7 @@ p_info <- ggplot(info_long, aes(theta, info, colour = rater)) +
   scale_colour_viridis_d(end = 0.95) +
   labs(x = expression(theta), y = expression(I[j](theta)), colour = "Rater",
        title = "GRM rater information functions") +
+  guides(colour = guide_legend(ncol = 2)) +
   theme_minimal(base_size = 10)
 save_fig(p_info, "grm_rater_information")
 
@@ -76,6 +78,7 @@ p_share <- ggplot(shares_plot, aes(theta, share, fill = rater)) +
   scale_fill_viridis_d(end = 0.95) +
   labs(x = expression(theta), y = "Share of panel information", fill = "Rater",
        title = "Share of each rater in the full-panel information") +
+  guides(fill = guide_legend(ncol = 2)) +
   theme_minimal(base_size = 10)
 save_fig(p_share, "grm_rater_information_shares")
 
@@ -117,6 +120,41 @@ product_scores <- tibble(
 )
 stopifnot(nrow(product_scores) == nrow(wide), !anyNA(product_scores$theta_eap))
 save_csv(product_scores, DIR_GRM, "product_scores")
+
+# --- raw rater mean vs GRM score -------------------------------------------------------------
+# What changes when rater differences are modelled: the unweighted mean of a
+# product's ratings (common practice) against its GRM EAP score, overall and by
+# number of ratings. The same raw mean can map to different GRM scores, depending
+# on the severity and discrimination of the raters who gave it.
+raw_mean <- rowMeans(wide, na.rm = TRUE) + SCALE_MIN  # back to the 1-7 scale
+n_group <- function(n) ifelse(n >= 3, "3+", as.character(n))
+raw_vs_grm <- bind_rows(
+  rank_change(raw_mean, theta_hat) %>% mutate(n_ratings = "all", n_products = length(theta_hat), .before = 1),
+  bind_rows(lapply(c("1", "2", "3+"), function(g) {
+    i <- n_group(product_scores$n_ratings) == g
+    rank_change(raw_mean[i], theta_hat[i]) %>% mutate(n_ratings = g, n_products = sum(i), .before = 1)
+  }))
+) %>%
+  left_join(
+    tibble(n_ratings = c(rep("all", length(theta_hat)), n_group(product_scores$n_ratings)),
+           theta = c(theta_hat, theta_hat), raw = c(raw_mean, raw_mean)) %>%
+      group_by(n_ratings, raw) %>% filter(n() >= 2) %>%
+      summarise(theta_range = diff(range(theta)), .groups = "drop_last") %>%
+      summarise(mean_theta_range_same_raw_mean = mean(theta_range),
+                max_theta_range_same_raw_mean = max(theta_range), .groups = "drop"),
+    by = "n_ratings")
+save_csv(raw_vs_grm, DIR_GRM, "raw_mean_vs_grm")
+
+p_raw <- tibble(raw = raw_mean, theta = theta_hat,
+                n_ratings = paste(n_group(product_scores$n_ratings), "ratings")) %>%
+  mutate(n_ratings = sub("^1 ratings$", "1 rating", n_ratings)) %>%
+  ggplot(aes(raw, theta)) +
+  geom_jitter(width = 0.04, height = 0, size = 0.5, alpha = 0.35) +
+  facet_wrap(~ n_ratings) +
+  scale_x_continuous(breaks = SCALE_MIN:SCALE_MAX) +
+  labs(x = "Raw mean rating", y = expression("GRM score " * hat(theta)[EAP])) +
+  theme_minimal(base_size = 10)
+save_fig(p_raw, "grm_raw_mean_vs_theta", width = 9, height = 3.6)
 
 # Guard against the wrong computation: full-panel information at theta_hat
 # must exceed the product's own information for every product with < J raters.

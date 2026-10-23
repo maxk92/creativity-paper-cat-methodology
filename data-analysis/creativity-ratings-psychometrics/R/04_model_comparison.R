@@ -202,18 +202,7 @@ theta_cor <- bind_rows(lapply(c("pearson", "spearman"), function(meth) {
 save_csv(theta_cor, DIR_CMP, "theta_correlations")
 
 # How much the product ranking changes between models (reference: GRM).
-# Percentile ranks in [0, 1]; quintiles 1-5 of each model's own score distribution.
-pct_rank <- function(x) (rank(x) - 0.5) / length(x)
-quintile <- function(x) pmin(5L, floor(pct_rank(x) * 5) + 1L)
-rank_change <- function(x, ref) {
-  shift <- abs(pct_rank(x) - pct_rank(ref))
-  tibble(pearson = cor(x, ref), spearman = cor(x, ref, method = "spearman"),
-         mean_abs_percentile_shift = mean(shift),
-         p95_abs_percentile_shift = unname(quantile(shift, 0.95)),
-         max_abs_percentile_shift = max(shift),
-         share_products_changing_quintile = mean(quintile(x) != quintile(ref)),
-         share_products_changing_quintile_by_2_or_more = mean(abs(quintile(x) - quintile(ref)) >= 2))
-}
+# rank_change() and its helpers are in jrt_functions.R (shared with 03).
 if ("GRM" %in% names(theta_tab)) {
   score_agreement <- bind_rows(lapply(intersect(c("M1_RSM", "M2_PCM", "M3_GPCM"), names(theta_tab)),
     function(m) rank_change(theta_tab[[m]], theta_tab$GRM) %>% mutate(model = m, reference = "GRM", .before = 1)))

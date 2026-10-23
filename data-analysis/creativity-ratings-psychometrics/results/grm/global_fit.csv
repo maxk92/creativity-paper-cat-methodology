@@ -1,2 +1,2 @@
-statistic,note,q3_mirt_crosscheck_max_abs_diff
-C2,Not computable: missing value where TRUE/FALSE needed,2.22044604925031e-16
+statistic,computable,rater_pairs,rater_pairs_without_overlap,note,q3_mirt_crosscheck_max_abs_diff
+C2,FALSE,171,17,"Not computable: 17 of 171 rater pairs share no products, so their bivariate moments and hence C2 are undefined.",2.22044604925031e-16

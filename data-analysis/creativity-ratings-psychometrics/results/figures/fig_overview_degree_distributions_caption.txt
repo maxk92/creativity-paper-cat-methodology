@@ -1,1 +1,1 @@
-Degree distributions of the bipartite rater-action design: (A) number of raters per action, (B) number of actions per rater.
+Degree distributions of the bipartite rater-product design: (A) number of raters per product, (B) number of products per rater.

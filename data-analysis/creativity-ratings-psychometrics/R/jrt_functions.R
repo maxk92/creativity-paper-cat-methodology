@@ -178,6 +178,34 @@ convergence_row <- function(mod, label) {
   )
 }
 
+# --- absolute fit: C2 (spec 3) ------------------------------------------------
+# mirt 1.46 computes the uni- and bivariate moments of M2-type statistics from
+# the available pairs when data are missing. A rater pair that shares no products
+# has undefined bivariate moments, so C2 becomes NaN. The null model (calcNull)
+# is not requested: with a NaN statistic its comparison errors out. If C2 is not
+# finite, the reason is recorded instead of forcing a result.
+c2_global_fit <- function(mod) {
+  d <- extract.mirt(mod, "data")
+  ov <- crossprod(!is.na(d))
+  n_pairs <- sum(upper.tri(ov))
+  n_no_overlap <- sum(ov[upper.tri(ov)] == 0)
+  res <- tryCatch(with_warnings(M2(mod, type = "C2", calcNull = FALSE, quadpts = MIRT_QUADPTS), "M2 C2"),
+                  error = function(e) e)
+  ok <- !inherits(res, "error") && is.finite(res$M2)
+  out <- data.frame(statistic = "C2", computable = ok,
+                    rater_pairs = n_pairs, rater_pairs_without_overlap = n_no_overlap)
+  if (ok) {
+    cbind(out, as.data.frame(res), note = paste(
+      "Computed on pairwise-available moments; rater pairs without overlap",
+      "contribute no information. Interpret with caution."))
+  } else {
+    out$note <- if (inherits(res, "error")) paste("Not computable:", conditionMessage(res)) else
+      sprintf("Not computable: %d of %d rater pairs share no products, so their bivariate moments and hence C2 are undefined.",
+              n_no_overlap, n_pairs)
+    out
+  }
+}
+
 # --- information and reliability (spec 4) -----------------------------------
 # Rater information on a theta grid: matrix (length(theta) x J).
 rater_information <- function(mod, theta) {
@@ -202,6 +230,21 @@ product_information <- function(mod, theta_hat, rated) {
   info_all <- rater_information(mod, theta_hat)  # products x raters
   stopifnot(identical(dim(info_all), dim(rated)))
   rowSums(info_all * rated)
+}
+
+# --- agreement of product rankings -----------------------------------------------
+# Percentile ranks in [0, 1] (ties get their mean rank); quintiles 1-5 of each
+# score's own distribution. Used for model comparison (04) and raw mean vs GRM (03).
+pct_rank <- function(x) (rank(x) - 0.5) / length(x)
+quintile <- function(x) pmin(5L, floor(pct_rank(x) * 5) + 1L)
+rank_change <- function(x, ref) {
+  shift <- abs(pct_rank(x) - pct_rank(ref))
+  tibble(pearson = cor(x, ref), spearman = cor(x, ref, method = "spearman"),
+         mean_abs_percentile_shift = mean(shift),
+         p95_abs_percentile_shift = unname(quantile(shift, 0.95)),
+         max_abs_percentile_shift = max(shift),
+         share_products_changing_quintile = mean(quintile(x) != quintile(ref)),
+         share_products_changing_quintile_by_2_or_more = mean(abs(quintile(x) - quintile(ref)) >= 2))
 }
 
 # Pretty rater-ID order (R01, R02, ...).
