@@ -256,3 +256,50 @@ A targeted run for six methods references. The orchestrator asked for these by n
 - The dossier's list of bib keys was checked. It names none of the six; its only Bayesian-software key is salvatier2016.
 
 The main bib may still hold some of these papers under other keys; vehtari2017 and hoffman2014 are the most likely. **Before merging, dedupe by DOI:** 10.1007/s11222-016-9696-4, 10.1214/20-BA1221, 10.7717/peerj-cs.1516, 10.21105/joss.01143 and 10.1111/j.1745-3984.1984.tb01039.x. hoffman2014 has no DOI, so match it on author, year and title.
+
+---
+
+## Targeted search 2026-10-23 (GRM methods)
+
+A targeted run for the methods references of the GRM analysis: marginal maximum likelihood in `mirt`, the model ladder RSM/MFRM → PCM → GPCM → GRM, item fit, local dependence and reliability. The orchestrator named the references; this was not a gap search. **10 entries were added** in section E of `manuscript/web_references.bib`. The file now holds **71 entries**: 61 before this run (18 in section A, 13 in B, 24 in C, 6 in D) plus 10 new. The earlier totals in this file (57, then 63) do not match the file; see the note on memmert2007/santos2016 below.
+
+Metadata come from Crossref (`api.crossref.org/works/<DOI>`), except where the table names CRAN, CRESST or the ACER repository.
+
+| Method | Reference | Citekey | Source | Verification URL/DOI |
+|---|---|---|---|---|
+| MML estimation software | Chalmers (2012). mirt: A multidimensional item response theory package for the R environment. *JSS*, 48(6) | chalmers2012 | web_references.bib (existing) | doi:10.18637/jss.v048.i06 |
+| Supplementary IRT software | Robitzsch, A. (2025). *sirt: Supplementary item response theory models* (R package version 4.2-133) | robitzsch2025 | newly added | https://CRAN.R-project.org/package=sirt; doi:10.32614/CRAN.package.sirt |
+| Graded response model | Samejima (1969). Estimation of latent ability using a response pattern of graded scores. *Psychometrika*, 34(S1), 1–97 (= Psychometrika Monograph Supplement No. 17) | samejima1969 | web_references.bib (existing) | doi:10.1007/BF03372160 |
+| Rating scale model | Andrich (1978). A rating formulation for ordered response categories. *Psychometrika*, 43(4), 561–573 | andrich1978 | web_references.bib (existing) | doi:10.1007/BF02293814 |
+| Partial credit model | Masters (1982). A Rasch model for partial credit scoring. *Psychometrika*, 47(2), 149–174 | masters1982 | web_references.bib (existing) | doi:10.1007/BF02296272 |
+| Generalized partial credit model | Muraki (1992). A generalized partial credit model: Application of an EM algorithm. *APM*, 16(2), 159–176 | muraki1992 | web_references.bib (existing) | doi:10.1177/014662169201600206 |
+| MFRM | Linacre (1989). Many-faceted Rasch measurement [Doctoral dissertation, University of Chicago] | linacre1989 | web_references.bib (existing) | ProQuest T-30889. MESA Press imprint **not verified** (see below) |
+| MFRM | Eckes (2015). *Introduction to many-facet Rasch measurement* (2nd ed.). Peter Lang | eckes2015 | web_references.bib (existing) | doi:10.3726/978-3-653-04844-5; ISBN 978-3-631-65615-0 |
+| MFRM in creativity | Primi, Silvia, Jauk & Benedek (2019). Applying many-facet Rasch modeling in the assessment of creativity. *PACA*, 13(2), 176–186 | primi2019 | phd_library.bib (per dossier) | doi:10.1037/aca0000230 |
+| JRT | Myszkowski & Storme (2019). Judge response theory? A call to upgrade our psychometrical account of creativity judgments. *PACA*, 13(2), 167–175 | myszkowski2019 | phd_library.bib (per dossier) | doi:10.1037/aca0000225 |
+| JRT (`jrt` package) | Myszkowski (2021). Development of the R library "jrt": Automated item response theory procedures for judgment data and their application with the consensual assessment technique. *PACA*, 15(3), 426–438 | myszkowski2021 | phd_library.bib (per dossier) | doi:10.1037/aca0000287 |
+| Item fit S-X2 | Orlando & Thissen (2000). Likelihood-based item-fit indices for dichotomous item response theory models. *APM*, 24(1), 50–64 | orlando2000 | newly added | doi:10.1177/01466216000241003 |
+| Item fit S-X2 (polytomous) | Kang & Chen (2008). Performance of the generalized S-X2 item fit index for polytomous IRT models. *JEM*, 45(4), 391–406 | kang2008 | newly added | doi:10.1111/j.1745-3984.2008.00071.x |
+| Local dependence Q3 | Yen (1984). Effects of local item dependence on the fit and equating performance of the three-parameter logistic model. *APM*, 8(2), 125–145 | yen1984 | newly added | doi:10.1177/014662168400800201 |
+| Q3 critical values | Christensen, Makransky & Horton (2017). Critical values for Yen's Q3: Identification of local dependence in the Rasch model using residual correlations. *APM*, 41(3), 178–194 (online 2016) | christensen2017 | newly added | doi:10.1177/0146621616677520 |
+| Limited-information fit C2 | Cai & Monroe (2014). *A new statistic for evaluating item response theory models for ordinal data* (CRESST Report 839). UCLA CRESST | cai2014 | newly added | https://cresst.org/publication/a-new-statistic-for-evaluating-item-response-theory-models-for-ordinal-data/ (PDF: https://cresst.org/wp-content/uploads/R839.pdf) |
+| Marginal reliability | Green, Bock, Humphreys, Linn & Reckase (1984). Technical guidelines for assessing computerized adaptive tests. *JEM*, 21(4), 347–360 | green1984 | web_references.bib (existing; checked, it is the right paper) | doi:10.1111/j.1745-3984.1984.tb01039.x |
+| Infit/outfit | Wright & Masters (1982). *Rating scale analysis*. MESA Press | wright1982 | newly added (dossier lists it as not in phd_library.bib) | https://research.acer.edu.au/measurement/2; ISBN 978-0-941938-01-3 |
+| Coefficient alpha | Cronbach (1951). Coefficient alpha and the internal structure of tests. *Psychometrika*, 16(3), 297–334 | cronbach1951 | newly added | doi:10.1007/BF02310555 |
+| Krippendorff's alpha | Hayes & Krippendorff (2007). Answering the call for a standard reliability measure for coding data. *Communication Methods and Measures*, 1(1), 77–89 | hayes2007 | newly added | doi:10.1080/19312450709336664 |
+| Oakes standard errors | Chalmers (2018). Numerical approximation of the observed information matrix with Oakes' identity. *BJMSP*, 71(3), 415–436 (online 2018-01-09) | chalmers2018 | newly added (exists as described) | doi:10.1111/bmsp.12127 |
+
+### Notes and flags
+
+- **phd_library.bib was not fully searched.** No grep tool was available, and the file (about 23.6k lines) is too large to read in full. The "phd_library.bib" rows rely on the dossier's key list (primi2019, myszkowski2019 and myszkowski2021 are listed as present; wright1982 as absent). Their metadata were checked independently against Crossref, but the main-bib entries themselves were not read. For the 10 new entries, absence from phd_library.bib is **unconfirmed** except for wright1982. Cronbach (1951) and Hayes & Krippendorff (2007) are the most likely to be in the main bib already. **Before merging, dedupe by DOI and check for key clashes** with these keys: robitzsch2025, orlando2000, kang2008, yen1984, christensen2017, cai2014, wright1982, cronbach1951, hayes2007, chalmers2018. If one of them is already used in phd_library.bib for a different paper, it needs an a/b suffix. web_references.bib was searched in full and has no clashes.
+- **robitzsch2025:** the version comes from CRAN on 2026-10-23 (4.2-133, published 2025-09-27). The key and note should match the version actually loaded in the R session (`packageVersion("sirt")`). Whether the analysis uses sirt at all is for the author to confirm.
+- **linacre1989:** the MESA Press 1989 imprint is still not verified from a primary record. Only the University of Chicago dissertation (ProQuest T-30889) is confirmed. Many secondary reference lists cite "Chicago: MESA Press", and a 2nd edition (1994, MESA Press) is listed on winsteps.com. The entry is unchanged.
+- **samejima1969:** the existing entry gives Psychometrika 34(S1) with the DOI. APA style may prefer "Psychometrika Monograph Supplement No. 17"; both refer to the same work.
+- **eckes2015:** the Crossref record for the DOI shows 2011 (1st edition); the publisher shows 2nd ed. © 2015. The entry is unchanged.
+- **kang2008:** an earlier ACT Research Report version exists (2007; doi:10.1037/e428112008-001). The JEM 2008 article is the one entered.
+- **orlando2000** is the dichotomous original of S-X2; kang2008 is the polytomous generalisation.
+- **Bib count discrepancy (pre-existing):** memmert2007 and santos2016 are described in section C (Gap 10) of this file, but **they are not in web_references.bib**. Add them if they are cited.
+
+### No longer used in the GRM paper
+
+These entries stay in `web_references.bib` and nothing was deleted, but they belong to the earlier Bayesian pipeline: **vehtari2017, vehtari2021, hoffman2014, abrilpla2023, kumar2019a**. The same applies to keys in phd_library.bib that the dossier links to Bayesian estimation: salvatier2016, plus burkner2017 and burkner2021 if they are used. green1984 is **still used** (marginal reliability).

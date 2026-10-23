@@ -1,0 +1,14 @@
+quantity,final_data,all_raters,note
+n_raters,19,22,
+n_ratings,7820,7844,
+n_products,3668,3669,
+excluded_raters,,R20;R21;R22,
+empirical_marginal_reliability,0.671990436406418,0.671860378489363,Var(theta)/(Var(theta)+mean(PSD^2))
+model_based_marginal_reliability,0.959859122684025,0.961857513309183,mirt::marginal_rxx (hypothetical full panel)
+theta_pearson_common_products,0.999968735585755,,"all-raters vs final GRM, 3668 common products"
+theta_spearman_common_products,0.999958591145382,,"all-raters vs final GRM, 3668 common products"
+theta_mean_abs_diff,0.00170569603091652,,"all-raters vs final GRM, 3668 common products"
+theta_max_abs_diff,0.162459360115701,,"all-raters vs final GRM, 3668 common products"
+share_products_changing_quintile,0.00490730643402399,,"all-raters vs final GRM, 3668 common products"
+a_max_abs_diff_common_raters,0.198202028195298,,"all-raters vs final GRM, 19 common raters"
+a_pearson_common_raters,0.998796829547469,,"all-raters vs final GRM, 19 common raters"

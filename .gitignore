@@ -35,6 +35,7 @@ data-analysis/creativity-ratings-psychometrics/results/data/ratings_wide.csv
 data-analysis/creativity-ratings-psychometrics/jrt_audit_server_bundle.tar.gz
 data-analysis/creativity-ratings-psychometrics/jrt_audit_results.tar.gz
 data-analysis/creativity-ratings-psychometrics/jrt_audit_run.out
+data-analysis/creativity-ratings-psychometrics/notebooks/local_rater_lookup.ipynb
 data-analysis/creativity-ratings-psychometrics/results/grm/*.rds
 data-analysis/creativity-ratings-psychometrics/results/comparison/*.rds
 data-analysis/creativity-ratings-psychometrics/notebooks/*.out.ipynb

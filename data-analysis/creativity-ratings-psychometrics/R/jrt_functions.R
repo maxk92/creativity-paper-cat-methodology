@@ -81,6 +81,8 @@ save_csv <- function(x, dir, name) {
 }
 
 save_fig <- function(plot, name, width = 8, height = 5, dir = DIR_GRM_FIG) {
+  # No plot title: the manuscript caption carries it.
+  if (inherits(plot, "ggplot")) plot <- plot + labs(title = NULL)
   for (ext in c("png", "svg")) {
     ggsave(file.path(dir, paste0(name, ".", ext)), plot, width = width, height = height,
            dpi = 300, bg = "white")

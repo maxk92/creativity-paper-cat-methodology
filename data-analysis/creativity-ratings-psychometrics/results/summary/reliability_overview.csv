@@ -1,9 +1,9 @@
 index,refers_to,value,ci_or_note
 Krippendorff's alpha (ordinal),consensus of single ratings,0.39159016511570033,"95% bootstrap CI [0.362, 0.417], 1000 replications"
-Cronbach's alpha (pairwise covariances),consistency of the unweighted rater mean,0.9282157962967004,14 raters; removed: R19;R14;R02;R16;R12
-Cronbach's alpha (fully crossed block),consistency of the unweighted rater mean (crossed subset),0.6583228214022916,"3 raters, 139 products"
-GRM: empirical marginal reliability,actual theta_hat (primary),0.6719904364064179,Var(theta)/(Var(theta)+mean(PSD^2))
-GRM: model-based marginal reliability,hypothetical full panel,0.9598591226840252,"mirt::marginal_rxx, all raters"
+Cronbach's alpha (pairwise covariances),consistency of the unweighted rater mean,0.9282157962967004,"95% CI [0.891, 0.943] (bootstrap, 1000 replications); 14 raters; removed: R19;R14;R02;R16;R12"
+Cronbach's alpha (fully crossed block),consistency of the unweighted rater mean (crossed subset),0.6583228214022916,"95% CI [0.526, 0.756] (bootstrap, 1000 replications); 3 raters, 139 products"
+GRM: empirical marginal reliability,actual theta_hat (primary),0.6719904364064179,"95% CI [0.649, 0.687] (200 parameter draws); Var(theta)/(Var(theta)+mean(PSD^2))"
+GRM: model-based marginal reliability,hypothetical full panel,0.9598591226840252,"95% CI [0.953, 0.968] (200 parameter draws); mirt::marginal_rxx, all raters"
 GRM: median rel_post,precision per product,0.6980320316762489,"Q1 0.596, Q3 0.769"
 GRM: IQR rel_post,precision per product,0.17310542208468838,
 M1 (RSM): marginal reliability,comparison,0.9433744006870614,

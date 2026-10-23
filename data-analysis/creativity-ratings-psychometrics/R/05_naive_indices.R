@@ -11,7 +11,7 @@
 # Both use the shared wide matrix (original scale 1-7 = internal + 1).
 # Outputs (results/naive/): cronbach_alpha.csv, cronbach_crossed_blocks.csv,
 #   krippendorff_alpha.csv
-# SERVER: the Krippendorff bootstrap (1000 replications).
+# SERVER: the Krippendorff bootstrap (1000 replications); Cronbach bootstraps are quick.
 # ============================================================
 
 source(file.path(local({a <- grep("^--file=", commandArgs(FALSE), value = TRUE)
@@ -99,6 +99,34 @@ if (nrow(best) == 1) {
     interpretation = cronbach$interpretation[1]))
 }
 cronbach$all_raters_fully_crossed_subset_exists <- any(rowSums(rated) == ncol(rated))
+
+# Bootstrap CIs over products (percentile, N_BOOT replications) for both variants.
+# Each replication recomputes alpha exactly as above for the same raters.
+alpha_raw <- function(x) suppressWarnings(
+  psych::alpha(x, check.keys = FALSE, warnings = FALSE)$total$raw_alpha)
+set.seed(SEED)
+boot_pair <- vapply(seq_len(N_BOOT), function(b) {
+  idx <- sample.int(nrow(wide), replace = TRUE)
+  C <- cov(wide[idx, keep], use = "pairwise.complete.obs")
+  if (anyNA(C)) return(NA_real_)
+  tryCatch(suppressWarnings(psych::alpha(C, n.obs = sum(rowSums(rated[idx, keep]) >= 2),
+                                         check.keys = FALSE, warnings = FALSE)$total$raw_alpha),
+           error = function(e) NA_real_)
+}, numeric(1))
+boot_block <- if (nrow(best) == 1) {
+  s_best <- strsplit(best$raters, ";")[[1]]
+  x_best <- wide[rowSums(rated[, s_best, drop = FALSE]) == length(s_best), s_best, drop = FALSE]
+  vapply(seq_len(N_BOOT), function(b) tryCatch(
+    alpha_raw(x_best[sample.int(nrow(x_best), replace = TRUE), , drop = FALSE]),
+    error = function(e) NA_real_), numeric(1))
+} else NULL
+boot_list <- list(boot_pair, boot_block)[seq_len(nrow(cronbach))]
+cronbach$ci_low <- vapply(boot_list, function(x) unname(quantile(x, 0.025, na.rm = TRUE)), numeric(1))
+cronbach$ci_high <- vapply(boot_list, function(x) unname(quantile(x, 0.975, na.rm = TRUE)), numeric(1))
+cronbach$ci_type <- "percentile bootstrap, resampling products"
+cronbach$n_boot <- N_BOOT
+cronbach$n_boot_failed <- vapply(boot_list, function(x) sum(is.na(x)), integer(1))
+cronbach$seed <- SEED
 save_csv(cronbach, DIR_NAIVE, "cronbach_alpha")
 
 # --- Krippendorff's alpha (ordinal) ---------------------------------------------------------

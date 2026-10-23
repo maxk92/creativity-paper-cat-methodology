@@ -34,7 +34,8 @@
 # Outputs (results/comparison/): model_fit.csv, lr_tests.csv, theta_correlations.csv,
 #   rater_parameters_by_model.csv, threshold_order.csv, discrimination_m3.csv,
 #   discrimination_summary.csv, rater_fit_m1.csv, marginal_reliability.csv,
-#   software_crosscheck.csv, mfrm_equivalence.md, model_*.rds
+#   software_crosscheck.csv, mfrm_equivalence.md, model_*.rds, score_agreement.csv,
+#   sensitivity_rater_exclusion.csv (GRM refitted on all raters, no SEs)
 # SERVER: two mirt fits with SEs plus two rm.facets fits.
 # ============================================================
 
@@ -149,6 +150,11 @@ model_fit <- bind_rows(
              status = if (is_fit(mirt_rsm)) "estimated (not used)" else
                paste("not estimable:", mirt_rsm$error))
 )
+# Differences to the best model on each criterion (effect sizes for model choice).
+est <- model_fit$status == "estimated"
+for (ic in c("AIC", "BIC", "SABIC")) {
+  model_fit[[paste0("delta_", ic)]] <- ifelse(est, model_fit[[ic]] - min(model_fit[[ic]][est]), NA_real_)
+}
 save_csv(model_fit, DIR_CMP, "model_fit")
 
 # --- LR tests -----------------------------------------------------------------------------
@@ -194,6 +200,75 @@ theta_cor <- bind_rows(lapply(c("pearson", "spearman"), function(meth) {
   as_tibble(cor(theta_tab, method = meth), rownames = "model") %>% mutate(method = meth, .before = 1)
 }))
 save_csv(theta_cor, DIR_CMP, "theta_correlations")
+
+# How much the product ranking changes between models (reference: GRM).
+# Percentile ranks in [0, 1]; quintiles 1-5 of each model's own score distribution.
+pct_rank <- function(x) (rank(x) - 0.5) / length(x)
+quintile <- function(x) pmin(5L, floor(pct_rank(x) * 5) + 1L)
+rank_change <- function(x, ref) {
+  shift <- abs(pct_rank(x) - pct_rank(ref))
+  tibble(pearson = cor(x, ref), spearman = cor(x, ref, method = "spearman"),
+         mean_abs_percentile_shift = mean(shift),
+         p95_abs_percentile_shift = unname(quantile(shift, 0.95)),
+         max_abs_percentile_shift = max(shift),
+         share_products_changing_quintile = mean(quintile(x) != quintile(ref)),
+         share_products_changing_quintile_by_2_or_more = mean(abs(quintile(x) - quintile(ref)) >= 2))
+}
+if ("GRM" %in% names(theta_tab)) {
+  score_agreement <- bind_rows(lapply(intersect(c("M1_RSM", "M2_PCM", "M3_GPCM"), names(theta_tab)),
+    function(m) rank_change(theta_tab[[m]], theta_tab$GRM) %>% mutate(model = m, reference = "GRM", .before = 1)))
+  save_csv(score_agreement, DIR_CMP, "score_agreement")
+}
+
+# --- sensitivity: rater exclusion -----------------------------------------------------------
+# The final data exclude raters with fewer than MIN_RATINGS_PER_RATER ratings
+# (01_data_design.R). Here the GRM is refitted on ALL raters of the cleaned input
+# (same settings, no SEs) and compared with the final GRM: scores of the common
+# products, reliability, and the parameters of the common raters.
+raw_all <- readr::read_csv(INPUT_CSV, show_col_types = FALSE,
+                           col_types = cols(action_id = "c", rater_id = "c", .default = "?"))
+wide_all_df <- raw_all %>%
+  transmute(product_id = action_id, rater_id,
+            rating_internal = as.integer(rating_numeric) - SCALE_MIN) %>%
+  pivot_wider(names_from = rater_id, values_from = rating_internal) %>%
+  arrange(product_id)
+raters_all <- rater_order(setdiff(names(wide_all_df), "product_id"))
+wide_all <- as.matrix(wide_all_df[, raters_all])
+storage.mode(wide_all) <- "integer"
+rownames(wide_all) <- wide_all_df$product_id
+excluded_raters <- readr::read_csv(file.path(DIR_DATA, "excluded_raters.csv"), show_col_types = FALSE)
+stopifnot(setequal(setdiff(raters_all, raters), excluded_raters$rater_id))
+
+message("04: fitting the GRM on all raters (sensitivity)")
+grm_all <- fit_mirt(wide_all, "graded", "GRM all raters (sensitivity)", SE = FALSE)
+fs_all <- fscores(grm_all, method = "EAP", full.scores = TRUE, full.scores.SE = TRUE, verbose = FALSE)
+fs_fin <- eap$GRM
+common <- intersect(rownames(wide), rownames(wide_all))
+th_fin <- fs_fin[match(common, rownames(wide)), "F1"]
+th_all <- fs_all[match(common, rownames(wide_all)), "F1"]
+emp_rel <- function(fs) var(fs[, "F1"]) / (var(fs[, "F1"]) + mean(fs[, "SE_F1"]^2))
+a_of <- function(m) vapply(raters, function(r) coef(m, IRTpars = TRUE)[[r]][1, "a"], numeric(1))
+a_diff <- a_of(grm_all) - a_of(grm)
+rc <- rank_change(th_all, th_fin)
+sensitivity <- tibble(
+  quantity = c("n_raters", "n_ratings", "n_products", "excluded_raters",
+               "empirical_marginal_reliability", "model_based_marginal_reliability",
+               "theta_pearson_common_products", "theta_spearman_common_products",
+               "theta_mean_abs_diff", "theta_max_abs_diff",
+               "share_products_changing_quintile", "a_max_abs_diff_common_raters",
+               "a_pearson_common_raters"),
+  final_data = c(ncol(wide), sum(rated), nrow(wide), "", emp_rel(fs_fin), marginal_rxx(grm),
+                 rc$pearson, rc$spearman, mean(abs(th_all - th_fin)), max(abs(th_all - th_fin)),
+                 rc$share_products_changing_quintile, max(abs(a_diff)),
+                 cor(a_of(grm_all), a_of(grm))) %>% as.character(),
+  all_raters = c(ncol(wide_all), sum(!is.na(wide_all)), nrow(wide_all),
+                 paste(excluded_raters$rater_id, collapse = ";"), emp_rel(fs_all),
+                 marginal_rxx(grm_all), rep("", 7)) %>% as.character(),
+  note = c(rep("", 4), "Var(theta)/(Var(theta)+mean(PSD^2))", "mirt::marginal_rxx (hypothetical full panel)",
+           rep(sprintf("all-raters vs final GRM, %d common products", length(common)), 5),
+           rep(sprintf("all-raters vs final GRM, %d common raters", length(raters)), 2))
+)
+save_csv(sensitivity, DIR_CMP, "sensitivity_rater_exclusion")
 
 # --- rater parameters by model --------------------------------------------------------------
 pars_long <- function(m, nm) {

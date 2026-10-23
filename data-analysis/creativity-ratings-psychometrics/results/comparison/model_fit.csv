@@ -1,6 +1,6 @@
-model,logLik,npar,AIC,BIC,SABIC,n_products,n_ratings,software,status,family,converged,iterations,note,itemtype,method,quadpts,se_type,tol,information_matrix_pd,condition_number
-M1_RSM,-12186.217625048583,25,24422.435250097165,24577.620295931574,24498.18257786468,3668,7820,sirt::rm.facets,estimated,adjacent category,TRUE,39,"grid 321 points on [-8, 8]; rm.facets ic$np = 24",NA,NA,NA,NA,NA,NA,NA
-M2_PCM,-11817.489138129311,109,23852.978276258622,24529.585076096646,24183.236625324997,3668,7820,mirt,estimated,adjacent category,TRUE,74,NA,Rasch,EM,61,Oakes,1e-4,TRUE,3299.179696517932
-M3_GPCM,-11756.510171808697,127,23767.020343617394,24555.360376456192,24151.81676867638,3668,7820,mirt,estimated,adjacent category,TRUE,444,NA,gpcm,EM,61,Oakes,1e-4,TRUE,21077.604769954407
-GRM,-11733.227383593405,127,23720.45476718681,24508.794800025607,24105.251192245796,3668,7820,mirt,estimated,cumulative (not in LR ladder),TRUE,165,NA,graded,EM,61,Oakes,1e-4,TRUE,7830.234210524749
-mirt_rsm,NA,NA,NA,NA,NA,NA,NA,mirt,not estimable: Rating scale models require that items to have the same number of categories,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+model,logLik,npar,AIC,BIC,SABIC,n_products,n_ratings,software,status,family,converged,iterations,note,itemtype,method,quadpts,se_type,tol,information_matrix_pd,condition_number,delta_AIC,delta_BIC,delta_SABIC
+M1_RSM,-12186.217625048583,25,24422.435250097165,24577.620295931574,24498.18257786468,3668,7820,sirt::rm.facets,estimated,adjacent category,TRUE,39,"grid 321 points on [-8, 8]; rm.facets ic$np = 24",NA,NA,NA,NA,NA,NA,NA,701.9804829103559,68.82549590596682,392.93138561888554
+M2_PCM,-11817.489138129311,109,23852.978276258622,24529.585076096646,24183.236625324997,3668,7820,mirt,estimated,adjacent category,TRUE,74,NA,Rasch,EM,61,Oakes,1e-4,TRUE,3299.179696517932,132.52350907181244,20.790276071038534,77.98543307920045
+M3_GPCM,-11756.510171808697,127,23767.020343617394,24555.360376456192,24151.81676867638,3668,7820,mirt,estimated,adjacent category,TRUE,444,NA,gpcm,EM,61,Oakes,1e-4,TRUE,21077.604769954407,46.56557643058477,46.56557643058477,46.56557643058477
+GRM,-11733.227383593405,127,23720.45476718681,24508.794800025607,24105.251192245796,3668,7820,mirt,estimated,cumulative (not in LR ladder),TRUE,165,NA,graded,EM,61,Oakes,1e-4,TRUE,7830.234210524749,0,0,0
+mirt_rsm,NA,NA,NA,NA,NA,NA,NA,mirt,not estimable: Rating scale models require that items to have the same number of categories,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA

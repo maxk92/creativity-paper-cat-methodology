@@ -69,7 +69,7 @@ Status key:
 |---|---|---|---|---|
 | A1 | `00_data_loading_preprocessing.ipynb` §§1–3 | Downloads the Google Sheet and optionally joins StatsBomb event details. | §2 (import) | ✅ data import; never deleted |
 | A2 | `00` §4 | Maps columns to the schema and pseudonymises rater IDs (`R01`…). | §2 | ✅ |
-| A3 | `00` §5 | Drops ratings flagged "action not recognised" (1,292 rows), logged. | §2 | ✅ (documented exclusion) |
+| A3 | `00` §5 | Drops ratings flagged "action not recognised" (1,290 rows), logged. | §2 | ✅ (documented exclusion) |
 | A4 | `00` §6 | Checks types and ranges; one out-of-range value removed. | §2 | ✅ |
 | A5 | `00` §7 | Lists duplicate product–rater pairs and keeps the last entry. | §2 duplicates | ⚠️ Listed and not averaged, which is right. But the 12 pairs and the 1 conflicting pair (R14) were only reported as a row count. → Now in `results/data/duplicate_ratings_report.csv` |
 | A6 | `00` §§8–9 | Derives rating order and saves `ratings_long_clean.csv` plus the cleaning log. | §2 | ✅ (input of the new pipeline) |
@@ -138,7 +138,7 @@ Status as of this commit:
     - the RSM (M1) cannot be estimated in mirt at all ("items must have the same number of categories", confirmed on test data).
   - The author decided to keep all 7 categories. The consequences are documented in `rater_parameters.csv`, where the `category_boundaries` column says which categories each b_k separates.
   - **Proposed fixes (not applied):** see §5.
-- [x] **Connectivity:** one component, asserted as a hard stop. The overlap matrix is in `rater_overlap.csv`: 37 of 231 rater pairs share no product, and the median overlap is 7.
+- [x] **Connectivity:** one component, asserted as a hard stop. The overlap matrix is in `rater_overlap.csv`: With 22 raters, 37 of 231 rater pairs shared no product (median overlap 7). After the exclusions, 17 of 171 pairs share no product (median overlap 13).
 - [x] **Descriptives:** `design_summary.csv`, `design_summary_raters.csv` (n, mean, SD) and `design_summary_ratings_per_product.csv`.
 
 ### §3 GRM (`R/02_grm.R`)
@@ -159,7 +159,7 @@ Status as of this commit:
   With about 90% of cells imputed, S-X² leans strongly towards good fit. It is reported, but not as primary evidence.
 
   **Result:**
-  - S-X²: no rater misfits (all p > .36, RMSEA ≈ 0). mirt warns 20 times that "imputing too much data can lead to very conservative results", which is the low power described above.
+  - S-X²: no rater misfits (all p ≥ .29, the lowest for R12; RMSEA ≈ 0). mirt warns 20 times that "imputing too much data can lead to very conservative results", which is the low power described above.
   - **[!] infit/outfit:** 14 of 19 raters are flagged, with mean squares mostly 0.4–0.7, i.e. *overfit*. This is most likely an artefact of the sparse design: with about 2 ratings per product, the EAP estimate is drawn towards exactly those ratings, so the residuals are small. The flags are reported but not used to judge raters.
   - z-outfit for R18 is `NA`; this is the "NaNs produced" warning.
 - [x] Q3 is computed pairwise over shared products, with `n_common` beside each pair. Pairs with fewer than 3 shared products are not computed; pairs with fewer than 30 are flagged as unstable. On test data it matches `mirt::residuals(type = "Q3")` to 3e-17.
@@ -168,7 +168,7 @@ Status as of this commit:
     - Larger positive values (up to 0.94, R01–R14) occur only in pairs with 10 or fewer shared products, which are flagged as unstable.
     - There is no sign of local dependence.
 - [!] **Absolute fit:** `M2(type = "C2")`. mirt 1.46 has no imputation here, so the moments come from the available pairs.
-  - **Result: not computable** on the real data. mirt stops with "missing value where TRUE/FALSE needed", most likely because 37 rater pairs share no product. This is recorded in `global_fit.csv`. Absolute GRM fit therefore rests on S-X², Q3 and the model comparison.
+  - **Result: not computable** on the real data. mirt stops with "missing value where TRUE/FALSE needed", most likely because 17 of the 171 rater pairs share no product. This is recorded in `global_fit.csv`. Absolute GRM fit therefore rests on S-X², Q3 and the model comparison.
 - [x] Category response functions for every rater: `figures/grm_category_response_functions.*`.
 - [x] EAP scores with PSD (`fscores(..., full.scores.SE = TRUE)`). The shrinkage note is in the script header and in §4.
 
@@ -237,6 +237,35 @@ Status as of this commit:
 
 ### §7 Summary (`R/06_summary.R`)
 - [x] `results/summary/reliability_overview.csv` and `REPORT.md` are generated from the CSVs only.
+
+### Additions for the manuscript (2026-10-23, author decisions D7–D9)
+Run log: `results/logs/jrt_audit_server_run_20261023_103224.log`. Model results are unchanged from the run of 2026-10-22.
+- **Effect sizes for model choice:** `model_fit.csv` now has ΔAIC, ΔBIC and ΔSABIC relative to the best model. The GRM is best on all three.
+
+  | Model | ΔAIC | ΔBIC | ΔSABIC |
+  |---|---|---|---|
+  | M3 | 46.6 | 46.6 | 46.6 |
+  | M2 | 132.5 | 20.8 | 78.0 |
+  | M1 | 702.0 | 68.8 | 392.9 |
+- **Change of the product ranking against the GRM** (`score_agreement.csv`): the mean shift in percentile rank is 0.017 (M3), 0.033 (M2) and 0.042 (M1). 7.5% (M3), 15.0% (M2) and 20.2% (M1) of products change quintile, and at most 0.4% move by two quintiles or more.
+- **Intervals from 200 parameter draws** (`reliability_ci.csv`, `rater_information_ci.csv`). The draws use the asymptotic normal distribution with the Oakes covariance. 87 draws with a ≤ 0 or unordered intercepts were rejected; `mirt::draw_parameters()` fails on this model in mirt 1.46.1.
+  - Empirical marginal reliability: 0.672 [0.649, 0.687]. This interval also resamples products.
+  - Model-based marginal reliability: 0.960 [0.953, 0.968].
+  - Rater information intervals are wide for the raters with about 50 ratings, for example R19: 3.54 [0.41, 11.0] and R16: 3.30 [0.73, 6.49].
+- **Cronbach's α bootstrap over products** (1,000 replications):
+  - Pairwise: 0.928 [0.891, 0.943]. **[!]** 361 replications failed, because a rater pair lost all shared products. The interval is conditional on the successful replications and only approximate.
+  - Crossed block: 0.658 [0.526, 0.756], with no failures.
+- **Sensitivity to the rater exclusion** (`sensitivity_rater_exclusion.csv`). The GRM was refitted on all 22 raters without SEs.
+  - θ̂ of the 3,668 common products: r = 0.99997, mean |Δ| = 0.0017, max |Δ| = 0.16, and 0.5% of products change quintile.
+  - Empirical reliability: 0.672 with all raters, against 0.672 in the final data. Model-based reliability: 0.962 against 0.960.
+  - Discriminations of the 19 common raters: r = 0.9988, max |Δa| = 0.20.
+- **Display notebook:**
+  - Threshold SEs are now shown, and p-values are exact.
+  - Integers have no decimals, and missing values show as "–".
+  - R figures no longer have built-in titles, and they are embedded without resampling.
+  - The notebook is generated by `notebooks/build_02_jrt_results.py`.
+- **Notebook 01** applies the same rater exclusion (19 raters, 7,820 ratings).
+- **Original-ID lookups** were moved to `notebooks/local_rater_lookup.ipynb`, which is gitignored. No published notebook shows original IDs.
 
 ## 3. Deviations found and corrections
 

@@ -15,8 +15,8 @@
 #
 # Outputs (results/grm/): rater_information_grid.csv, rater_information_summary.csv,
 #   rater_information_shares.csv, panel_information_grid.csv, product_scores.csv,
-#   reliability_summary.csv, figures/grm_*.{png,svg}
-# Light: reloads results/grm/model.rds, no refit.
+#   reliability_summary.csv, reliability_ci.csv, rater_information_ci.csv, figures/grm_*.{png,svg}
+# Reloads results/grm/model.rds, no refit. The parameter draws (4d) take a few minutes.
 # ============================================================
 
 source(file.path(local({a <- grep("^--file=", commandArgs(FALSE), value = TRUE)
@@ -147,6 +147,72 @@ reliability_summary <- tibble(
             cons_cor, mean(cons_diff), max(abs(cons_diff)), sum(abs(cons_diff) > 0.1))
 )
 save_csv(reliability_summary, DIR_GRM, "reliability_summary")
+
+# --- 4d. uncertainty: parameter draws -------------------------------------------------------
+# 95% intervals for the marginal reliabilities and for each rater's information.
+# Parameters are drawn from their asymptotic normal distribution (estimates and
+# Oakes covariance matrix). Draws with a <= 0 or GRM intercepts that are not
+# strictly decreasing are rejected (the count is reported). For each accepted
+# draw the GRM is evaluated with all parameters fixed, EAP scores and PSDs are
+# recomputed, and the products are resampled with replacement for the empirical
+# reliability, so its interval covers parameter uncertainty and product sampling.
+# (mirt::draw_parameters() fails on this model in mirt 1.46.1, hence the manual draws.)
+N_DRAWS <- if (SMOKE) 10L else 200L
+V <- vcov(mod)
+sv <- mod2values(mod)
+par_idx <- match(as.integer(sub(".*\\.", "", colnames(V))), sv$parnum)
+stopifnot(!anyNA(par_idx), all(sv$est[par_idx]), length(par_idx) == sum(sv$est))
+item_rows <- split(seq_len(nrow(sv)), sv$item)[raters]
+valid_draw <- function(values) all(vapply(item_rows, function(r) {
+  a <- values[r][sv$name[r] == "a1"]
+  dd <- values[r][grepl("^d\\d+$", sv$name[r])]
+  a > 0 && all(diff(dd) < 0)
+}, logical(1)))
+
+set.seed(SEED)
+draw_stats <- list()
+n_rejected <- 0L
+while (length(draw_stats) < N_DRAWS && n_rejected < 50L * N_DRAWS) {
+  values <- sv$value
+  values[par_idx] <- MASS::mvrnorm(1, sv$value[par_idx], V)
+  if (!valid_draw(values)) { n_rejected <- n_rejected + 1L; next }
+  sv_d <- sv
+  sv_d$value <- values
+  sv_d$est <- FALSE
+  mod_d <- suppressWarnings(mirt(wide, 1, itemtype = "graded", pars = sv_d, TOL = NaN,
+                                 quadpts = MIRT_QUADPTS, verbose = FALSE))
+  fs_d <- fscores(mod_d, method = "EAP", full.scores = TRUE, full.scores.SE = TRUE, verbose = FALSE)
+  b <- sample.int(nrow(fs_d), replace = TRUE)
+  area_d <- colSums(rater_information(mod_d, THETA_GRID) * w_norm)
+  draw_stats[[length(draw_stats) + 1]] <- list(
+    empirical = var(fs_d[b, "F1"]) / (var(fs_d[b, "F1"]) + mean(fs_d[b, "SE_F1"]^2)),
+    model_based = sum(w_norm * rel_from_info(rowSums(rater_information(mod_d, THETA_GRID)))) / sum(w_norm),
+    area = area_d, share = area_d / sum(area_d))
+}
+n_draws <- length(draw_stats)
+ci <- function(x) unname(quantile(x, c(0.025, 0.975)))
+emp_ci <- ci(vapply(draw_stats, `[[`, numeric(1), "empirical"))
+mb_ci <- ci(vapply(draw_stats, `[[`, numeric(1), "model_based"))
+reliability_ci <- tibble(
+  quantity = c("empirical_marginal_reliability", "model_based_marginal_reliability"),
+  estimate = c(empirical_mirt, marginal_grid),
+  ci_low = c(emp_ci[1], mb_ci[1]), ci_high = c(emp_ci[2], mb_ci[2]),
+  n_draws = n_draws, n_draws_rejected = n_rejected, seed = SEED,
+  method = c("percentile interval over parameter draws (asymptotic normal, Oakes covariance) with products resampled",
+             "percentile interval over parameter draws (asymptotic normal, Oakes covariance); grid version of marginal_rxx"))
+save_csv(reliability_ci, DIR_GRM, "reliability_ci")
+
+area_draws <- do.call(rbind, lapply(draw_stats, `[[`, "area"))
+share_draws <- do.call(rbind, lapply(draw_stats, `[[`, "share"))
+info_ci <- info_summary %>%
+  select(rater_id, n_ratings, info_weighted_area, share_weighted) %>%
+  mutate(info_ci_low = apply(area_draws, 2, quantile, 0.025),
+         info_ci_high = apply(area_draws, 2, quantile, 0.975),
+         share_ci_low = apply(share_draws, 2, quantile, 0.025),
+         share_ci_high = apply(share_draws, 2, quantile, 0.975),
+         n_draws = n_draws, .after = info_weighted_area) %>%
+  relocate(share_weighted, .before = share_ci_low)
+save_csv(info_ci, DIR_GRM, "rater_information_ci")
 
 rel_by_n <- product_scores %>%
   group_by(n_ratings) %>%

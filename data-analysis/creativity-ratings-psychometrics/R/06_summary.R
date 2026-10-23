@@ -27,6 +27,14 @@ marg <- rd(DIR_CMP, "marginal_reliability")
 cron <- rd(DIR_NAIVE, "cronbach_alpha")
 kripp <- rd(DIR_NAIVE, "krippendorff_alpha")
 global_fit <- rd(DIR_GRM, "global_fit")
+rel_ci <- rd(DIR_GRM, "reliability_ci")
+ci_txt <- function(lo, hi, what) sprintf("95%% CI [%s, %s] (%s)", fmt(lo), fmt(hi), what)
+rel_ci_of <- function(q) {
+  r <- rel_ci[rel_ci$quantity == q, ]
+  if (nrow(r) == 0) "" else ci_txt(r$ci_low, r$ci_high, sprintf("%d parameter draws", r$n_draws))
+}
+cron_ci_of <- function(i) if (!"ci_low" %in% names(cron) || nrow(cron) < i) "" else
+  ci_txt(cron$ci_low[i], cron$ci_high[i], sprintf("bootstrap, %d replications", cron$n_boot[i]))
 
 # --- overview table --------------------------------------------------------------------
 marg_of <- function(m) {
@@ -58,13 +66,15 @@ overview <- tibble(
             marg_of("M1_RSM"), marg_of("M2_PCM"), marg_of("M3_GPCM")),
   ci_or_note = c(sprintf("95%% bootstrap CI [%s, %s], %d replications", fmt(kripp$ci_low),
                          fmt(kripp$ci_high), kripp$n_boot),
-                 sprintf("%d raters; removed: %s", cron$n_raters[1],
+                 sprintf("%s; %d raters; removed: %s", cron_ci_of(1), cron$n_raters[1],
                          ifelse(is.na(cron$raters_removed[1]) | cron$raters_removed[1] == "",
                                 "none", cron$raters_removed[1])),
-                 if (any(grepl("crossed", cron$variant))) sprintf("%s raters, %s products",
+                 if (any(grepl("crossed", cron$variant))) sprintf("%s; %s raters, %s products",
+                   cron_ci_of(which(grepl("crossed", cron$variant))[1]),
                    cron$n_raters[grepl("crossed", cron$variant)][1],
                    cron$n_products_contributing[grepl("crossed", cron$variant)][1]) else "no block",
-                 "Var(theta)/(Var(theta)+mean(PSD^2))", "mirt::marginal_rxx, all raters",
+                 paste0(rel_ci_of("empirical_marginal_reliability"), "; Var(theta)/(Var(theta)+mean(PSD^2))"),
+                 paste0(rel_ci_of("model_based_marginal_reliability"), "; mirt::marginal_rxx, all raters"),
                  sprintf("Q1 %s, Q3 %s", fmt(get_q(rel, "rel_post_q1")), fmt(get_q(rel, "rel_post_q3"))),
                  "",
                  ifelse(is.na(marg_of("M1_RSM")), "M1 not estimable in mirt (see model_fit.csv)", ""),
