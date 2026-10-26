@@ -14,6 +14,7 @@ FILES=(
   R/04_model_comparison.R
   R/05_naive_indices.R
   R/06_summary.R
+  R/07_reliability_projection.R
   data/processed/ratings_long_clean.csv
   results/tables/flagged_duplicate_rater_action_pairs.csv
   install_r_packages.R

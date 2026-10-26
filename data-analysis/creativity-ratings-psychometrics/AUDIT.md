@@ -355,3 +355,19 @@ Krippendorff bootstrap), `02` 50 s, `04` 42 s, and the other steps a few seconds
 - Information figures: two-column legend. Notebook 01: "products" wording, integer formatting,
   response styles shown with 3 decimals.
 - `03` re-run with the fixed seed reproduced all earlier outputs byte for byte.
+
+### Additions 2026-10-26 (response to the manuscript review)
+
+- **Tie handling in raw mean vs GRM (review C1):** the raw mean is tied for nearly all products,
+  and tied products share one percentile rank, so the plain quintile-change share (0.350)
+  overstated the disagreement. The table now has tie-aware columns as well: the quintile change
+  after ordering ties by the GRM score, the share of discordant pairs among pairs with different
+  raw means, Kendall's τ-b and the share of products with a tied raw mean. The model comparison
+  (`score_agreement.csv`) is unaffected, since model scores are continuous.
+- **Reliability projection (review C3):** new `R/07_reliability_projection.R`. For k = 1…10
+  ratings per product it simulates from the fitted GRM (parameters treated as known) with
+  random raters and with the k most or k least informative raters. 50 replications of 2,000
+  products; output `results/grm/reliability_projection.csv` and figure; notebook
+  `tbl-grm-reliability-projection`, `fig-grm-reliability-projection`.
+- Rater parameter table in the notebook as "estimate (SE)"; the redundant
+  `category_boundaries` column is dropped (its `|` broke the Markdown table).

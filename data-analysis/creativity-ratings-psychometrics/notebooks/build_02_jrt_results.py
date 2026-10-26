@@ -49,7 +49,7 @@ def fmt_cell(v, digits=3, p_value=False):
     try:
         x = float(v)
     except (TypeError, ValueError):
-        return str(v)
+        return str(v).replace("|", "\\|")  # a bare | would split the Markdown cell
     if p_value:
         return f"{x:.2e}" if x < 0.001 else f"{x:.3f}"
     return f"{int(x)}" if x.is_integer() else f"{x:.{digits}f}"
@@ -60,6 +60,13 @@ def tidy(df, digits=3):
         is_p = col == "p" or col.startswith("p_")
         out[col] = [fmt_cell(v, digits, is_p) for v in df[col]]
     return out
+
+def est_se(d, cols, digits=2):
+    # "estimate (SE)" in one cell, for compact parameter tables.
+    out = d.copy()
+    for c in cols:
+        out[c] = [("–" if pd.isna(e) else f"{e:.{digits}f} ({s:.{digits}f})") for e, s in zip(d[c], d[f"{c}_se"])]
+    return out.drop(columns=[f"{c}_se" for c in cols])
 
 def show_table(path, fn=None, digits=3):
     # Markdown table without the index column, for embedding in the manuscript.
@@ -105,9 +112,9 @@ md("## 2. Graded response model (central model)")
 note('**Central model.** Judge response theory treats raters as items and products as persons (Myszkowski & Storme, 2019). It is fitted here as a graded response model (Samejima, 1969) by marginal maximum likelihood in `mirt` (Chalmers, 2012). The table shows whether estimation converged and gives the information criteria.')
 tbl("tbl-grm-convergence", "Estimation and convergence of the graded response model (marginal maximum likelihood, EM algorithm, fixed quadrature).",
     'show_table("grm/convergence.csv", lambda d: d[["method", "quadpts", "se_type", "tol", "converged", "iterations", "information_matrix_pd", "logLik", "npar", "AIC", "BIC", "SABIC", "n_products", "n_ratings"]])')
-note("**Rater parameters.** a is the rater's discrimination: how sharply the ratings separate products of different creativity. b_k is the θ at which a rating at or above the k-th boundary becomes more likely than not; higher b means a stricter rater.")
-tbl("tbl-grm-rater-parameters", "Rater parameters of the graded response model in IRT metric: discrimination a and thresholds b_k, each with its standard error (_se); category_boundaries states which rating categories each threshold separates.",
-    'show_table("grm/rater_parameters.csv", lambda d: d[["rater_id", "n_ratings", "a", "a_se"] + [c for k in range(1, 7) for c in (f"b{k}", f"b{k}_se") if c in d] + ["category_boundaries"]])')
+note("**Rater parameters.** a is the rater's discrimination: how sharply the ratings separate products of different creativity. b_k is the θ at which a rating above category k becomes more likely than a rating of k or below; higher b means a stricter rater. No rater has an internal category gap, so b_k always separates categories k and k + 1; raters who never used the top categories have no estimate for the highest thresholds.")
+tbl("tbl-grm-rater-parameters", "Rater parameters of the graded response model in IRT metric: discrimination a and thresholds b_k (b_k separates rating categories k and k + 1), each as estimate (standard error). A dash marks a threshold above the highest category a rater used.",
+    'show_table("grm/rater_parameters.csv", lambda d: est_se(d, ["a"] + [f"b{k}" for k in range(1, 7) if f"b{k}" in d])[["rater_id", "n_ratings", "a"] + [f"b{k}" for k in range(1, 7) if f"b{k}" in d]])')
 note('**Category response functions.** The probability of each rating category as a function of θ, one panel per rater.')
 fig("fig-grm-category-response-functions", "Category response functions of the graded response model for each rater.",
     'show_png("grm/figures/grm_category_response_functions.png", width=11)')
@@ -157,6 +164,14 @@ fig("fig-grm-rel-post-histogram", "Distribution of the product-level reliability
 note('Product-level reliability by number of ratings (the same information as the table above, as a figure).')
 fig("fig-grm-rel-post-by-n", "Product-level reliability rel_post by number of ratings per product.",
     'show_png("grm/figures/grm_rel_post_by_n_ratings.png")')
+note("**Projected reliability by number of ratings.** The observed relation above is confounded, because products with more ratings were also rated by different raters. The projection removes this: products with θ ~ N(0, 1) are simulated, each gets k ratings drawn from the fitted GRM, and they are scored with the fitted parameters. Raters are either drawn at random for each product, or fixed to the k most or the k least informative raters (information per rating, see the information summary), which brackets the effect of who rates. The table gives the mean over replications and the 2.5% and 97.5% quantiles: the empirical marginal reliability (as for the real scores), the squared correlation with the true θ, and the mean product-level reliability. Model parameters are treated as known.")
+tbl("tbl-grm-reliability-projection", "Projected reliability of GRM scores by number of ratings per product (k), simulated from the fitted model, for randomly drawn, the most informative and the least informative raters.",
+    'show_table("grm/reliability_projection.csv", lambda d: d.drop(columns=["n_products_per_rep", "n_reps", "seed"]))')
+fig("fig-grm-reliability-projection", "Projected empirical marginal reliability by number of ratings per product, simulated from the fitted GRM. Bands: 2.5% to 97.5% of the replications.",
+    'show_png("grm/figures/grm_reliability_projection.png", width=7)')
+code('''_pr = read_res("grm/reliability_projection.csv")
+if _pr is not None:
+    print(f"{int(_pr['n_reps'].iloc[0])} replications of {int(_pr['n_products_per_rep'].iloc[0])} simulated products per k and rater set; seed {int(_pr['seed'].iloc[0])}.")''')
 note("Product-level reliability by estimated creativity. Precision depends on where a product lies relative to its raters' thresholds.")
 fig("fig-grm-rel-post-by-theta", "Product-level reliability rel_post by EAP estimate.",
     'show_png("grm/figures/grm_rel_post_by_theta.png")')
@@ -178,7 +193,7 @@ note('Rater discriminations in M3. Their spread shows how far the equal-discrimi
 note("**Change in product ranking.** How far products move in the ranking when another model replaces the GRM: the mean and 95th-percentile shift in percentile rank, and the share of products that change quintile.")
 tbl("tbl-score-agreement", "Change of the product ranking relative to the GRM: correlations, absolute shift in percentile rank (0-1 scale) and share of products whose quintile changes.",
     'show_table("comparison/score_agreement.csv", lambda d: d.drop(columns=["reference"]))')
-note("**Raw mean versus GRM score.** Common practice scores a product by the unweighted mean of its ratings, which treats all raters as interchangeable. The table compares this raw mean with the GRM score, overall and by number of ratings per product: correlations, shift in percentile rank, share of products changing quintile, and how far apart the GRM scores of products with the same raw mean lie (mean and maximum range of θ̂ within groups of equal raw mean). Products with the same raw mean get different GRM scores when they were rated by raters of different severity or discrimination.")
+note("**Raw mean versus GRM score.** Common practice scores a product by the unweighted mean of its ratings, which treats all raters as interchangeable. The table compares this raw mean with the GRM score, overall and by number of ratings per product: correlations, shift in percentile rank, share of products changing quintile, and how far apart the GRM scores of products with the same raw mean lie (mean and maximum range of θ̂ within groups of equal raw mean). Products with the same raw mean get different GRM scores when they were rated by raters of different severity or discrimination.\n\nThe raw mean has many ties (with one rating it takes only 7 values), and tied products share one percentile rank, so share_products_changing_quintile overstates the disagreement and is not comparable with the model comparison above. The tie-aware columns are share_products_changing_quintile_ties_resolved (raw-mean ties ordered by the GRM score, the smallest change any tie-breaking can give), share_discordant_pairs (among product pairs with different raw means, the share the GRM orders the other way round) and Kendall's τ-b. share_products_with_tied_raw_mean gives the share of products whose raw mean is shared by another product.")
 tbl("tbl-raw-mean-vs-grm", "Raw mean rating versus GRM score by number of ratings per product: correlations, absolute shift in percentile rank (0-1 scale), share of products changing quintile, and range of GRM scores among products with the same raw mean.",
     'show_table("grm/raw_mean_vs_grm.csv")')
 note("The same comparison as a figure. Each point is a product; the vertical spread at a given raw mean shows the products whose GRM scores differ although their raw means are equal.")

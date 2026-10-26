@@ -128,11 +128,29 @@ save_csv(product_scores, DIR_GRM, "product_scores")
 # on the severity and discrimination of the raters who gave it.
 raw_mean <- rowMeans(wide, na.rm = TRUE) + SCALE_MIN  # back to the 1-7 scale
 n_group <- function(n) ifelse(n >= 3, "3+", as.character(n))
+# The raw mean has many ties (a product with one rating has one of 7 values);
+# tied products share one percentile rank, which the continuous GRM score cannot
+# match, so the plain quintile comparison of rank_change() overstates the
+# disagreement. Tie-aware columns: quintile change after ordering raw-mean ties
+# by the GRM score (the smallest change any tie-breaking can give), the share of
+# product pairs with different raw means that the GRM orders the other way
+# round, and Kendall's tau-b.
+raw_vs_grm_stats <- function(x, ref) {
+  x_resolved <- order(order(x, ref))  # ranks: raw mean first, GRM score breaks ties
+  dx <- sign(outer(x, x, "-"))
+  dr <- sign(outer(ref, ref, "-"))
+  untied <- upper.tri(dx) & dx != 0
+  rank_change(x, ref) %>%
+    mutate(share_products_changing_quintile_ties_resolved = mean(quintile(x_resolved) != quintile(ref)),
+           share_discordant_pairs = mean(dx[untied] != dr[untied]),
+           kendall_tau_b = cor(x, ref, method = "kendall"),
+           share_products_with_tied_raw_mean = mean(duplicated(x) | duplicated(x, fromLast = TRUE)))
+}
 raw_vs_grm <- bind_rows(
-  rank_change(raw_mean, theta_hat) %>% mutate(n_ratings = "all", n_products = length(theta_hat), .before = 1),
+  raw_vs_grm_stats(raw_mean, theta_hat) %>% mutate(n_ratings = "all", n_products = length(theta_hat), .before = 1),
   bind_rows(lapply(c("1", "2", "3+"), function(g) {
     i <- n_group(product_scores$n_ratings) == g
-    rank_change(raw_mean[i], theta_hat[i]) %>% mutate(n_ratings = g, n_products = sum(i), .before = 1)
+    raw_vs_grm_stats(raw_mean[i], theta_hat[i]) %>% mutate(n_ratings = g, n_products = sum(i), .before = 1)
   }))
 ) %>%
   left_join(

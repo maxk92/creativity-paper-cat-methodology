@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run ON THE SERVER from the unpacked bundle folder:
-#   bash server/run_jrt_audit_server.sh            # full run (R/01 ... R/06)
+#   bash server/run_jrt_audit_server.sh            # full run (R/01 ... R/07)
 #   bash server/run_jrt_audit_server.sh --smoke    # quick check: 2 imputations, 20 bootstraps
 #
 # Runs the JRT audit pipeline (mirt/sirt, MML) with Rscript, logs everything,
@@ -33,7 +33,7 @@ Rscript -e 'pk <- c("mirt","sirt","irr","psych","igraph","dplyr","tidyr","readr"
             if (length(miss)) stop("Missing R packages: ", paste(miss, collapse = ", "))'
 
 echo ">> Started $(date), log: $LOG"
-for s in 01_data_design 02_grm 03_grm_information 04_model_comparison 05_naive_indices 06_summary; do
+for s in 01_data_design 02_grm 03_grm_information 04_model_comparison 05_naive_indices 06_summary 07_reliability_projection; do
   echo ">> $s  ($(date +%H:%M:%S))" | tee -a "$LOG"
   $TIME_CMD Rscript "R/$s.R" >> "$LOG" 2>&1 || { echo "!! $s failed - see $LOG"; tail -40 "$LOG"; exit 1; }
 done
