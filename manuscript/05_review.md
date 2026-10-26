@@ -1,254 +1,401 @@
-# 05_review.md: Peer review (Phase 7, reviewer-critic)
+# 05_review.md: Peer review (reviewer-critic, Phase 7)
 
-Target venue: *Creativity Research Journal* (profile `imrad-apa`, APA 7th).
-Manuscript reviewed: `manuscript/manuscript.qmd` (line numbers refer to this file).
-Checked against: `manuscript/03_findings.md`, `manuscript/02_artifacts.md`, `results/tables/rater_descriptive_statistics.csv` (for one disputed value), both bibliographies.
-
-Severity scale: **Critical** = must be fixed before submission (factual error or a central claim the evidence does not support); **Major** = a reviewer would very likely require it; **Minor** = polish, clarity, formatting.
-
----
-
-## Summary assessment
-
-**Recommendation as it stands: major revision.** (Not submittable yet: about 30 `FILL IN` placeholders carry most of the Methods.)
-
-The paper applies a Bayesian graded-response JRT model (rater-specific slope and location, shared thresholds) to a large, sparse but connected set of creativity ratings of football actions. It then compares that model with an equal-discrimination variant by PSIS-LOO and runs an IRT D-study. The analysis is competent and transparently reported. Convergence, PPC scope, plug-in information and missing uncertainty are all stated openly, and the Results are largely descriptive. Almost every number matches `03_findings.md`.
-
-A skeptical CRJ reviewer would raise five main objections:
-
-1. One reported count is wrong (ceiling rates).
-2. The Abstract, Discussion and Conclusion draw conclusions about scoring approaches (means, MFRM fair averages) that were not compared. The scope statement itself excludes them.
-3. The key RQ1 inference, "judges differ in discrimination, and equal discrimination is untenable", rests on a PSIS-LOO comparison with clear warning signs. In a shared-threshold model, that inference also cannot be separated from rater differences in scale use.
-4. The reliability and D-study values have no uncertainty. This conflicts with the venue's CI criterion and is cheap to fix.
-5. Until the placeholders are filled, nobody can judge whether this is a CAT at all (rater expertise, instructions, imposed definition, three dimensions rated together). The novelty and "design reference" framing is stronger than one rater pool of unknown expertise supports.
-
-Once these are addressed, the paper would be a useful domain contribution of the kind Cseh and Jeffries (2019) call for. Its methodological novelty is modest, because it applies an existing model to a new domain, and it should be framed that way.
+Manuscript reviewed: `manuscript/manuscript.qmd` (GRM/JRT version, after commit a97e51d).
+Checked against: `03_findings.md` (authoritative numbers), `02_artifacts.md` (objects, display problems), the R source in `data-analysis/creativity-ratings-psychometrics/R/` (only to check how two statistics were computed), and the rendered figures `grm_raw_mean_vs_theta.png` and `grm_rel_post_by_theta.png`.
+Venue: Creativity Research Journal (profile imrad-apa).
+Line numbers refer to `manuscript.qmd`.
 
 ---
 
-## Major issues (ranked)
+## Summary of the paper
 
-### 1. [Critical] Wrong count of raters with zero ceiling rate
-- **Location:** Results, "Descriptive rater response styles", line 169 ("five raters had a ceiling rate of zero").
-- **Problem:** `rater_descriptive_statistics.csv`, and the F0.8 table inside `03_findings.md` itself, show `ceiling_rate = 0.0` for **eight** raters: R01, R03, R06, R17, R18, R20, R21 and R22. Ceiling rate is the share of category 7 (01 notebook: `(vals == 7).mean()`). These are exactly the eight raters with `n_categories_used` < 7. The "five" comes from the direction/comparison line of F0.8, which contradicts its own table.
-- **Why it matters:** This is a text-vs-data error. It also shows that `03_findings.md` contains at least one wrong derived statement, so it should not be treated as infallible.
-- **Fix:** Send it back to the results-interpreter to correct F0.8. Then either report the corrected count or drop the clause. Do not hand-edit the number before the findings file is corrected.
+The paper analyses 7820 creativity ratings of 3668 football actions ("products") given by 19 student raters on a 7-point scale, in a sparse, connected, incomplete design (mean 2.132 ratings per product, matrix fill 0.112). It is framed as exploratory, with three RQs:
+- RQ1: reliability as a function of the number of ratings;
+- RQ2: how raters differ;
+- RQ3: whether rater differences need to be modelled.
 
-### 2. [Critical] Claims about mean and Rasch-family scoring go beyond the evidence
-- **Location:**
-  - Abstract, line 9: "fair scores should model judges rather than average them".
-  - Discussion, "Consequences for mean and Rasch-family scoring", line 231.
-  - Recommendation 2, line 250.
-  - Conclusion, line 275: "CAT studies in sport should therefore model judges rather than average them".
-- **Problem:**
-  - Line 56 and Limitations (line 257) state that comparisons of scoring approaches are out of scope.
-  - The only evidence offered is the PSIS-LOO comparison of two JRT variants. The equal-discrimination comparison model is a *cumulative-logit graded-response model with a common slope*. It is not an MFRM (adjacent-category Rasch family with rater-specific or shared step structure), and it is not a mean score. So rejecting it does not test the MFRM or mean scoring, even though they share an equal-weighting assumption.
-  - Line 231 concedes that "the practical size of the resulting differences in action scores remains to be established". This makes the normative recommendations in the Abstract and Conclusion unsupported. If JRT scores and mean or leniency-adjusted scores were almost perfectly correlated in these data, the recommendation would have no practical consequence.
-- **Fix:**
-  - Delete the prescriptive clause from the Abstract and Conclusion, or recast it as a hypothesis.
-  - In line 231, state that the result bears only on the equal-*slope* constraint within a cumulative-logit model.
-  - Recommendation 2 should say "a model that includes rater leniency (e.g., MFRM or JRT)" and cite Primi et al. (2019) for the leniency part only.
-  - Alternatively, bring the scoring comparison into scope. The excluded notebooks exist, but that would be a different paper.
+**Models.** A GRM is fitted by MML in mirt, together with an adjacent-category ladder: M1 RSM/MFRM in sirt, M2 PCM and M3 GPCM in mirt. The GRM wins on AIC, BIC and SABIC.
 
-### 3. [Major] The PSIS-LOO comparison is under-qualified where it matters most
-- **Location:**
-  - Methods line 127, Results lines 187–191, Discussion lines 223 and 243 ("worsens out-of-sample prediction").
-  - Abstract line 9, Conclusion line 275, Limitations line 267.
-- **Problems:**
-  - **Asymmetric Pareto-k warnings.** The share of observations with k > 0.7 is 2.80% for the rater-specific model and 0.14% for the equal model (F2.6). High-k observations tend to make PSIS-LOO over-optimistic, and here the problem falls mostly on the favoured model. The difference could therefore be biased in that model's favour. Count, maximum k and share above 1 are not available. No moment matching, `reloo` or K-fold check was run.
-  - **Very large p_loo.** p_loo is about 2,574 and 2,376 for N = 7,844 ratings. Vehtari et al. (2017) flag p_loo that is large relative to N, and an approximately 200-unit difference in p_loo for 23 added parameters (22 `z_j` plus σ_log a), as signs that the PSIS approximation is strained. Readers will notice this.
-  - **Unit of leave-out.** The observation unit (a single rating) is not stated. With 898 actions rated once, leaving out that rating leaves θ_i informed only by the prior. These cases are likely where the high-k values sit. Whether "out-of-sample" means new ratings of seen actions, new actions or new raters is not specified.
-  - **No decision rule.** There is a placeholder for this, but as written the Results quote the notebook's ratio of 8.3 without saying how it is to be judged.
-  - **Caveats missing where the claim is made.** The Abstract, Discussion "Contribution" section and Conclusion all state the result without the caveat, which appears only in Limitations.
-- **Fix:**
-  - Re-estimate the comparison with exact K-fold CV, ideally grouped by action (e.g., 10-fold). Alternatively, use PSIS with moment matching or refits for the k > 0.7 observations. Report k diagnostics in full (count, maximum, share > 1).
-  - State the leave-out unit and the predictive target in Methods.
-  - Pre-specify or justify the decision criterion.
-  - Until a robust check exists, phrase the Abstract and Conclusion as "PSIS-LOO favoured … although Pareto-k diagnostics indicated that the approximation was unreliable for 2.8% of observations".
+**Reliability.**
+- The empirical marginal reliability of the obtained scores is 0.672 [0.649, 0.687], against a hypothetical full-panel value of 0.960.
+- Mean product-level rel_post rises from 0.520 (one rating) to 0.919 (ten ratings).
+- Conventional indices are reported as reference values: pairwise α .928, crossed-block α .658, Krippendorff α .392.
 
-### 4. [Major] "Discrimination" under shared thresholds is confounded with rater scale use
-- **Location:** Methods line 109; Results line 165 ("individual differences in scale use enter the model only through leniency"); Discussion line 227 ("how sharply their ratings separated more from less creative actions").
-- **Problems:**
-  - With η = a_jθ + λ_j and shared τ, a rater with a small a_j concentrates ratings in the few categories near their location, regardless of θ. That is the signature of central tendency or range restriction. Scale-use differences therefore enter through **both** λ_j and a_j. Line 165 is technically incorrect.
-  - Reviewer observation, not yet a finding: it should go through the results-interpreter before any use. The raters with the lowest posterior-mean a_j (R18, R13, R12, R10) are among the most lenient, and in `rater_descriptive_statistics.csv` they have the highest `central_category_rate` values (R13, R18, R12 are the top three). The rater-response-style figure (panel D) shows this to readers without any comment from the text.
-  - The PSIS-LOO preference for rater-specific slopes may therefore partly reflect rater-specific category use, which a rater-specific-threshold model would absorb. It would not then reflect "discernment".
-  - The PPC cannot detect this. Pooled category shares are fitted almost by construction by the shared cutpoints, and rater means by λ_j. Per-rater category distributions, the check that would bear on this, were not examined (line 155).
-- **Fix:**
-  - Correct line 165.
-  - Reframe a_j as the slope under a common category structure.
-  - Add a per-rater category-share PPC.
-  - Ideally, fit rater-specific thresholds (or a rater-specific threshold scale) for at least the high-volume raters, as the paper itself proposes in Limitations (line 259), and see whether slope heterogeneity survives.
-  - At minimum, list this confound explicitly in the Discussion and Limitations.
+**Rater differences.**
+- Raters differ in thresholds, spacing, discrimination (0.631 to 3.709) and information. Intervals are wide for raters with about 50 ratings.
+- LR tests reject a shared category structure and equal discrimination. BIC disagrees on discrimination.
 
-### 5. [Major] Reliability and D-study values have no uncertainty, and the benchmark comparisons do not fit
-- **Location:** Methods line 143; Results lines 203 and 213; Discussion line 235; Abstract.
-- **Problems:**
-  - **No intervals.** The venue criterion asks for CIs. None of ρ_emp, ρ(1.73) or ρ(1..10) has one, although computing them is trivial in a Bayesian model: evaluate both coefficients for every posterior draw, or for a thinned set. The plug-in information ignores the very large posterior SDs for R20–R22 (0.50 to 0.68).
-  - **Equal weights in the D-study.** Line 143 discloses this, but its consequence is not discussed. Three raters with 2 to 13 ratings get the same weight as R01 with 1,174.
-  - **Prior ignored in ρ(k).** ρ(k) uses 1/(kĪ) as the error variance, which leaves out the N(0,1) prior's contribution to posterior precision. That is fine as a definition, but it should be said, because ρ_emp (which does include the prior) is quoted next to it.
-  - **What ρ_emp measures.** ρ_emp is essentially the variance of the shrunken posterior means. The reported score SD of 0.813, squared, practically equals .66. Readers should be told that, under a unit-variance prior, ρ_emp measures shrinkage.
-  - **Rule-of-thumb comparison.** Discussion line 235 compares IRT marginal reliability with the classical five-to-ten-judge rule ("just below the lower end"), and that comparison is not hedged. It then compares ρ_emp with the .70 alpha benchmark and hedges it afterwards. Both comparisons mix frameworks.
-- **Fix:**
-  - Add posterior intervals for all reliability coefficients and as a band in Figure "fig-jrt-information-reliability" B.
-  - Add a volume-weighted D-study as a sensitivity check, or one that drops raters with n < 50.
-  - Recast the rule-of-thumb sentence with the same caveat as the alpha comparison, or drop it.
-  - Decide on the .70/.80/.90 benchmarks (line 213), cite a source for them, or remove them.
+**Score consequences.**
+- Raw mean ratings move 0.350 of products to a different quintile relative to the GRM. The constrained models move at most 0.202.
+- Excluding three raters with fewer than 15 ratings barely affects the results.
 
-### 6. [Major] Until the Methods placeholders are filled, the CAT status of the ratings cannot be judged
-- **Location:** Title; Abstract; Methods lines 62–80.
-- **Problem:** The CAT has specific requirements: judges familiar with the domain, independent judgement, no imposed definition, and relative rating (Amabile, 1982; Hennessey et al., 2011). The manuscript leaves open recruitment, expertise, whether a definition of creativity was shown, training or anchors, and assignment. It also says raters scored technical correctness and aesthetic appeal at the same time, which opens the way for halo effects. A CRJ reviewer will challenge "consensual assessment" in the title if the raters were, for example, students given a definition. Line 62 already hedges with "CAT-style". The core Methods are placeholders, so the design is not currently reproducible (venue criterion 2).
-- **Fix:**
-  - Fill the placeholders.
-  - If the procedure departs from the CAT, say so in the Abstract and title (e.g., "expert-judgement ratings in a CAT framework") and discuss the consequences.
-  - Report whether the three dimensions were rated on the same screen or in a fixed order.
+**Conclusion.** Studies should plan the number of ratings, use a calibration set, and score with JRT instead of averaging.
 
-### 7. [Major] Missing methods information that has no placeholder
-- **Location:** Methods, as indicated below.
-- **Items:**
-  - (a) **Action attrition.** Line 70 says 4,104 actions were looked up and 3,669 remain, but no step accounts for the 435 lost actions. Presumably all their ratings were "not recognised". Say so and give the count, which must come from the notebook.
-  - (b) **Drift order.** The drift indicator (Appendix B; Limitations line 265) needs a definition of "the order in which they rated" (timestamps? export order?). The analysis does not appear in Methods at all.
-  - (c) **LOO unit.** State the leave-out unit and that the pointwise log-likelihood is per rating (see Issue 3).
-  - (d) **Krippendorff's α.** Add a citation (e.g., Hayes & Krippendorff, 2007) and the software. Only the version has a placeholder.
-  - (e) **Nesting of actions.** Actions come from matches, teams and players. The model assumes independent θ_i, but nothing is said about clustering or how many actions come from the same match or player.
-  - (f) **"Not recognised" exclusions.** These 1,292 rows (about 14% of the raw rows; the largest exclusion) may be informative missingness. Report the rate per rater and per action type, and discuss it.
-  - (g) **Rationale for action types.** Line 70 names Clearance, Interception, Dispossessed and Error events as rated "actions". Why can a dispossession or an error be a creative product? This is a content-validity question beyond the sampling placeholder.
-  - (h) **Information function.** Give the graded-response Fisher information formula (line 129). At present it is only described.
-  - (i) **Average-rater reference.** The sum-to-zero leniency is unweighted, so the "average rater" includes R22 (n = 2). State this.
-  - (j) **Data origin.** State whether these are secondary data (e.g., pooled thesis projects) and why the design is sparse and unbalanced.
-- **Fix:** Add one or two sentences per item. Numbers must come via the results-interpreter.
+**Does it deliver the author's three aims?**
+- **Aim 1 (number of ratings and reliability):** only partly. The by-n table is observational and confounded (see C3), so it describes these data rather than giving a planning tool. The planning claim in the abstract, the Discussion and the callout box goes further than the evidence.
+- **Aim 2 (rater differences):** largely delivered, with good attention to uncertainty. Some headline values rest on raters with very few ratings and on parameters that are hard to interpret (see M4, M5).
+- **Aim 3 (rater differences must be modelled):** the weakest link.
+  - The raw-mean comparison, which is the central evidence, has a computational artefact (C1).
+  - The argument mixes up severity with discrimination and category structure (M2).
+  - The GRM is used as the reference standard without validity or fit evidence that would justify it (M1).
 
-### 8. [Major] Research questions, hypotheses and the aim–analysis match
-- **Location:** Introduction lines 51–56.
-- **Problems:**
-  - **No hypotheses.** The venue criteria ask for hypotheses, and none are stated. The prior JRT literature (Myszkowski, 2021; Barbot et al., 2023) gives a directional expectation for RQ1 (unequal discrimination).
-  - **RQ1 overstates coverage.** RQ1 says it "includes the use of the rating categories", but rater-specific category use was explicitly not modelled. Only pooled category shares and shared thresholds are reported, so the RQ promises more than the analysis delivers.
-  - **Design reference.** The study is called a "design reference" (line 56), but expertise, the second half of the Cseh and Jeffries (2019) call quoted at line 37, is excluded.
-- **Fix:**
-  - State explicitly that the study is exploratory with no confirmatory hypotheses, or state H1 for unequal discrimination.
-  - Narrow RQ1's category clause to "pooled category use under a shared category structure".
-  - Temper "design reference" to "reference for the number of judges in one rater pool".
+## Overall recommendation
 
-### 9. [Major] The novelty and contribution claims are overstated
-- **Location:** Abstract line 9 ("for actions in sport, no such evidence exists"); line 49; Discussion line 243 ("first JRT analysis"); line 247 ("reproducible template"); line 271 ("fully reproducible").
-- **Problems:**
-  - **No documented search.** The "first" claim rests on a search that is not documented. The line-49 placeholder already suggests SPORTDiscus/PsycINFO.
-  - **"No such evidence" is too absolute.** Kempe and Memmert (2018) and Zahno and Hossner (2023) give at least agreement evidence for football ratings.
-  - **Reproducibility not yet shown.** "Fully reproducible" is not true yet: the git commit is "not available", package versions for 00/01 are missing, and there is no repository.
-  - **Nature of the contribution.** The methodological contribution is an application of an existing model (JRT; Myszkowski & Storme, 2019), and the parameter values come from one pool of raters of unknown expertise.
-- **Fix:**
-  - Document the search (databases, terms, date) in a footnote or supplement.
-  - Change "no such evidence exists" to "no evidence on judge parameters or panel size exists".
-  - Keep "to our knowledge".
-  - Remove "fully reproducible" until code and data are archived with a commit or DOI.
-  - Frame the contribution as domain-specific evidence plus a worked example.
+**Major revision.**
 
-### 10. [Major] Pseudonymisation leak in a notebook that the data-availability statement will expose
-- **Location:** Methods line 147 (availability statement placeholder); `00_data_loading_preprocessing.ipynb`, cell `520638b8` (03_findings X2).
-- **Problem:** The stored output of `ratings_raw.head()` shows original rater user IDs. If the notebooks are shared as promised, rater anonymity is breached, which raises an ethics issue for a human-participants study.
-- **Fix:** Clear or re-run that cell without the raw display before archiving. Check the other notebooks for the same problem.
+The topic suits CRJ, and it is timely: there is no JRT work on sport creativity ratings yet. The transparency about the limits of the design is unusually good: no cut-offs are applied, the non-computable C2 is reported, the BIC disagreement is reported, and the observational by-n caveat is stated. Every number checks out against `03_findings.md`.
 
-### 11. [Major] Limitations that are absent or only implied
-- **Location:** Limitations, lines 255–271.
-- **Problem:** The section is good on computation. It omits the following:
-  - (i) the slope and scale-use confound (Issue 4);
-  - (ii) possible informative missingness from the "not recognised" exclusion;
-  - (iii) clustering of actions within matches and players;
-  - (iv) heavy shrinkage of single-rated actions toward the prior, which matters for Recommendation 5;
-  - (v) the normal latent prior for a strongly right-skewed rating distribution;
-  - (vi) the equal-weight D-study;
-  - (vii) unknown rater expertise as a threat to the CAT interpretation, beyond the "scope" remark.
-- **Fix:** Add a sentence for each, in the existing numbered format.
+Three things stand between the draft and a publishable paper:
+- The share-changing-quintile statistic for the raw mean is partly an artefact of ties.
+- The methods are not yet reproducible: allocation, raters, stimuli and ethics are all [FILL IN].
+- The applied recommendations, which are the paper's selling point for a sport audience, rest on evidence that cannot yet carry them: observational by-n means, and no criterion showing that GRM scores are better than raw means.
+
+None of these is fatal, and most can be fixed with the existing data.
+
+Issue counts: **3 critical, 12 major, 22 minor.**
+
+---
+
+## Critical issues
+
+### C1. The raw-mean vs GRM quintile and percentile statistics are partly an artefact of ties (lines 9, 201, 207, 237, 251, 259; tbl-raw-mean-vs-grm)
+
+**Problem.**
+- `R/jrt_functions.R` computes `pct_rank <- (rank(x) - 0.5)/length(x)`, which gives ties their mean rank. It then computes `quintile <- floor(pct_rank*5)+1`.
+- The raw mean takes very few distinct values: 7 for one rating, 13 for two ratings. About 53% of all ratings are 1 or 2.
+- As a result, whole tie blocks of the raw mean are assigned to a single quintile at their mid-rank. With ~26% of single ratings equal to 1 and ~27% equal to 2, the "2" block has a mid-rank near 0.40 and goes wholesale into quintile 3. No 1-rating product can then be in raw-mean quintile 2.
+- The raw-mean "quintiles" are therefore not quintiles. Some are nearly empty and others oversized. The GRM scores, which are continuous, fill true quintiles.
+- Much of the 0.350 "share changing quintile", and the 0.385 / 0.319 / 0.266 gradient by n, can arise from ties alone, even if the GRM merely broke ties without reordering anything. The gradient across n is also expected because more ratings mean fewer ties.
+- The same applies to the percentile shift (0.080).
+- The model-vs-GRM comparisons (0.202, 0.150, 0.075) involve continuous EAPs on both sides. So the headline contrast "raw mean 0.350 vs at most 0.202" (abstract, line 207, line 237, callout item 4) compares a tie-inflated statistic with a tie-free one.
+
+**Why it matters.** This is the main quantitative evidence for aim 3 and appears in the abstract. A psychometrically literate reviewer will spot it from the figure alone: the raw-mean axis is visibly discrete.
+
+**Fix.**
+1. Recompute with a tie-aware definition. One option is to count a quintile change only when the GRM quintile falls outside the range of quintiles that the product's raw-mean tie block spans. Another is to report the share of discordant pairs, i.e., pairs strictly ordered by the raw mean and reversed by the GRM. That is Kendall-type and handles ties directly.
+2. Alternatively, drop the quintile statistic for the raw mean and keep the Spearman correlation (which is tie-corrected) and the within-tie spread.
+3. The cleanest evidence that is already in hand is the 1-rating facet of `fig-raw-mean-vs-theta`. The same single rating maps to very different GRM scores depending on the rater, and the orderings can reverse: a single 7 from one rater sits below a single 4 from another. The 1-rating row's max θ̂ range among equal raw means (1.436) is also pure rater effect, with no confounding by n. Build the argument on that.
+4. Also see minor issue m14 on the "all" row's pooling across n.
+
+### C2. Methods are not reproducible in their current state (lines 7, 69, 73, 77, 81, 85, 139, 145)
+
+**Problem.** The following are all [FILL IN]:
+- ethics approval and consent;
+- preregistration status;
+- rater recruitment and characteristics;
+- the stimulus material (competitions, clip selection, clip length);
+- the rating software, the instruction, the anchors and the "not recognised" wording;
+- randomisation and the data-collection period;
+- **the allocation of products to raters (FI-4)**;
+- the definitions of the raw-mean groups (FI-20);
+- software versions;
+- data availability.
+
+**Why it matters.**
+- "Sample, design and procedures fully reproducible" is a stated venue criterion.
+- The allocation procedure is not a cosmetic gap. Three things depend on it:
+  - the MAR assumption (line 85);
+  - the interpretation of the by-n table (C3);
+  - whether the products with many ratings are a selected subset. The counts of exactly 125 products with 4 ratings and 125 with 5 suggest a design artefact or a benchmark block.
+
+**Fix.**
+- Complete FI-1 to FI-4, FI-6, FI-15 and FI-20 before anything else.
+- In particular, state how products came to have 1 vs 2 vs 3+ ratings. Was it random, due to rater dropout, a benchmark set, or thesis-specific subsets?
+- Then say explicitly whether the 4+ rating products differ systematically, for example in match, action type or rater composition.
+
+### C3. The by-n reliability table cannot serve as the planning tool it is presented as (lines 9, 161, 225, 247, 256, 277)
+
+**Problem.**
+- RQ1 and aim 1 are answered with mean rel_post among products that happened to receive n ratings. The manuscript itself notes (lines 173, 225, 265) that this is observational. Products are not randomly assigned to n, the 9- and 10-rating cells have 3 products each, and precision also depends on *which* raters rated a product.
+- Despite this, the text says:
+  - "the number of ratings per action can be planned for a target score reliability" (line 247);
+  - "Plan the number of ratings per action from the reliability you need ... (see @tbl-grm-reliability-by-n)" (callout item 1);
+  - "We have shown ... that the reliability of the scores depends on the number of ratings per action" (line 277; causal wording).
+- "Product-level precision depended mainly on the number of ratings" (line 225) is not quantified. No variance decomposition is reported.
+- rel_post = 1 − PSD² is also defined relative to the N(0,1) prior. With 1–2 ratings it partly reflects the prior (see M6).
+
+**Why it matters.** Aim 1 is the paper's first stated contribution and its main applied deliverable for sport scientists. As it stands, a reviewer will say the paper does not answer "how many ratings are needed".
+
+**Fix (feasible with the current fit, no new data).**
+1. Add a model-based projection, i.e., a D-study analogue. For n = 1…10, draw n raters at random from the fitted pool (or weighted by their workload), draw θ ~ N(0,1), simulate ratings from the GRM, and compute the expected rel_post or empirical reliability. Propagate parameter uncertainty with the existing draws.
+2. This gives a design-based curve with intervals that is not confounded with allocation. It directly answers the question raised by @cseh2019.
+3. Keep the observed by-n table as a check. Base the "plan the number of ratings" recommendation on the projection.
+4. Optionally, add a simple regression of rel_post on n plus rater-set mean discrimination to support or drop "mainly".
+
+---
+
+## Major issues
+
+### M1. The GRM is treated as the reference standard, but neither fit nor validity evidence supports that role (lines 201–211, 237, 243, 251, 259, 277)
+
+**Problem.**
+- All ranking shifts are computed "relative to the GRM". "Changes the ranking" is then read as "raw means are wrong" (line 251: "direct evidence that this choice changes which actions rank high"; callout item 4; Conclusion). But a difference in rankings shows only that the scores differ, not which ones are more accurate.
+- The absolute-fit evidence for the GRM is close to nil, as the paper itself admits (line 267):
+  - C2 could not be computed;
+  - S-X² is computed on data that are ~90% imputed *from the fitted model*;
+  - infit and outfit are below 1 by construction;
+  - Q3 is heavily biased with ~2 raters per product.
+- GRM superiority is relative only: 46.6 AIC points over M3 at equal npar.
+
+**Why it matters.** Aim 3 ("rater differences must be acknowledged and modelled") is the paper's normative message. Without a criterion, a reviewer can argue that the GRM merely reshuffles noise. That reading is plausible here, because a single rating from R18 (a = 0.631) or R19 (a SE 2.220) is reweighted heavily.
+
+**Fix.**
+1. Add a predictive check that needs no new data. Among products with 3+ ratings, hold out one rating. Predict it once from the raw mean of the remaining ratings and once from the GRM, using the GRM-predicted category for the held-out rater. Compare by log score or by ordinal agreement.
+2. Do the same with the M1 vs GRM pair. This turns "the ranking changes" into "the GRM predicts unseen ratings better or worse".
+3. If the check is not done, soften the claims: say that the scores *differ* and that the GRM *adjusts for* modelled rater differences, and drop "direct evidence".
+
+### M2. The argument for aim 3 mixes up two kinds of rater differences, and severity is never tested (lines 49–51, 197, 235, 239)
+
+**Problem.**
+- The raw-mean critique, following @primi2019, is about **severity** confounding in incomplete designs. The MFRM (M1) already corrects for it.
+- The LR tests address something else: **category structure** (M1 vs M2) and **discrimination** (M2 vs M3).
+- Line 235 links them: "The LR tests rejected even the weaker constraints of the Rasch family ... Averaging therefore treats raters as interchangeable". The rejection of equal discrimination does not bear on raw-mean averaging. And the M1 constraints are not "weaker" than essential τ-equivalence: essential τ-equivalence allows rater-specific intercepts, which is roughly what M1's severity facet does.
+- The most basic rater effect, severity differences, is never tested formally. There is no M0 (no rater facet, or common thresholds) vs M1 comparison, and no M1 severities with SEs. Rater means in line 177 are unadjusted for which products each rater saw.
+
+**Fix.**
+1. Add M0, a rating scale model with a common severity across raters, and test M0 vs M1 by LR. Alternatively, report the M1 severity estimates with SEs and a separation index.
+2. Then restructure the logic into three steps:
+   - (i) severity differs, so raw means are confounded (evidence: M0 vs M1, and the 1-rating facet);
+   - (ii) beyond severity, scale use and discrimination differ (M1 vs M2 vs M3);
+   - (iii) GRM vs constrained models.
+3. Rewrite line 235 accordingly and fix the "even the weaker constraints" sentence.
+
+### M3. Validity of the M1 vs M2 LR test (lines 103, 111, 197, 271)
+
+**Problem.**
+- The test compares a sirt log-likelihood with a mirt log-likelihood. The two packages may differ in quadrature, in how the latent variance is handled (tbl-marginal-reliability-models: M1 0.962, M2 1.087) and in constants.
+- It is also unclear how M1's *shared* category structure was specified for raters who never used category 7 (R01, R03, R06, R18) or categories 6–7 (R17). In a strict RSM their likelihood contains categories they never used.
+- The df shortfall (84 vs 90) is explained, but nesting itself is not shown.
+
+**Why it matters.** χ² = 737 is large, so the conclusion is probably robust. But a psychometric reviewer will ask whether the models are truly nested and whether the likelihoods are on the same scale.
+
+**Fix.**
+- Refit M1 in mirt, using `itemtype = "rsm"` or a constrained PCM with equal step deviations, on the same quadrature. Report that LR test, or at least show that the two packages give the same log-likelihood for a common model.
+- State how sirt handles raters with unused categories under the shared structure.
+
+### M4. Severity and scale use are read from GRM thresholds that are confounded with discrimination and with sparse category counts (lines 9, 181, 229)
+
+**Problem.**
+- The abstract reports "the most lenient and most severe first thresholds were −6.565 and 0.295".
+- R18's b1 = −6.565 has SE 3.047. It rests on 55 ratings, of which exactly one is in category 1 (`tbl-category-usage`), and on a low discrimination (0.631).
+- In the GRM, b = −d/a, so low-a raters get stretched thresholds automatically. The "wide spacing" of R18 and R13 (line 181) and the "narrow spacing" of R19 (a = 3.709) are therefore partly the same fact as their discriminations, not separate evidence of scale use.
+- b1 alone is also a poor summary of severity: R18 has the *highest* raw mean (3.836) but the "most lenient" b1.
+
+**Fix.**
+- Remove the b1 extremes from the abstract.
+- Summarise severity on a comparable metric, for example each rater's expected rating at θ = 0 and at θ = ±1, with intervals from the existing draws, or the intercepts d.
+- Describe spacing as conditional on a, or report the spacing of the intercepts.
+- Flag R18 explicitly as poorly determined.
+
+### M5. The parameter-draw intervals come from a truncated distribution (lines 125, 133, 169, 187)
+
+**Problem.**
+- 87 draws were rejected to obtain 200 accepted ones, i.e., about 30% of all draws. This tells you the asymptotic normal approximation is poor for some raters, very likely R18, R19 and R16.
+- Rejection truncates the sampling distribution. Percentile intervals from 200 draws rest on about 5 draws in each tail.
+- The very wide R19 interval [0.410, 11.017] shows the problem.
+
+**Fix.**
+- Report which raters caused the rejections.
+- Draw on a transformed scale, for example log a with intercepts d, which removes the a ≤ 0 rejections. Alternatively, use a parametric bootstrap that refits the GRM to simulated data.
+- Increase to at least 1000 accepted draws.
+- At a minimum, state in the Methods that the intervals are conditional on valid parameter sets and approximate for low-n raters.
+
+### M6. Dependence on the normal prior and latent distribution is not examined (lines 101, 123, 127)
+
+**Problem.**
+- θ ~ N(0,1) is assumed, and EAP scores and rel_post depend on it. With one rating, rel_post = 0.520 largely reflects shrinkage toward the prior.
+- The ratings are strongly floor-heavy: 53% in categories 1–2. The latent distribution may well be skewed, which affects both the EAPs (and hence the ranking comparisons) and the reliability values.
+
+**Fix.**
+- Refit the GRM with mirt's empirical-histogram or Davidian-curve option as a sensitivity check. Report the change in empirical reliability and in θ̂ rankings.
+- Say explicitly that rel_post is defined relative to a unit prior variance.
+
+### M7. Missingness: 1290 "not recognised" ratings and an unknown allocation (lines 85, 89, 265)
+
+**Problem.**
+- 14% of the raw rows were "action not recognised". The manuscript attributes them to video quality (line 89) without evidence and without a marker.
+- If non-recognition depends on the action, for example on complex or fast actions, or on the rater, the MAR assumption fails. This also feeds into how many ratings each product ended up with.
+
+**Fix.**
+- Report non-recognition rates by rater, and ideally by product.
+- Mark the causal sentence for author confirmation, or support it.
+- Add the issue to the Limitations together with the allocation question (C2).
+
+### M8. The rater sample and the CAT "appropriate judges" requirement (lines 73, 269)
+
+**Problem.**
+- The raters were Bachelor's and Master's students rating for their theses. Football expertise was not recorded.
+- CRJ reviewers will measure this against Amabile's requirement of domain-familiar judges and against the expertise literature (Kaufman & Baer). Calling the role of expertise "outside the scope" (line 63) does not settle whether *these* raters are appropriate judges.
+- The planning values and the rater heterogeneity may well be specific to a novice pool.
+
+**Fix.**
+- Report what is known: football playing or coaching experience, any training, and how many sessions each rater did.
+- Add an explicit generalisability caveat to the abstract or the Conclusion, and to the applied recommendations: "for this student rater pool".
+
+### M9. The "15 ratings is a lower limit" recommendation has no evidential basis (lines 91, 253, 258)
+
+**Problem.**
+- The 15-rating cut-off has no justification or citation; "up to seven parameters cannot be estimated reliably" is a heuristic.
+- No rater in the final data has between 15 and 49 ratings: the excluded raters had 13, 9 and 2, and the minimum retained is 50. The data therefore say nothing about 15.
+- The data do show that 50 ratings are *not* enough for stable discrimination: R19 has SE 2.220.
+
+**Fix.**
+- Reword callout item 3 and line 253 along these lines: "raters with about 50 ratings still had very imprecise parameters; the cut-off of 15 used here is a pragmatic minimum and is not supported as adequate".
+- Add a [FILL IN] for the source or rationale of 15.
+
+### M10. The exploratory framing is coherent, but the conclusions are worded confirmatorily and normatively (lines 57, 149, 219, 235, 277)
+
+**Problem.**
+- The exploratory RQ framing is coherent in itself, and having no hypotheses is defensible for a first JRT application in this domain.
+- The paper then:
+  - uses NHST language ("rejected") as the backbone of RQ3a;
+  - adds two secondary questions (SQ1, SQ2), which makes five questions in total;
+  - closes with "We have shown" (line 277) and "should" recommendations.
+- RQ3 as worded in aim (3) ("need to be modelled") is normative. Data alone cannot answer it without a criterion (see M1).
+
+**Fix.**
+- Keep the RQs, but rephrase RQ3 descriptively, for example: "how much do scores and rankings depend on whether rater differences are modelled?"
+- Fold SQ1 and SQ2 into the Methods as model-choice steps rather than research questions.
+- Soften the Conclusion to "In these data ...".
+
+### M11. The Results section is a number dump and contains interpretation (lines 149, 153, 185, 187, 211)
+
+**Problem.**
+- Interpretive statements in the Results:
+  - line 149 (summary: "raters were heterogeneous in all parameters");
+  - line 185 ("also differed", with no test);
+  - line 187 ("Wide intervals indicate that a rater's informativeness is not yet well determined");
+  - line 211, an explicit interpretive conclusion carrying ATC-10. It belongs in the Discussion.
+- Line 153 lists twelve information-criterion deltas, and line 177 lists three 6-decimal shares.
+- A CRJ readership of creativity and sport researchers will not get through the Results.
+- Main-text objects: 8 tables (one with 17 columns) and 3 figures, plus a supplement of 24 objects.
+
+**Fix.**
+- Move line 211 and the second half of line 187 to the Discussion.
+- In the Results, report key contrasts and refer readers to the tables for the rest.
+- Move `tbl-grm-rater-parameters` to the supplement, and replace it in the main text with a compact severity and discrimination figure (forest plot with SEs).
+- Check the CRJ word and figure limits (FI-16).
+
+### M12. Render blockers and display problems in the main-text tables (02_artifacts.md, problems 1–5; FI-18)
+
+**Problem.**
+- `tbl-grm-rater-parameters` contains unescaped `|` characters in `category_boundaries`, which will break the table when rendered.
+- Main-text tables use snake_case headers (`rel_post_mean`, `share_products_changing_quintile_by_2_or_more`), code strings (`mirt::marginal_rxx`) and "theta" instead of θ.
+- `tbl-reliability-overview` says "bootstrap, 1000 replications" for an interval for which 361 replications failed.
+- `tbl-grm-convergence` shows tol = 0.000.
+
+**Why it matters.** This is not APA-compliant, and the manuscript would be returned before review.
+
+**Fix.** Apply FI-18 in the notebook `tidy()` and captions, then re-run the embedder.
 
 ---
 
 ## Minor issues
 
-1. **Krippendorff's α framing (Methods line 98; Discussion line 235).**
-   - The framing is mostly correct: it is called crude, it treats raters as interchangeable, it is not a reliability of the JRT scores, and it has no CI.
-   - However, "For comparability with common CAT reporting" contradicts the later statement that it "should not be compared" with the model-based coefficients. Rephrase as "for descriptive continuity with agreement indices common in CAT reports".
-   - Keep the ordinal-scale caveat (the AUTHOR TO CONFIRM at line 98 should be "yes") and consider an ordinal-level α.
-   - A bootstrap CI is cheap to add.
-   - Agreement statistics and the χ² sit in Methods. Either move "Realised rating design and descriptive agreement" into Results or say explicitly that it is a design description.
-
-2. **σ_log a prior (Methods line 111; Results line 181).** It is *not* misused, which is good. The manuscript does not argue from the ETI excluding zero, which is impossible under an Exponential prior. However:
-   - the Exp(2) prior has mean 0.5 and the posterior mean is 0.39;
-   - no prior-sensitivity check was run (line 123).
-   Add a prior–posterior overlay, or one sensitivity refit, so readers can see that the data drive σ_log a. Make sure no later draft cites "the 89% ETI of σ_log a excludes 0" as evidence (03_findings F1.3 records that fact, so it is a temptation).
-
-3. **The information-peak pairing is model-implied (Results line 195; Discussion line 239).** Under shared thresholds, a rater's information peak sits where (τ_k − λ_j)/a_j falls. So "lower leniency → peak at higher θ" follows from the parameterisation and is not an independent observation. Saying in the Discussion that it is "consistent with this reading" is circular. State that it follows from the model, and remove it as support.
-
-4. **Evaluative sentences in Results.** Line 219 ("action-level precision … was limited") and the .70/.80/.90 benchmarks at line 213 are evaluative. Move them to the Discussion. Line 183 explains how to read the figure, which belongs in the figure caption. Otherwise the Results stay descriptive.
-
-5. **Multiplicity and borderline cases (lines 175, 181).**
-   - With 22 credible-interval checks, about one exclusion is expected by chance. Say that the counts are descriptive.
-   - R09's lower bound (0.0012) is mentioned, but R16's leniency lower bound (−0.011, F2.3) is an equally borderline case on the other side. Treat both the same way, or neither.
-
-6. **The χ² example uses a tiny-n rater (line 96).** The upper end of the pass share (77.8%, R21) comes from a rater with 9 ratings. Use high-volume raters for the example, or give the n.
-
-7. **"Face validity" (line 39).** Predicting the temporal proximity of actions to goals is criterion or predictive validity, not face validity.
-
-8. **Citations to verify against the sources (all in the Introduction or Discussion).**
-   - `kaufman2008` (line 37): that a high alpha from a large panel can "mask low agreement".
-   - `kaufman2008a` (line 37): give the page for the five-to-ten-judge rule (the bib note says the claim came from the vault).
-   - `primi2019` (line 47): that rater × scale interactions were "left to future research". Note also that Primi et al. rated divergent-thinking responses, not products.
-   - `barbot2023` (line 227): that judges differed in discrimination. It is a VR feasibility study.
-   - `anderlucci2021` (lines 45 and 49): described as "MFRM" or "Rasch-family". Verify the method.
-   - `zahno2024` (line 39): it may be a conceptual paper rather than a rating study.
-   - `safardilha2019`, and the WEF wording (line 31): already flagged.
-   - The G-theory sentence (line 37) has no citation. Add Brennan (2001) or Cronbach et al. (1972), or delete it. G-theory should stay background only, as it does now.
-
-9. **MFRM, G-theory and mean scores as background.** In the Introduction they are background only, which is correct. In the Discussion, the section "Consequences for mean and Rasch-family scoring" goes beyond background (see Issue 2). Retitle it, for example "Implications of unequal slopes for scoring", and shorten it.
-
-10. **Interval conventions.** Mixing 89% ETIs (thresholds and hyperparameters) with 95% intervals elsewhere invites confusion. Report 95% throughout, or justify the 89% choice in one sentence.
-
-11. **Score precision (line 207).** Add one sentence on what a posterior SD of 0.65 means for single-rated actions relative to the prior SD of 1. Those scores are largely shrunk toward the mean.
-
-12. **Sparse category 7 (109 ratings).** The top cutpoint, and the largest gap between it and the one below, rest on few observations. Note this in the "Category use" subsection.
-
-13. **"Fair scores" (line 41).** The term is used before it is defined (line 45 defines MFRM fair averages). Define it on first use or rephrase.
-
-14. **Appendix E embeds `tbl-jrt-derived-counts`.** The embedder classified it as an internal source of values. A reader-facing "derived counts" table looks odd. Consider dropping it, or merging the threshold gaps into `tbl-jrt-model-summary`.
-
-15. **APA 7th formatting.**
-    - `number-sections: true` numbers headings, which APA does not do.
-    - The abstract is about 260 words. Check it against the CRJ limit.
-    - Bibliography entries:
-      - `myszkowski2021`: pages "426" only, no DOI.
-      - `myford2003` / `myford2004`: journal name in lower case, no DOI.
-      - `linacre1989`: choose the dissertation or the MESA Press form.
-    - `forthmann2023` and `barth2020` will render as 2025 and 2021. This is fine for APA, but the keys may confuse co-authors.
-    - Fill the author and affiliation placeholder.
-
-16. **Known render issues (brief).**
-    - stdout ("Table saved…"), sampler progress and the Pareto-k `UserWarning` leak into the embeds; the LOO table embed will show the warning twice.
-    - The embed of `fig-jrt-category-curves-information` includes the 22-row information table, which leaves the main caption empty.
-    - DataFrame index columns appear in the tables.
-    - Fix all of these in the notebooks (separate display cells, `#| warning: false`, `hide_index`).
+- **m1. APA number format.** Values that cannot exceed 1 (reliabilities, correlations, proportions, p) should be written without a leading zero, e.g. .672. The manuscript uses 0.672 throughout. This is formatting, not rounding, but it must be applied consistently from the notebook outputs. It is the author's decision how to do this without violating the "no rounding" rule.
+- **m2. Exact p-values (line 197).** "exact *p* = 4.22e-105" and "1.79e-17" are not APA style. Report *p* < .001 only. Scientific notation is not used in APA text.
+- **m3. Over-precise values.** Six-decimal category shares (line 177: 0.259463, 0.270205, 0.013939) and five-decimal sensitivity values (line 215) are inconsistent with the rest of the paper. Ask the notebook to print these at 3 decimals instead of rounding by hand.
+- **m4. "Did not change the scores" (lines 91, 269).** This overstates the result: the max |Δθ̂| was 0.16246, and 0.00491 of products changed quintile. Say "changed them negligibly".
+- **m5. S-X² is described as "conservative" (line 115).** Imputing ~90% of cells from the fitted model biases the test *toward* fit, which makes it close to uninformative. Say so plainly. Consider dropping the S-X² p-values from the Results (line 155) or labelling them as uninformative.
+- **m6. Q3 (lines 117, 155).** With ~2 raters per product, Q3 is close to its lower bound by construction. Explain what makes 137 of 171 pairs "computable" (this is not defined in the notebook). Also note that the 20 flags come from a criterion (mean ± 0.2) that has no reference distribution.
+- **m7. Pairwise Cronbach's α CI (lines 129, 169).** The 639 successful replications are not a random subset: they are the resamples in which all pairs keep their overlap. Say that the interval may be biased, not merely "approximate".
+- **m8. Line 223.** "both lie in the range that CAT studies usually report" needs a citation.
+- **m9. Line 225.** "first football-specific evidence" is a novelty claim without a marker. It also depends on C3.
+- **m10. Line 89.** The cause given for "not recognised" ratings is unsupported (see M7). Add an [AUTHOR TO CONFIRM] marker.
+- **m11. Line 47.** "A rule of thumb of five to ten raters is often cited [@kaufman2008a]" and line 45 "usually reach coefficient alphas above .70" should be added to the FI-17 PDF verification list.
+- **m12. Line 243.** "labels for automated rating" introduces an application that is not mentioned anywhere else. Either introduce it in the Introduction or drop it.
+- **m13. Line 191.** The phrasing "ranged from 2.700 (R01) and 2.400 (R06) to −0.550 (R13)" is awkward. Also, R01's maximum information at θ = 2.7 comes from a rater who never used category 7. Consider explaining this.
+- **m14. tbl-raw-mean-vs-grm, "all" row.** The equal-raw-mean groups in the pooled row mix products with different n. That is why the overall max range (2.252) exceeds the within-n maximum (2.196): differential shrinkage, not only rater severity. The "mean θ̂ range" is also an unweighted mean over groups of very different size. Define both in the Methods (FI-20), and quote the "all" max range with this caveat or not at all (lines 201, 237).
+- **m15. Line 237 mechanism sentence (ATC-21).** The 1-rating facet would actually support it directly, because there the only difference between equal raw means is the rater. Point to that facet.
+- **m16. Terminology.** "Products" is CAT jargon and reads oddly for sport-science readers. Define it once and then use "actions" consistently, or keep "products" consistently. The title, abstract and Discussion currently switch between the two.
+- **m17. "Information per rating" (line 187).** This is information integrated over N(0,1). Name it "average information" and define it once, without implying it is per observed rating.
+- **m18. Supplement numbering (line 36).** Main-text references to supplement tables will be numbered as if they were main tables. CRJ usually expects online supplements labelled S1, S2, ... Configure crossref prefixes.
+- **m19. tbl-marginal-reliability-models is not used.** Its empirical reliability by model (M1 0.626 → GRM 0.672) speaks directly to SQ2 and to the practical cost of constrained scoring. Consider embedding it in the supplement and citing one sentence from it.
+- **m20. Drift and time effects.** Timestamps exist (03_findings "Not found"), but no summary of the collection period or session structure is given. Report at least the timespan. This is relevant to the drift limitation in line 271.
+- **m21. Abstract.** At ~230 words it is dense with numbers and reads like a results list. "placed a share of 0.350 of actions in a different quintile" is awkward. Check the CRJ limit (FI-16).
+- **m22. Figure captions.** `fig-grm-rel-post-by-theta` (the 1–5+ colour legend) and `fig-grm-rel-consistency` (opacity levels) are not explained, and `fig-grm-panel-information` has no y-axis labels (FI-18).
 
 ---
 
-## Consistency check (text vs. `03_findings.md`)
+## Number and citation checks
 
-**Mismatch found: 1.**
+### Text vs data (03_findings.md)
 
-| Location | Manuscript | Data | Status |
-|---|---|---|---|
-| Line 169 | "five raters had a ceiling rate of zero" | `rater_descriptive_statistics.csv` and the F0.8 table: ceiling_rate = 0.0 for 8 raters (R01, R03, R06, R17, R18, R20, R21, R22). The "five" in the F0.8 direction line contradicts its own table. | **Mismatch: correct via the results-interpreter** |
+I checked every numeric value in the abstract, the Methods, the Results, the Discussion and the Conclusion against `03_findings.md`. **No mismatches were found.** This covers:
+- the cleaning counts;
+- the design figures;
+- all information criteria and deltas;
+- the LR statistics and df;
+- fit ranges and Q3;
+- all by-n rows;
+- the rel_post distribution;
+- the reliability CIs;
+- the naive indices with n_boot_failed 361;
+- the response styles;
+- all thresholds, discriminations and SEs quoted;
+- information and shares with intervals;
+- θ at maximum and the shares at θ = ±2;
+- M3 discriminations;
+- threshold-order counts;
+- M1 fit;
+- every raw-mean vs GRM cell;
+- score agreement and θ correlations;
+- the sensitivity values.
 
-**Verified as matching** (rounding consistent with the CSV values):
-- **Raw data and cleaning:** 9,150 rows; 23 → 22 raters; 4,104 actions looked up; 1,292 / 0 / 1 / 0 / 13 rows removed; 25 duplicate rows forming 11 pairs and 1 triple; 7,844 ratings, 3,669 actions, 22 raters.
-- **Design:** 2.14 and 1.73 ratings per action; 898 (24.5%), 2,080 (56.7%), 691 (18.8%) actions; maximum 12; ratings per rater 2–1,174, median 316.5; three raters under 15 shared actions (R22, R21, R20), with 2, 9 and 13 ratings.
-- **Allocation and agreement:** χ²(210) = 1260.2, V = .127, passes 46.5% to 77.8%, 49% of cells sparse; α = .42 on 2,771 actions (75.5%).
-- **Convergence and PPC:** R-hat 1.0048; ESS 2,014 / 3,034; equal model 1.0038 / 1,552; PPC 7/7 and 22/22.
-- **Category use:** 52.9% and 5.7%; 2,116 and 109 ratings; cutpoints −2.25 to 6.44; gaps 2.05 / 1.43 / 1.35 / 1.67 / 2.19.
-- **Raw rater statistics:** means 1.76 (R06) to 3.84 (R18); floor .58.
-- **Leniency:** −2.93 to 1.63; σ_λ 1.23 [0.96, 1.58]; 16 raters (8 / 8).
-- **Discrimination:** 0.96 to 3.24; median 2.08; ratio 3.39; pool 1.87; μ 0.62 [0.47, 0.77]; σ 0.39 [0.28, 0.52]; 11 raters (6 / 5); R07, R08 and R14 statement; R09 0.0012; posterior SDs 0.68, 0.58, 0.50.
-- **PSIS-LOO:** elpd −11,537.93 and −11,701.19; difference 163.25 (SE 19.68); ratio 8.3; p_loo 2,573.69 and 2,375.88; Pareto-k shares 2.80% and 0.14%.
-- **Information:** peaks 0.29 (R18) to 3.28 (R02); pool peak 1.33 at θ = 0.74; R06 at 1.74 and R01 at 2.10.
-- **Reliability and scores:** ρ_emp .66; ρ(1.73) .65; score SD 0.813, range −2.08 to 3.08; posterior SD 0.65 → 0.40; interval width 2.58 → 1.57; 0.86 vs 0.46.
-- **D-study:** .51, .68, .76, .81, .90 (k = 9), .91 (k = 10).
-- **Drift:** 20 raters; R01 −.300, R09 −.368, R12 .202.
-- **Abstract:** all values match the above.
+The AUDIT-only values ("6 unused end categories", "0.7–1.3") are correctly **not** quoted.
 
-**Object coverage (vs. `02_artifacts.md`):** all 18 labelled objects are embedded and referenced in the text. Panel A of `fig-jrt-information-reliability` and panels B–D of `fig-overview-rater-response-styles` are not interpreted. Panel D is relevant to Issue 4.
+### Correct numbers, questionable use
+
+- The 0.350 vs 0.202 contrast (abstract, lines 207, 237) is correctly transcribed but computationally inflated by ties (C1).
+- The overall max θ̂ range of 2.252 (lines 201, 237) pools products across n (m14).
+- R18's b1 −6.565 is reported in the abstract as "most lenient" without its SE of 3.047 (M4).
+
+### Citations
+
+- All 80 citation keys resolve: they are in `phd_library.bib` or `web_references.bib`, with no duplicate definitions among the keys checked.
+- Claims that still need PDF verification beyond FI-17: @kaufman2008a (rule of thumb of five to ten raters), the "alphas above .70" claim (@baer2004, @kaufman2008, @hennessey2011), and the characterisation of @kempe2018, @zahno2023 and @dejoode2023 as reporting "ICCs or agreement at most" (line 53).
+- Line 223 ("range CAT studies usually report") has no citation.
+
+### Interpretive claims in Results
+
+- Line 149: the summary paragraph ("raters were heterogeneous in all parameters", "constraints ... were rejected").
+- Line 185: "also differed", with no test.
+- Line 187: the second half ("Wide intervals indicate ...").
+- Line 197: the last sentence (borderline, acceptable).
+- Line 211: the explicit conclusion with ATC-10. Move it to the Discussion.
+
+---
+
+## Marker check ([AUTHOR TO CONFIRM] / [FILL IN])
+
+**Present and appropriate.**
+- Every interpretive Discussion claim carries an ATC marker: ATC-3 to ATC-16 and ATC-21 to ATC-23.
+- The exploratory framing (ATC-20), the CAT departure (ATC-19), the cumulative-link rationale (ATC-8), the literature-search limitation (ATC-2) and the ATC-18 benchmark question are all marked.
+- All Methods gaps carry FI markers.
+
+**Missing markers (over-claims without a flag).**
+- Lines 91 and 269: "excluding them did not change the scores" (m4).
+- Line 89: the cause of "not recognised" ratings (M7, m10).
+- Line 115: S-X² "conservative" (m5).
+- Line 225: "first football-specific evidence" and "depended mainly on" (C3, m9).
+- Abstract (line 9): "most lenient and most severe first thresholds" (M4).
+- Line 149: the Results summary sentence.
+- Line 235: "even the weaker constraints of the Rasch family" is a substantive psychometric claim. It currently sits under ATC-7, but the claim itself is questionable (M2).
+
+**Missing [FILL IN].**
+- The rationale or source for the 15-rating cut-off (M9).
+- Non-recognition rates by rater (M7).
+- A latent-distribution sensitivity check (M6).
+- The tie handling in the percentile and quintile computation (C1).
+
+**Volume.** There are about 40 markers. Resolving them is itself a sizeable task, and the manuscript cannot be submitted with any of them left in place. The callout box carries a marker on every line; decide whether the box stays at all. CRJ does not normally use such boxes.
+
+---
+
+## Top 5 points to address first
+
+1. **Fix the raw-mean comparison (C1).** Recompute the percentile and quintile statistics in a tie-aware way, or replace them with a discordant-pair statistic. Rebuild the aim-3 evidence around the 1-rating facet, where the only difference is the rater. Update the abstract, lines 201, 207 and 237, and the callout.
+2. **Add a model-based projection of reliability by number of ratings (C3).** Simulate from the fitted GRM with random rater subsets and parameter uncertainty. Base the "plan the number of ratings" recommendation on it rather than on the observational by-n means.
+3. **Complete the Methods (C2, M7, M8).** Cover allocation (FI-4), raters, stimuli, the instruction, ethics, software versions and data availability. Report non-recognition rates, and state how products came to have 1, 2 or 3+ ratings.
+4. **Tighten the logic of aim 3 (M1, M2, M3).** Test severity directly (M0 vs M1, or M1 severities with SEs). Verify the M1–M2 LR test within one package. Add a held-out-rating predictive check, or else soften "direct evidence" to "the scores differ".
+5. **Stop over-reading parameters of low-n raters (M4, M5, M9).** Drop the R18 b1 extreme from the abstract. Report severity on a comparable metric. Fix or disclose the 30% draw rejection. Rephrase the 15-rating "lower limit", which the data cannot support.
