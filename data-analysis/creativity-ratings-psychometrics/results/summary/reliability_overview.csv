@@ -6,6 +6,6 @@ GRM: empirical marginal reliability,actual theta_hat (primary),0.671990436406417
 GRM: model-based marginal reliability,hypothetical full panel,0.9598591226840252,"95% CI [0.953, 0.968] (200 parameter draws); mirt::marginal_rxx, all raters"
 GRM: median rel_post,precision per product,0.6980320316762489,"Q1 0.596, Q3 0.769"
 GRM: IQR rel_post,precision per product,0.17310542208468838,
-M1 (RSM): marginal reliability,comparison,0.9433744006870614,
-M2 (PCM): marginal reliability,comparison,0.9442102125174632,
+M1 (rating-scale MFRM): marginal reliability,comparison,0.9433744006870614,
+M2 (partial-credit MFRM): marginal reliability,comparison,0.9442102125174632,
 M3 (GPCM): marginal reliability,comparison,0.9552346209024776,

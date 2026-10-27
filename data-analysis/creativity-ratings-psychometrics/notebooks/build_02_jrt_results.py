@@ -250,7 +250,7 @@ fig("fig-grm-rel-consistency", "Agreement of the two product-level reliability i
 
 md("## 4. Comparison: model ladder and MFRM")
 note('**Model comparison.** The adjacent-category models form a ladder:\n- M1, the rating scale model with a rater shift (Andrich, 1978). This is the many-facet Rasch model (Linacre, 1989; Primi et al., 2019), fitted with `sirt::rm.facets`.\n- M2, the partial credit model (Masters, 1982): adds rater-specific thresholds.\n- M3, the generalized partial credit model (Muraki, 1992): adds rater-specific discriminations.\n\nThe GRM belongs to the cumulative family, so it is compared with the ladder by information criteria only (lower is better).')
-tbl("tbl-model-fit", "Fit of the adjacent-category ladder (M1 rating scale model / MFRM, M2 partial credit model, M3 generalized partial credit model) and the graded response model: log-likelihood, number of parameters, information criteria and their difference (delta) to the best model on each criterion.",
+tbl("tbl-model-fit", "Fit of the adjacent-category ladder (M1 rating-scale MFRM, M2 partial-credit MFRM, M3 generalized partial credit model) and the graded response model: log-likelihood, number of parameters, information criteria and their difference (delta) to the best model on each criterion.",
     'show_table("comparison/model_fit.csv", lambda d: d[d["status"] == "estimated"][["model", "software", "family", "logLik", "npar", "AIC", "BIC", "SABIC", "delta_AIC", "delta_BIC", "delta_SABIC"]])')
 note('**Likelihood-ratio tests.** Each test checks whether the next step up the ladder improves fit: rater-specific thresholds (M1 vs M2), then rater-specific discriminations (M2 vs M3). "df if all categories used" is the df if every rater used all 7 categories: (J − 1)(K − 2) for M1 vs M2 and J − 1 for M2 vs M3, with J raters and K categories. A rater who never uses an end category of the scale has one step parameter less in M2 (see the category-use table), so the observed df of M1 vs M2 is smaller by the number of unused end categories.')
 tbl("tbl-lr-tests", "Likelihood-ratio tests within the adjacent-category ladder. \'df if all categories used\' gives the df if every rater had used all 7 categories; unused end categories reduce the df of M1 vs M2.",
@@ -274,10 +274,10 @@ tbl("tbl-sensitivity-rater-exclusion", "Sensitivity of the GRM results to exclud
 tbl("tbl-discrimination-m3", "Rater discriminations in the generalized partial credit model (M3).",
     'show_table("comparison/discrimination_m3.csv", lambda d: d[["rater_id", "n_ratings", "estimate", "se"]])')
 note('Raters whose adjacent-category step parameters are out of order. In adjacent-category models this means that some category is never the most likely response (Andrich, 1978). In the GRM, thresholds are ordered by construction.')
-tbl("tbl-threshold-order", "Raters with unordered step parameters in M2 (PCM) and M3 (GPCM).",
+tbl("tbl-threshold-order", "Raters with unordered step parameters in M2 (partial-credit MFRM) and M3 (GPCM).",
     'show_table("comparison/threshold_order.csv", lambda d: d[~d["ordered"]])')
 note('Infit and outfit under M1, the fit statistics usually reported for many-facet Rasch models (Eckes, 2015).')
-tbl("tbl-rater-fit-m1", "Rater infit and outfit mean squares under M1 (rating scale model / MFRM).",
+tbl("tbl-rater-fit-m1", "Rater infit and outfit mean squares under M1 (rating-scale MFRM).",
     'show_table("comparison/rater_fit_m1.csv", lambda d: d[["rater_id", "n_ratings", "infit", "outfit"]])')
 note('Marginal reliability (hypothetical full panel) and empirical reliability (actual scores) for each model.')
 tbl("tbl-marginal-reliability-models", "Marginal and empirical reliability by model, for comparison.",

@@ -51,7 +51,7 @@ overview <- tibble(
             "GRM: empirical marginal reliability",
             "GRM: model-based marginal reliability",
             "GRM: median rel_post", "GRM: IQR rel_post",
-            "M1 (RSM): marginal reliability", "M2 (PCM): marginal reliability",
+            "M1 (rating-scale MFRM): marginal reliability", "M2 (partial-credit MFRM): marginal reliability",
             "M3 (GPCM): marginal reliability"),
   refers_to = c("consensus of single ratings",
                 "consistency of the unweighted rater mean",
