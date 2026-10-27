@@ -39,9 +39,10 @@ def read_res(path):
     f = RES / path
     return pd.read_csv(f) if f.exists() else None
 
-def fmt_cell(v, digits=3, p_value=False):
-    # Display formatting only: whole numbers without decimals, p-values in
-    # scientific notation below .001, missing values as an en dash.
+def fmt_cell(v, digits=3, p_value=False, decimals=False):
+    # Display formatting only: whole numbers without decimals (unless the
+    # column holds non-integer values: decimals=True), p-values below .001 as
+    # "< .001" (APA), missing values as an en dash.
     if v is None or (isinstance(v, float) and pd.isna(v)) or (isinstance(v, str) and v in ("", "NA", "nan")):
         return "–"
     if isinstance(v, (bool, np.bool_)):
@@ -51,16 +52,24 @@ def fmt_cell(v, digits=3, p_value=False):
     except (TypeError, ValueError):
         return str(v).replace("|", r"\\|")  # a bare | would split the Markdown cell
     if p_value:
-        return f"{x:.2e}" if x < 0.001 else f"{x:.3f}"
-    if x.is_integer():
+        return "< .001" if x < 0.001 else f"{x:.3f}"
+    if x.is_integer() and not decimals:
         return f"{int(x):,}"
     return f"{x:,.{digits}f}"
+
+# Columns that mix counts and fractions row by row (quantity/value tables):
+# formatted cell by cell. All other columns with any non-integer value show
+# every value with decimals (e.g. a correlation of 1 as 1.000).
+MIXED_COLUMNS = {"value", "final_data", "all_raters", "estimate"}
 
 def tidy(df, digits=3):
     out = df.copy().astype(object)
     for col in out.columns:
         is_p = col == "p" or col.startswith("p_")
-        out[col] = [fmt_cell(v, digits, is_p) for v in df[col]]
+        num = pd.to_numeric(df[col], errors="coerce") if df[col].dtype != bool else None
+        decimals = (col not in MIXED_COLUMNS and num is not None and num.notna().any()
+                    and not (num.dropna() % 1 == 0).all())
+        out[col] = [fmt_cell(v, digits, is_p, decimals) for v in df[col]]
     return out
 
 # Readable column headers for the manuscript tables (display only; the CSVs keep
@@ -112,11 +121,17 @@ for _k in range(1, 8):
 VALUES = {"M1_RSM": "M1 (rating-scale MFRM)", "M2_PCM": "M2 (partial-credit MFRM)", "M3_GPCM": "M3 (GPCM)", "GRM": "GRM",
           "rm_facets_default_grid": "M1, sirt default grid", "pearson": "Pearson", "spearman": "Spearman"}
 
+import re
+
+def readable_text(v):
+    # code names in cells -> words; thousands separators in counts inside notes
+    v = v.replace("_", " ")
+    return re.sub(r"(?<![\\d.,])(\\d{1,3})(\\d{3})(?= (common|replications|products|ratings))", r"\\1,\\2", v)
+
 def pretty_values(df):
     out = df.copy()
     for col in out.columns:
-        out[col] = [VALUES.get(v, v.replace("_", " ") if isinstance(v, str) and "_" in v and " " not in v else v)
-                    for v in out[col]]
+        out[col] = [VALUES.get(v, readable_text(v)) if isinstance(v, str) else v for v in out[col]]
     return out
 
 def pretty_headers(df):
@@ -192,7 +207,7 @@ tbl("tbl-grm-rater-fit", "Rater fit in the graded response model: infit and outf
     'show_table("grm/rater_fit.csv", lambda d: d[["rater_id", "n_ratings", "infit", "outfit", "S_X2", "df_S_X2", "p_S_X2", "n_imputations"]])')
 note("**Local dependence.** Yen's (1984) Q3 is the correlation between two raters' residuals over the products both rated. It is computed for rater pairs with at least 3 jointly rated products (and residual variance in both raters); other pairs are not computable. With few raters per product, Q3 is biased negatively (Christensen et al., 2017), so the table ranks pairs by their deviation from the mean Q3 over all computable pairs (printed below the table). Flagged marks pairs with at least 30 jointly rated products whose Q3 deviates from the mean Q3 by more than 0.2.")
 tbl("tbl-grm-q3-flagged", "Rater pairs with the largest local dependence (Q3 minus mean Q3) among pairs with at least 30 jointly rated products.",
-    'show_table("grm/q3.csv", lambda d: d[d["n_common"] >= 30].assign(_a=lambda x: x["q3_minus_mean"].abs()).sort_values("_a", ascending=False).drop(columns="_a").head(10))')
+    'show_table("grm/q3.csv", lambda d: d[d["n_common"] >= 30].assign(_a=lambda x: x["q3_minus_mean"].abs()).sort_values("_a", ascending=False).drop(columns=["_a", "overlap_flag"]).head(10))')
 code('''_q3 = read_res("grm/q3.csv")
 if _q3 is not None:
     _ok = _q3["q3"].notna()

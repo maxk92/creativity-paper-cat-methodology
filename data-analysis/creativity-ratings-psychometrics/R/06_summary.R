@@ -28,6 +28,7 @@ cron <- rd(DIR_NAIVE, "cronbach_alpha")
 kripp <- rd(DIR_NAIVE, "krippendorff_alpha")
 global_fit <- rd(DIR_GRM, "global_fit")
 rel_ci <- rd(DIR_GRM, "reliability_ci")
+big <- function(n) formatC(n, big.mark = ",", format = "d")  # 1000 -> "1,000"
 ci_txt <- function(lo, hi, what) sprintf("95%% CI [%s, %s] (%s)", fmt(lo), fmt(hi), what)
 rel_ci_of <- function(q) {
   r <- rel_ci[rel_ci$quantity == q, ]
@@ -36,8 +37,8 @@ rel_ci_of <- function(q) {
 cron_ci_of <- function(i) if (!"ci_low" %in% names(cron) || nrow(cron) < i) "" else
   ci_txt(cron$ci_low[i], cron$ci_high[i],
          if (cron$n_boot_failed[i] > 0)
-           sprintf("bootstrap, %d of %d replications computable, approximate", cron$n_boot[i] - cron$n_boot_failed[i], cron$n_boot[i])
-         else sprintf("bootstrap, %d replications", cron$n_boot[i]))
+           sprintf("bootstrap, %s of %s replications computable, approximate", big(cron$n_boot[i] - cron$n_boot_failed[i]), big(cron$n_boot[i]))
+         else sprintf("bootstrap, %s replications", big(cron$n_boot[i])))
 
 # --- overview table --------------------------------------------------------------------
 marg_of <- function(m) {
@@ -67,8 +68,8 @@ overview <- tibble(
             get_q(rel, "model_based_marginal_reliability_mirt"),
             get_q(rel, "rel_post_median"), get_q(rel, "rel_post_iqr"),
             marg_of("M1_RSM"), marg_of("M2_PCM"), marg_of("M3_GPCM")),
-  ci_or_note = c(sprintf("95%% bootstrap CI [%s, %s], %d replications", fmt(kripp$ci_low),
-                         fmt(kripp$ci_high), kripp$n_boot),
+  ci_or_note = c(sprintf("95%% bootstrap CI [%s, %s], %s replications", fmt(kripp$ci_low),
+                         fmt(kripp$ci_high), big(kripp$n_boot)),
                  sprintf("%s; %d raters; removed: %s", cron_ci_of(1), cron$n_raters[1],
                          ifelse(is.na(cron$raters_removed[1]) | cron$raters_removed[1] == "",
                                 "none", cron$raters_removed[1])),
@@ -78,7 +79,7 @@ overview <- tibble(
                    cron$n_products_contributing[grepl("crossed", cron$variant)][1]) else "no block",
                  paste0(rel_ci_of("empirical_marginal_reliability"), "; Var(theta)/(Var(theta)+mean(PSD^2))"),
                  paste0(rel_ci_of("model_based_marginal_reliability"), "; mirt::marginal_rxx, all raters"),
-                 sprintf("Q1 %s, Q3 %s", fmt(get_q(rel, "rel_post_q1")), fmt(get_q(rel, "rel_post_q3"))),
+                 sprintf("first quartile %s, third quartile %s", fmt(get_q(rel, "rel_post_q1")), fmt(get_q(rel, "rel_post_q3"))),
                  "",
                  ifelse(is.na(marg_of("M1_RSM")), "M1 not estimable in mirt (see model_fit.csv)", ""),
                  "", "")
