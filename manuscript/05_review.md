@@ -1,245 +1,218 @@
-# 05_review.md: Peer review, SECOND ROUND (reviewer-critic, Phase 7)
+# 05_review.md: Peer review, THIRD ROUND (reviewer-critic, Phase 7)
 
-Manuscript reviewed: `manuscript/manuscript.qmd` (revised draft, after commit 91c2e6d; 352 lines).
+Manuscript reviewed: `manuscript/manuscript.qmd` (working-tree revision after commit 73d8d44; 327 lines).
 Checked against:
-- `03_findings.md` (authoritative numbers, re-run after 91c2e6d);
-- `02_artifacts.md` (42 labels);
-- the first-round review (previous version of this file);
-- the R source, read only to see how two statistics are computed: `R/07_reliability_projection.R` (rater sets of the projection) and `R/03_grm_information.R` (raw mean vs GRM, lines 124–164).
+- `03_findings.md` (re-run after 62f7d8e), including its "Changes" section and Flag 13;
+- `02_artifacts.md` (42 labels, 37 embedded);
+- the round-2 review (previous version of this file);
+- `R/07_reliability_projection.R`, line 39, read only to see how raters are drawn in the projection;
+- `phd_library.bib` and `web_references.bib`, to check that citation keys resolve.
 
-Venue: Creativity Research Journal (profile imrad-apa). Line numbers refer to `manuscript.qmd`.
+Venue: Creativity Research Journal (profile imrad-apa). Line numbers refer to the current `manuscript.qmd`.
 
-Not criticised here, per the author's constraints:
+I respected these author positions and do not criticise them here:
+- the empirical focus, with the projection kept as a side note;
+- no requests for further projection, simulation or model-test analyses (they are listed once, in Section 6);
 - the sparse design is not foregrounded;
 - the Methods FILL INs on allocation, raters, stimuli, ethics, software versions and data availability;
 - the author-supplied cause of the "not recognised" ratings.
 
-APA leading-zero formatting and *p* < .001 are treated as intended and are not counted as mismatches.
+APA formatting (no leading zero for values bounded by 1, *p* < .001, thousands separators) is intended and is not counted as a mismatch.
 
 ---
 
 ## 1. Summary and recommendation
 
-The revision is substantial and mostly well done.
+This revision does what the author set out to do. The paper now reports the experiment and what was observed, and the problems that came with the round-2 projection are gone because that material was removed rather than patched.
 
-**What the revision fixed.**
-- **Raw-mean comparison.** The tie artefact (C1) is gone. The raw-mean comparison now uses Kendall's τb, discordant pairs and a tie-resolved quintile change. The plain share is no longer quoted.
-- **Reliability by number of ratings.** A model-based projection (C3) replaces the observational by-n table as the basis for planning.
-- **Rater differences.** The three kinds of rater difference (severity, category structure, discrimination) are now kept apart in the Introduction and the Discussion. The missing severity test is disclosed.
-- **Claims.** The normative and causal claims have been softened: "the scores differ, not which is more accurate", "In these data".
-- **Limitations.** They are now unusually complete.
-- **Numbers.** Every number I checked matches `03_findings.md`, and no value that is no longer printed is quoted.
+**Fixed since round 2:**
+- **Projection rater sets (N-C1).** The "most/least informative" sets are removed. The projection is a single random-rater side note in the supplement, cited once in the Discussion (line 201) with its "treated as known" caveat. The ".754" headline and "who rates matters as much as how many" are gone.
+- **Pooled raw-mean statistics (N-M1).** These are gone. The abstract and the Discussion (lines 9, 195, 215) now quote the within-n τb and reversal shares.
+- **The 1-rating spread (N-M5).** It is now described as reflecting "severity and discrimination" (line 211), with the mean range reported.
+- **Pipeline residue (N-M3, N-M4, N-m9).** It is removed: no "analysis notebook", no "output", no "will be refreshed".
+- **The round-2 minor points.** All 12 are resolved.
+- **Numbers.** Every number I checked matches `03_findings.md`, and no removed value is quoted (Section 4).
 
-**What the revision introduced.** The new projection, which is now the paper's main applied deliverable, brings its own problems:
-- Its "most informative" and "least informative" rater sets are chosen by point estimates of average information. At small k, those sets consist of the most poorly determined raters: R19, R16 and R18, each with about 50 ratings.
-- The abstract's headline ".754 for one rating from the most informative raters" is therefore essentially the point estimate for R19 (*a* = 3.71, *SE* 2.22; information interval [0.410, 11.017]). It is treated as known.
-- The Discussion itself says the information shares "are not a ranking of rater quality" (line 234).
+**What still separates the draft from acceptance:**
+1. **The normative scoring recommendation** (abstract, box item 5, Conclusion) goes beyond the evidence. The paper says so itself at line 217: it did not show that GRM scores are more accurate. Since the author does not want a predictive check, the recommendation should be **re-grounded or softened**, not backed by a new analysis (round-1 M1, still partially resolved).
+2. **The text equates "the MFRM" with a shared category structure** (lines 51, 61, 213). M2 is itself a partial-credit many-facet model. The only constraint that the Rasch/MFRM family necessarily imposes is equal discrimination, and the evidence on that is mixed (BIC disagrees). A Rasch-literate CRJ reviewer will flag this. It is a wording fix (new major issue N3-M1).
+3. **Two citation keys are defined differently in the two .bib files** (kaufman2008/kaufman2008a are swapped, and wind2019a refers to different papers). This happened after round 2, apparently when the web references were merged into `phd_library.bib`. The reference list will be wrong unless this is fixed (new major issue N3-M2).
+4. **The Methods FILL INs.** They are the author's task, but the manuscript cannot be submitted until they are done.
 
-**Other new problems.**
-- The pooled raw-mean statistics that now lead the abstract and the Discussion (τb .796, .083, .237) mix rater effects with the GRM's differential shrinkage across products with different numbers of ratings. Every pooled value is worse than every within-n value.
-- The manuscript cites "the analysis notebook" as an authority twice.
-- It tells readers that the projection "will be refreshed when more ratings have been collected".
+**Recommendation: minor revision.** The remaining issues are wording and bibliography fixes that need no new analysis. This is conditional on completing the Methods FILL INs, which are a precondition for submission rather than a review issue.
 
-**Recommendation: major revision.** This is closer to minor than in round 1. Two things separate the draft from a minor revision:
-1. The projection issue (N-C1). It can be fixed with the existing fit by restricting or weighting the rater sets, or by adding parameter uncertainty.
-2. The deferred Methods FILL INs. These are the author's task, but the paper cannot be submitted without them.
+One risk the author should know about, which I am not asking to be addressed: an external psychometric reviewer may still ask for the analyses the paper chose not to run. Listing them in the Limitations (line 245) is the right mitigation. Wording such as "were beyond the scope of this descriptive study" may read better to reviewers than "were deliberately not carried out".
 
-Once these and the five new major issues are addressed, I would expect a minor revision.
-
-**Counts.**
-- First-round points (37): **13 resolved, 13 partially resolved, 1 not resolved, 10 deferred to author or analyst.**
-- New issues: **1 critical, 5 major, 12 minor.**
+**Counts:**
+- Response check (42 points): **23 resolved, 6 partially resolved, 1 not resolved, 8 deferred to author, 4 declined under author priority.**
+- New issues: **0 critical, 2 major, 12 minor.**
 
 ---
 
-## 2. Response check (first-round points)
+## 2. Response check
 
-Status categories:
+Status codes:
 - **R** = resolved;
 - **P** = partially resolved;
 - **N** = not resolved;
-- **D** = deferred to author or analyst (legitimately a FILL IN).
+- **D** = deferred to author (legitimately a FILL IN or author decision);
+- **X** = declined under author priority.
 
-### Critical
-
-| # | Status | Justification | Location |
-|---|---|---|---|
-| C1 Tie artefact in raw-mean quintiles | **R** | Tie-aware statistics are defined in the Methods. The plain share and the percentile shift are explicitly "not used in the text". The aim-3 evidence is rebuilt around the 1-rating facet. The pooled-row problem is still there and is now raised as N-M1. | 140, 200–204, 238, 242; abstract |
-| C2 Methods not reproducible | **D** | All gaps carry FI markers (FI-1–4, 6, 15, 21, 22). FI-4 now asks exactly the right questions: how products came to have 1, 2 or 3+ ratings, and whether the 4+ products differ. This is the author's task by constraint. | 68–84, 146 |
-| C3 By-n table used as a planning tool | **P** | A projection was added, and planning now rests on it (226–228, 246). The observational table is demoted, and "mainly" and "We have shown" are gone. However, the projection has new problems: noisy rater selection, uniform random draws, parameters treated as known, and no target-k values. See N-C1 and N-M2. | 126, 162–166, 226–228, 246 |
-
-### Major
+### 2a. Round-2 points
 
 | # | Status | Justification | Location |
 |---|---|---|---|
-| M1 GRM as reference standard | **P** | The text now says "show that the scores differ, not which score is more accurate" (212, 242, 250) and calls the GRM "not a validated reference" (266). The held-out check (FI-26) is deferred. Callout item 4 and the Conclusion still recommend modelling over averaging without a criterion. This is marked, but it remains the paper's weakest normative link. | 212, 242, 250, 258, 266, 278 |
-| M2 Severity vs category structure vs discrimination | **P** | Three kinds of rater difference are separated (50, 238–240). "Even the weaker constraints" is removed, and the missing severity test is disclosed (110, 238). The M0 vs M1 test (FI-24) is deferred. Residual problem: the 1-rating spread is still presented as the "clearest case" of *severity* (238), although it also reflects discrimination and shrinkage (see N-M5). | 50, 110, 238–240 |
-| M3 Cross-package M1–M2 LR test | **D** | Disclosed as approximate, with nesting "assumed rather than shown" (110, 272). The sirt handling of unused categories and a same-package test are FI-25. | 102, 110, 272 |
-| M4 b1 extremes read as severity | **P** | R18's b1 is out of the abstract. R18 is flagged as poorly determined (182), and the conflation of spacing with discrimination is stated (100, 182, 232). A comparable severity metric (FI-29) is deferred. b1 is still the only severity summary, and line 100 still says "higher thresholds indicate a stricter rater" without qualification. | 100, 182, 232 |
-| M5 Truncated parameter draws | **D** | Disclosed in the Methods, Results, Discussion and Limitations as "conditional on valid parameter sets and approximate" (124, 134, 234, 268). The diagnostics and redraw are FI-28. | 124, 134, 234, 268 |
-| M6 Dependence on the normal prior | **D** | The prior dependence of rel~post~ is stated (128, 228), and a latent-distribution limitation is added (268). The sensitivity refit is FI-27. | 128, 228, 268 |
-| M7 "Not recognised" missingness | **D** | MAR caveat added to the Limitations (264). Rates by rater are FI-22. The cause is author-supplied (constraint). | 88, 264 |
-| M8 Student raters and CAT "appropriate judges" | **D** | Scope caveats added to the abstract ("for this kind of rater pool"), the implications (246) and the Limitations (270). The pool description is FI-21. | 9, 72, 246, 270 |
-| M9 "15 ratings is a lower limit" | **R** | Callout item 3 and line 252 now say that about 50 ratings still left parameters imprecise. The 15-rating cut-off is called a "technical estimation criterion only", and FI-23 asks for its source. | 90, 252, 257 |
-| M10 Confirmatory and normative wording | **R** | RQ3 is reworded descriptively. SQ1 and SQ2 are folded into the Methods. The Conclusion opens with "In these data". | 56–60, 278 |
-| M11 Results as a number dump, with interpretation | **P** | The interpretive sentences have moved to the Discussion, the information-criterion deltas are reduced to one contrast, and the 6-decimal shares are gone. The Results are still long and list-like (162, 178, 204, 208). There are still 10 main-text objects, including the 19-row `tbl-grm-rater-parameters`, which is now compact; the forest plot (FI-29) is deferred. | 150–216 |
-| M12 Render blockers and display problems | **P** | The pipe blocker is fixed (`02_artifacts.md`). The snake_case headers, "theta", tol 0.000, the "1000 replications" wording and the stale captions of `tbl-raw-mean-vs-grm` and `tbl-grm-reliability-projection` are all FI-18. These are analyst tasks, but they would still cause a desk return. | comment block line 32 |
+| N-C1 Projection rater sets chosen by noisy point estimates | **R** | The informativeness-based sets are removed from the notebook and the text. The projection is random raters only, labelled as a side note, with "treated as known" stated. | 201; supplement 298–304 |
+| N-M1 Pooled raw-mean statistics | **R** | The pooled row is gone. The abstract and the Discussion quote τb .832 / .815 and reversals .042 / .067 within n. | 9, 177, 195, 215 |
+| N-M2 Projection gives no concrete planning answer | **X** | The workload-weighted scheme and k-for-target are declined. The corresponding claim was softened: box item 2 now says "plan … with the precision of individual scores in mind". The disclosure of uniform draws is still missing (new minor n6). | 201, 225, 245 |
+| N-M3 "Analysis notebook" cited as an authority | **R** | Both sentences are gone. Residual: line 149 now asserts the rater-composition confound without support (new minor n2). | 149, 211 |
+| N-M4 "Will be refreshed when more ratings are collected" | **R** | Moved to the hidden comment FI-19 as an internal note. | comment line 33 |
+| N-M5 1.436 spread framed as severity | **R** | Line 211 says "in both severity and discrimination" and reports the mean range with the maximum. The abstract quotes only the mean ranges. Residual: a range is set by the most extreme raters (new minor n4). | 9, 177, 211 |
+| N-m1 Selective central rate | **R** | R13, R18 and R12 are all named. | 157 |
+| N-m2 APA thousands separators | **R** | Applied in the text (7,820; 3,668; −11,733.227; 23,767.020 …). The tables are under FI-18. | throughout |
+| N-m3 τ-equivalence sentence | **R** | Rewritten: alpha requires essential τ-equivalence, which allows intercepts, but the raw mean does not adjust for them. The paragraph is split. | 49, 51 |
+| N-m4 primi2019 / forthmann2023 unverified | **R** | Claim reworded to product-level precision and added to FI-17. | 45 |
+| N-m5 Novelty claims in the abstract | **R** | "Little is known" plus an ATC-2 marker. | 9 |
+| N-m6 "Non-trivial share" unmarked | **R** | τb quoted and ATC-22 added. | 195 |
+| N-m7 New number (.892) in the Discussion | **R** | Removed. The analogous placement of the projection values is minor n6. | 201 |
+| N-m8 Post hoc "≥ 400 ratings" grouping | **R** | The grouping and the "0.86 to 2.81" range are gone. Examples are given instead. | 9, 165, 167 |
+| N-m9 "Not listed in the output" | **R** | Removed. | — |
+| N-m10 Selective by-n values | **R** | n = 1, 2 and 3 are quoted. | 149 |
+| N-m11 .237 next to .202 | **R** | The tie-resolved share is removed. The raw-mean and model-choice paragraphs are separate. | 215, 217 |
+| N-m12 Box duplicates the implications | **R** | The implications text is reduced to two qualifications plus the box. Whether CRJ accepts boxes is FI-16. | 221–231 |
 
-### Minor
+### 2b. First-round points still open in round 2
 
 | # | Status | Justification | Location |
 |---|---|---|---|
-| m1 APA leading zeros | **R** | Applied consistently in the text. The tables are optional under FI-18. | throughout |
-| m2 Exact p-values | **R** | *p* < .001. | 196 |
-| m3 Over-precise values | **P** | The 6-decimal shares are gone. The 5-decimal sensitivity values remain (216; FI-18 optional reprint). | 216 |
-| m4 "Did not change the scores" | **P** | Still reads "did not change the scores", although the same sentence reports a maximum change of 0.16246. ATC-26 offers the fix, so just apply it. | 90 |
-| m5 S-X² called "conservative" | **R** | Now "has little power" (ATC-11). | 114 |
-| m6 Q3 | **P** | The negative bias and the lack of a reference distribution are stated. What makes 137 of 171 pairs "computable" is still undefined. | 116, 156 |
-| m7 Pairwise α CI | **R** | "approximate and may also be biased". | 130 |
-| m8 "Range CAT studies usually report" | **R** | Sentence removed. | — |
-| m9 "First football-specific evidence" | **R** | Removed. Novelty is now routed through ATC-2. | 226 |
-| m10 Cause of "not recognised" ratings | **D** | Author-supplied by constraint. FI-22 covers the rates. | 88 |
-| m11 FI-17 verification list | **R** | Markers added for kaufman2008a, the ".70" claim, and the kempe/zahno/dejoode characterisation. The verification itself is pending. | 44, 46, 52 |
-| m12 "Labels for automated rating" | **R** | Removed. | — |
-| m13 R01 information maximum | **P** | The phrasing is fixed. There is still no note that R01's maximum at θ = 2.7 comes from a rater who never used category 7. | 192 |
-| m14 Pooling in the "all" row | **P** | The 2.252 is no longer quoted, and FI-20 asks about grouping. However, the pooled τb, discordant share and tie-resolved quintile change now lead the abstract and the Discussion (N-M1). FI-20 can be answered from `R/03_grm_information.R`: subgroup rows rank within the subgroup (lines 151–153), and the "all" row pools equal raw means across n (lines 157–159). | 9, 200, 242 |
-| m15 Point the mechanism sentence to the 1-rating facet | **R** | Done. | 238 |
-| m16 "Products" vs "actions" | **P** | The equivalence is defined (58, 76, 246). The Results still say "products" and the abstract and Discussion say "actions". This is acceptable if it is stated once, but line 246 defines it a second time. | 58, 76, 246 |
-| m17 "Information per rating" | **R** | Renamed "average information" and defined (134). The caption fix is FI-18. | 134 |
-| m18 Supplement S-numbering | **D** | Render configuration (comment block line 35). | — |
-| m19 `tbl-marginal-reliability-models` unused | **N** | Still neither embedded nor cited. It would directly show the cost of constrained scoring in empirical reliability (M1 .626 → GRM .672), which is relevant to RQ3. | — |
-| m20 Drift and collection timespan | **D** | FI-3 now asks for the timespan. | 80 |
-| m21 Abstract density | **P** | Better: the plain share is gone and the b1 extremes are gone. It is still about 250 words and dense with numbers. Check the CRJ limit (FI-16). | 9 |
+| C2 Methods not reproducible | **D** | Still FILL IN (FI-1–4, 6, 15, 21, 22). Author's task by constraint, and a precondition for submission. | 69–89, 131 |
+| C3 By-n table used as a planning tool | **R** | The by-n table is described as observational (235). The projection is a side note. Planning wording is softened (box item 2). | 149, 201, 225, 235 |
+| M1 GRM as reference standard | **P** | Line 217 now says correctly that it was not shown that GRM scores are more accurate, and the held-out check is declined (**X**). However, the abstract, box item 5 and the Conclusion still recommend modelling over averaging as if the data had shown it. The fix is softening or re-grounding (Section 3, carried-over item C-M1). | 9, 217, 228, 249 |
+| M2 Severity vs category structure vs discrimination | **R** | The three are kept apart. The 1-rating spread is attributed to severity *and* discrimination. The fact that severity was not tested on its own is disclosed (107, 211). The M0 vs M1 test is **X**. A residual RQ2 wording point is minor n8. | 51, 107, 211 |
+| M3 Cross-package M1–M2 LR test | **X** | Disclosed as approximate (107, 243) and listed as future work (245). | 107, 243, 245 |
+| M4 b1 extremes read as severity | **R** | Line 99 no longer equates higher thresholds with a stricter rater. b1 is reported as "first thresholds" with SEs. "Stricter rater" is an open author option (ATC-6, comment line 34). | 99, 161 |
+| M5 Truncated parameter draws | **X** | Disclosed as conditional and approximate (115, 239). Diagnostics declined. | 115, 239 |
+| M6 Dependence on the normal prior | **X** | The prior dependence of rel~post~ and the normal latent assumption are disclosed (117, 201, 239). The sensitivity refit is declined as a model test of that kind. | 117, 201, 239 |
+| M7 "Not recognised" missingness | **D** | MAR caveat present (235). The rate by rater is FI-22. The cause is author-supplied. | 89, 235 |
+| M8 Student raters and CAT "appropriate judges" | **D** | Scope caveats are present (9, 221, 241). The pool description is FI-21. | 73, 221, 241 |
+| M11 Results as a number list | **P** | Descriptive and much tighter. Line 175 still packs the LR tests, the AIC/BIC contrast, the M3 range, unordered steps and M1 fit into one paragraph. Consider splitting it into "ladder tests" and "ladder rater fit". | 139–191, esp. 175 |
+| M12 Render and display problems | **P** | Headers, tolerance and the projection and raw-mean captions are fixed in the notebook. Still open under FI-18: code names in cells and captions, "(info_weighted_area)" in a caption, M3 "0.000545256" in `tbl-score-agreement`, "bootstrap, 1000 replications" vs 361 failed. | comment line 32 |
+| m3 Over-precise values | **P** | Five-decimal values remain (191, 241). Three decimals would do in the text; the table can keep five. | 191, 241 |
+| m4 "Did not change the scores" | **N** | Still "did not change the scores" in the same sentence as a maximum change of 0.16246. ATC-26 offers the fix; it only needs to be applied. | 91 |
+| m6 Q3 "computable" pairs | **P** | Still undefined (111, 139), and not printed in the notebook. 17 pairs share no products, but 171 − 137 = 34 are not computable. Either define it from the code or write "the 137 pairs for which Q3 could be computed". | 111, 139 |
+| m10 Cause of "not recognised" | **D** | Author-supplied (89). | 89 |
+| m13 R01 information maximum | **R** | "Neither of whom used category 7". | 171 |
+| m14 Pooling in the "all" row | **R** | Resolved by removal of the row. | — |
+| m16 "Products" vs "actions" | **R** | Defined once (77) and used consistently since then. | 77 |
+| m18 Supplement S-numbering | **D** | FI-16 (render configuration). | comment line 31 |
+| m19 `tbl-marginal-reliability-models` unused | **D** | Now an open author option (comment line 34). Recommended: it is an existing result (empirical reliability M1 .626 → GRM .672) and directly informs RQ3b without new design choices. | — |
+| m20 Drift and collection timespan | **D** | FI-3. | 81 |
+| m21 Abstract density | **P** | Shorter (about 230 words) but still number-dense. Check the CRJ limit (FI-16). | 9 |
 | m22 Figure captions and legends | **D** | FI-18. | — |
 
 **Tally:**
 
-| Status | Critical | Major | Minor | Total |
-|---|---|---|---|---|
-| Resolved | 1 | 2 | 10 | **13** |
-| Partially resolved | 1 | 5 | 7 | **13** |
-| Not resolved | 0 | 0 | 1 | **1** |
-| Deferred | 1 | 5 | 4 | **10** |
+| Status | Round-2 points (18) | Round-1 points still open (24) | Total (42) |
+|---|---|---|---|
+| Resolved | 17 | 6 | **23** |
+| Partially resolved | 0 | 6 | **6** |
+| Not resolved | 0 | 1 | **1** |
+| Deferred to author | 0 | 8 | **8** |
+| Declined under author priority | 1 | 3 | **4** |
 
 ---
 
-## 3. New issues introduced by the revision
+## 3. New issues
 
 ### Critical
 
-#### N-C1. The projection's "most" and "least informative" rater sets are chosen by noisy point estimates, so the headline values rest on the least well-determined raters (abstract; lines 126, 162, 166, 226, 234, 246, 255)
-
-**Problem.**
-- `R/07_reliability_projection.R` (lines 39, 48) orders raters by the point estimate `info_weighted_area` and takes the head or the tail.
-- By `tbl-grm-information-summary` (F2.3), the top of that order is:
-  - R19 (3.539, 50 ratings);
-  - R16 (3.300, 52 ratings);
-  - then R12, R14 and R15 (73 ratings).
-- The bottom is R18 (0.123, 55 ratings), R09 and R17 (52 ratings).
-- So "one rating from the most informative raters gave .754" is the point estimate for R19 alone. R19's discrimination *SE* is 2.22 and its information interval is [0.410, 11.017]. "One rating from the least informative raters gave .108" is R18 alone, whose b1 *SE* is 3.05.
-- The projection treats these parameters as known (line 126), so the most-informative curve carries a selection effect: it selects on noise, a winner's-curse effect.
-
-**Consequences.**
-- The comparisons in lines 162 and 226 inherit this ("one rating from the most informative raters (.754) > two from random raters (.688)"; "ten from the least informative (.884) stayed below three from the most informative (.892)"). So do the abstract and the Discussion claim "who rates therefore matters as much as how many" (ATC-24).
-- The paper contradicts itself. Line 234 says the information shares "are not a ranking of rater quality", but the projection uses exactly that ranking to define its "most informative raters".
-- Line 166 says the sets "are not listed in the output". They can be read directly off `tbl-grm-information-summary`, so a reviewer will reconstruct them at once. "The output" is also pipeline language.
-- The fixed-set schemes also imply that the same one to ten raters rate every action. That is not a feasible design for thousands of clips. They are bounds, as the notebook says ("brackets"), not design options, but line 226 and callout item 1 read them as options.
-
-**Why it matters.** This is now the paper's main applied deliverable (RQ1, the abstract, implication 1, callout item 1). A psychometric reviewer will see that the headline contrast is driven by two raters with about 50 ratings.
-
-**Fix (no new data needed).**
-1. Re-run the fixed-set schemes restricted to raters with stable parameters, for example the R01–R09 group the paper already uses for description. Alternatively, rank raters by a lower interval bound rather than the point estimate.
-2. Better still, propagate parameter uncertainty by running the projection over the existing 200 parameter draws (FI-28). The bands then become meaningful.
-3. List the raters in each set in a table note.
-4. Remove ".754" from the abstract, or replace it with the restricted-set value.
-5. Reword line 226 and callout item 1 so that the fixed sets are described as bounds, not as designs.
+None.
 
 ### Major
 
-#### N-M1. The pooled raw-mean statistics mix rater effects with shrinkage across different numbers of ratings (abstract; lines 200, 242)
+#### N3-M1. "The MFRM" is equated with a shared category structure (lines 51, 61, 101, 213; also 249)
 
 **Problem.**
-- The abstract ("Kendall's τb = .796") and the Discussion ("τb .796, .083 … ordered the other way round, and at least .237 … a different quintile", line 242) quote the "all" row.
-- In `R/03_grm_information.R`, the "all" row ranks every product together. The 1 / 2 / 3+ rows rank within the subgroup.
-- In the pooled row, a product with one rating of 2 is compared with a product with two ratings averaging 1.5. The GRM shrinks these by different amounts because their posterior precision differs. Some of the reversals therefore come from the number of ratings, not from rater differences.
-- The pattern in `tbl-raw-mean-vs-grm` is consistent with this: every pooled value is worse than every subgroup value.
-  - τb: .796 pooled vs .832 / .815 / .842 by subgroup.
-  - Discordant pairs: .083 vs .042 / .067 / .070.
-  - Tie-resolved quintile change: .237 vs .104 / .220 / .220.
-  - 03_findings flag 13 notes this as well.
-- Line 242 nonetheless introduces these values with "These differences [between raters] have consequences for the scores".
+- Line 51 says: "The MFRM therefore still assumes a shared category structure and equal discrimination".
+- RQ3a (line 61) pairs "category structure (RSM/MFRM)".
+- Line 213 says: "Category structure and discrimination remain constrained in the MFRM after severity has been modelled, and both constraints were rejected".
+- Only the *rating-scale* form of the MFRM shares one category structure. The partial-credit many-facet model, with rater-specific category thresholds, is standard in Facets (Linacre; Eckes 2015, rater-related scale structure). The paper's own M2 is essentially that model: a Rasch model with raters as items and rater-specific thresholds.
+- The only constraint the Rasch/MFRM family necessarily imposes is therefore **equal discrimination**. That is the constraint with mixed evidence: the LR test and AIC reject it, BIC does not (line 175).
 
-**Fix.**
-- Headline the within-n values, for example: τb .832 and .042 discordant pairs for one rating, and τb .815 and .067 for two ratings. These isolate rater effects.
-- Alternatively, say explicitly that the pooled values also reflect how the GRM weights products by their number of ratings.
-- Answer FI-20 from the source (see m14 above).
+**Why it matters.**
+- The paper's argument for JRT over the MFRM (lines 51, 213, the Conclusion and box item 5) currently rests on two rejected constraints.
+- Correctly stated, the case against the MFRM *family* rests on one constraint, with disagreement among criteria. The shared-category-structure result argues against the rating-scale MFRM, not against Rasch modelling.
+- A Rasch-literate CRJ reviewer will raise this at once.
 
-#### N-M2. The projection does not yet give the concrete planning answer that a sport-science reader needs (lines 126, 162, 226, 246, 255)
+**Fix (wording only).**
+- Write "the rating-scale form of the MFRM (M1)" wherever a shared category structure is meant.
+- State once that a partial-credit MFRM relaxes this (cite eckes2015), and that M2 corresponds to it.
+- In lines 213 and 249, say that the rejection of a shared category structure concerns the rating-scale MFRM. Say also that the Rasch family as a whole is questioned only by the discrimination result, which BIC did not support.
 
-**Problem.**
-- The "random" scheme draws raters uniformly (`sample.int(J, k)`). As a result, the five raters with about 50–73 ratings, who together gave fewer than 300 of 7820 ratings, make up 5 of 19 draws. Among them are R19 and R16, with the highest point-estimate information.
-- The random curve therefore does not represent the pool as it was actually used. It also inherits the selection noise of N-C1.
-- No number of ratings needed for a target reliability (for example .70, .80 or .90) is reported. 03_findings forbids deriving one, so it would have to be printed by the notebook.
-- Implication 1 ("can be planned for a target score reliability") thus remains a promise rather than a result.
-- The CRJ criterion "practical relevance for sport science" is where this paper will be judged.
+#### N3-M2. Conflicting citation-key definitions across the two bibliography files (YAML lines 23–25)
 
-**Fix.**
-- Add a workload-weighted random scheme.
-- Have the notebook print, for each scheme, the smallest k that reaches .70, .80 and .90, with draw-based intervals.
-- Quote these values in the Results and in implication 1.
+**Problem.** Round 2 found no duplicate keys. Since then, about 48 keys from `web_references.bib` also appear in `phd_library.bib`. Most copies are identical (spot-checked: hennessey2011, pellegrino2025, zahno2023). Three are not:
+- **`kaufman2008` / `kaufman2008a` are swapped.**
+  - `phd_library.bib` (lines 23655, 23819): kaufman2008 = *Essentials of Creativity Assessment* (book), and kaufman2008a = Kaufman, Baer, Cole & Sexton (2008, CRJ).
+  - `web_references.bib` (lines 9, 489): the reverse.
+  - The manuscript uses the web assignment: line 45 cites @kaufman2008a for the "five to ten raters" rule, which the bib note attributes to the book.
+- **`wind2019a` refers to different papers.**
+  - `phd_library.bib` (line 24046): Wind & Sebok-Syer, differential rater functioning.
+  - `web_references.bib` (line 626): Wind & Jones, incomplete rating designs.
+  - Lines 207 and 221 need Wind & Jones. Under the library definition, the DRF paper would be cited for linking-set claims, and @wind2019b (line 243, DRF, web only) would duplicate it.
+  - `phd_library.bib` has the Wind & Jones paper under `wind2019` (line 24020).
 
-#### N-M3. The manuscript cites "the analysis notebook" as an authority (lines 228, 238)
+**Why it matters.** Which entry renders depends on how pandoc/citeproc resolves duplicate keys across files. Either way, two in-text citations will point to the wrong source. An editor or reviewer who checks the references will notice.
 
-**Problem.**
-- Line 228 says: "In the analysis notebook, this observed relation is described as confounded …".
-- Line 238 says: "In the words of the analysis notebook, products with the same raw mean get different GRM scores …".
-- A journal article cannot rest a claim on its own analysis notebook. Readers cannot see that notebook, and it is not a citable source. These sentences are pipeline residue.
-- The confounding claim at line 228 is also the stated reason for preferring the projection over the observed table. It is asserted, not shown.
+**Fix (bibliography only, no hand-editing of citation formatting).**
+- Use one bibliography file:
+  - either remove the merged duplicates from one file;
+  - or drop `web_references.bib` from the YAML, after adding the web-only keys (deayala2022, forthmann2023, barth2020, dejoode2023, tenhove2024, wind2019b, and any others) to the library.
+- Then align the keys:
+  - kaufman2008 → the source the text intends at lines 43/45/199;
+  - kaufman2008a → the "five to ten" source;
+  - wind2019a → Wind & Jones 2019.
+- Re-run a render and check the reference list for these three entries.
 
-**Fix.**
-- Turn both into the authors' own claims, keeping the ATC markers.
-- Support line 228 with data. For example, show that the rater composition differs by number of ratings: the share of ratings from R01–R09 among products with 1, 2 and 3+ ratings, printed by the notebook.
-- Otherwise, write: "products were not assigned a number of ratings at random, so the observed relation may be confounded with which raters rated them".
+#### Carried over, not new: C-M1 (round-1 M1, still partially resolved). The recommendation to model rather than average is not supported by the reported analyses (abstract line 9; box item 5, line 228; Conclusion line 249)
 
-#### N-M4. The paper tells readers that its data will change (line 246; comment block FI-19)
+This is counted under M1 in Section 2, not as a new issue. It is the main claims-versus-evidence gap.
+- Line 217 says correctly that the paper does not show GRM scores to be more accurate.
+- The abstract ("model rater differences rather than average them"), box item 5 ("Score actions with a model … rather than with the raw mean") and the Conclusion still recommend it as if the data had shown it.
 
-**Problem.** Line 246 says the projection "will be refreshed when more ratings have been collected". An editor will read this as "the data are not final", and reviewers will ask why the paper is being submitted now. Every design-dependent number would change.
+Under the author priority, the fix is to re-ground the recommendation or soften it. Do not add a predictive check. Two options:
+- **Re-ground** it on what *is* shown plus established theory: "raters differed in thresholds and discrimination in these data, and in incomplete designs raw means do not adjust for such differences [@primi2019]; model-based scores do, under the model's assumptions."
+- **Soften** it: "consider scoring with a model that adjusts for rater differences, and report how much the ordering differs from raw means".
 
-**Fix.** Do one of the following:
-- submit after the data update and delete the sentence;
-- if the current data are final for this paper, delete the sentence and mention the future data only as future work.
-
-#### N-M5. The 1.436 single-rating spread is presented as evidence of severity, and as a maximum over point estimates without uncertainty (abstract; lines 204, 238)
-
-**Problem.**
-- Line 238 opens with "The first is severity … In these data, the clearest case is a single rating".
-- With one rating, the EAP depends on the rater's thresholds *and* discrimination, and on shrinkage toward the N(0,1) prior. A low-*a* rater's ratings are all pulled toward 0.
-- ATC-21 in the same paragraph says "severity or discrimination". So the spread is not specifically severity evidence, and the M2 confusion returns in a milder form.
-- 1.436 is also a maximum over raters. It is likely driven by the extreme and poorly determined raters (R18: *a* 0.63, b1 *SE* 3.05; R19), and it is reported in the abstract without any interval.
-
-**Fix.**
-- Describe the spread as "differences between raters as modelled (severity and discrimination)", which line 238 nearly does already.
-- Move it out of the "severity" sentence.
-- Report the mean range (1.283) alongside the maximum, as the Results already do.
-- Optionally, have the notebook print the range without the five raters who gave fewer than 75 ratings.
+Either keeps ATC-15 meaningful.
 
 ### Minor
 
-- **N-m1. Selective listing of the central rate (line 178).** "The central rate … was high for R13 (.799) and R12 (.735)" leaves out R18 (.764), which lies between them (F0.8). Name all three, or say "highest for R13".
-- **N-m2. APA thousands separators.** APA 7 (§6.38) uses commas in numbers of 1,000 or more: 7,820; 3,668; 9,148; 1,290; 1,174; 2,029; 2,113; 2,080; −11,733.227; 23,767.020; and so on. This is formatting, not rounding. Apply it consistently, ideally in the notebook `tidy()` (FI-18).
-- **N-m3. The τ-equivalence sentence in the Introduction (line 50).** "Mean scores and coefficient alpha additionally assume (essentially) τ-equivalent raters" follows the MFRM sentence and reads as an assumption *beyond* the MFRM's.
-  - Essential τ-equivalence allows rater-specific intercepts, i.e., severity.
-  - What makes raw means confounded in incomplete designs is that they ignore those intercepts.
-  - Reword to separate the two points. The paragraph is also about 350 words long; split it.
-- **N-m4. Unverified citation for a methodological claim (line 46).** "A fitted measurement model can project that precision for other numbers of ratings [@primi2019; @forthmann2023]" has no FI-17 marker. Check that both sources support projection; forthmann2023 is a simulation of planned-missing designs.
-- **N-m5. Novelty claims in the abstract (line 9).** "It is unknown how many ratings …" and "increasingly applied to actions in sport" are stronger than the hedge in the Introduction ("to our knowledge", ATC-2). The abstract's marker block does not include ATC-2.
-- **N-m6. Unmarked judgement at the opening of the Discussion (line 220).** "Ordered a non-trivial share of products differently" has no marker. Quote τb instead, or mark it.
-- **N-m7. A new number first appears in the Discussion (line 226).** ".892" (most informative raters, k = 3) is not in the Results. Report it in the Results (line 162) or drop it.
-- **N-m8. The "at least 400 ratings" grouping is post hoc (abstract; lines 182, 186).** The cut sits exactly at R09 (400) and excludes R10 (383), R12 and R14. The abstract's "0.86 to 2.81" depends on it. Give a rationale (for example, a precision criterion based on the SE), or describe the range by SE.
-- **N-m9. "Not listed in the output" (line 166).** This is pipeline phrasing, and the sets are determinable anyway (see N-C1). List them.
-- **N-m10. Selective by-n values (line 172).** The values for n = 1, 2 and 4 are quoted and n = 3 (.757, 357 products) is skipped. Quote 1, 2 and 3, or 1, 2 and 3+, to match the raw-mean grouping.
-- **N-m11. Two different statistics side by side (line 242).** ".237 … a different quintile" is followed in the next sentence by ".202 … between the MFRM/RSM and the GRM". The text adds that they are "not ranked against each other", but placing them together still invites the comparison. The notebook does not state that the tie-resolved share is comparable with `tbl-score-agreement`. Put them in separate paragraphs.
-- **N-m12. The callout box duplicates the implications (lines 246–259).** The five callout items repeat implications 1–4 almost word for word, plus the reporting point from line 228, and every item carries a marker. Keep either the box or the paragraphs. CRJ does not normally use boxes (FI-16).
+- **n1. R18 does not have a wide information interval (line 207).** "R18, R19 and R16 … had the largest standard errors and the widest information intervals." R18's interval is [0.01, 0.35]. In absolute width it is among the narrowest, and wider ones belong to R14, R15 and R12. Write: "the largest standard errors and, for R19 and R16, the widest information intervals".
+- **n2. Unsupported rater-composition claim in the Results (line 149).** "Products with different numbers of ratings were also rated by different raters (see Rating design)." The notebook no longer prints or states this (03_findings F1.14), and the Rating design section is a FILL IN. Either let FI-4 supply the fact, or replace the sentence with "The by-n values are observational; products did not receive their number of ratings by design (see Rating design)" plus a [FILL IN: FI-4] marker. Otherwise delete it, because line 235 already says that the by-n values are observational.
+- **n3. Reversals at n = 2 are not purely rater effects (line 215).** "These differences have consequences …" attributes the .067 reversals for two ratings to rater differences. With two or more ratings, the GRM score also depends on the *pattern* of ratings, not only their mean, so some reversals would occur even with identical raters. Line 211 already makes this point for the ranges. Add the same clause here. The n = 1 value (.042) is the clean rater-effect figure.
+- **n4. The range statistic is driven by the most extreme raters (abstract; lines 177, 211).** A range of GRM scores at equal raw mean is set by the two most extreme raters for that rating. These include the imprecisely estimated R18 and R19. Add a short qualifier in line 211, for example "as a range, it is set by the most extreme raters, some of whose parameters are imprecise". No new analysis is needed.
+- **n5. Abstract qualifiers (line 9).**
+  - "Likelihood-ratio tests rejected a shared category structure and equal discrimination" leaves out that BIC favoured equal discrimination and that the M1–M2 test is cross-package. Add "(BIC favoured equal discrimination)".
+  - Write "a shared rating-scale structure" (see N3-M1).
+  - The floor-rate range (.579 to .016) is unadjusted for which actions each rater saw. Either say "raw share" or let the GRM threshold result carry the claim.
+- **n6. Projection disclosure and placement (lines 201, 300).**
+  - Raters are drawn uniformly (`sample.int(J, k)`, `R/07_reliability_projection.R` line 39). Each of the five raters with 50–73 ratings, whose parameters are least precise, is as likely to be drawn as R01. Add "(each rater equally likely)" to the supplement text and the Discussion sentence. This is a disclosure, not a new analysis.
+  - The projection is described only in the supplement. One sentence in Methods, under Scores and reliability, pointing to it would make the Methods complete.
+  - Its values (.508, .688, .925) appear first in the Discussion. As a side note this is defensible, but APA convention puts results in Results. Either move the one sentence to the end of the by-n Results paragraph, or keep it and accept the convention break.
+- **n7. Misplaced sentence (line 171).** "The response styles have no per-rater uncertainty" ends the information paragraph. It belongs after the response-style paragraph (line 157), or only in the Limitations, where it already is (line 239).
+- **n8. RQ2 promises "severity" (line 60).** No severity measure or test is reported: thresholds are described as "threshold location", and severity on its own was not tested (107, 211). Reword RQ2 to "threshold location (severity), scale use, discrimination and information". Alternatively, resolve ATC-6 in favour of reading thresholds as severity, with the GRM caveat.
+- **n9. Unverified attributions not on the FI-17 list.**
+  - @primi2019 "left such rater-by-scale interactions to future research" (205);
+  - @myszkowski2021 on "central versus extreme responding" (205);
+  - the characterisation of @looney2004, @anderlucci2021 and @heiniger2021 (47);
+  - @wind2018 / @wind2019a "rater estimates … depend on the linking set" (207);
+  - @reise1990 on GRM parameter recovery (207).
+
+  Add these to FI-17.
+- **n10. Box item 3 overstates what a calibration set adds (line 226).** "So that raters are linked and their parameters comparable": the design was already connected, and all parameters lie on one scale (line 85). Write "more strongly linked and more precisely estimated", in line with the qualification at line 221.
+- **n11. Ambiguous model-fit sentence (line 139).** "Their comparison reduces to the log-likelihood (−11,733.227 vs. −11,756.510), a difference of 46.566 on all three criteria" can be read as a log-likelihood difference of 46.566. Write "… so the GRM is lower by 46.566 on AIC, BIC and SABIC alike".
+- **n12. Misplaced agreement sentence (line 217).** "These results agree with @primi2019 and @myszkowski2019 on the limits of averaging" sits in the model-choice paragraph, which is about MFRM/PCM/GPCM vs the GRM, not about averaging. Move it to the raw-mean paragraph (215).
 
 ---
 
@@ -247,104 +220,115 @@ Status categories:
 
 ### Numeric mismatches
 
-**None found.** I checked every number in the abstract, Methods, Results, Discussion and Conclusion against `03_findings.md`, allowing for the intended APA leading-zero formatting:
-- **Cleaning and design:** 9148 / 1290 / 0.0 R04 / 12 pairs, 13 rows / 7844 / 22; 7820 / 3668 / 19; 2.132, 2, 1–10, 1.726, .112, 17 of 171, 13; category counts 2029 / 2113 / 109.
-- **Fit:** the information criteria; 46.566; the LR statistics and df; S-X² *p* .294–.671; infit and outfit ranges; Q3 −.238, 137, 20, 10 / 9 / 1.
-- **Projection:** every quoted cell (.508, .688, .857, .925; .754, .947; .108, .884; .920, .701; .892; the "within .003" statement; .947 < .960); 50 replications, 2000 products, seed 20260713.
-- **Reliability:** .672 [.649, .687]; .960 [.953, .968]; the grid value .960; the three conventional indices with CIs, rater counts and product counts; 361 / 1000; the by-n values .520 / .698 / .810 / .919 and PSD 0.686 / 0.285; the rel~post~ distribution; *r* = .935; 320.
-- **Raters:** response styles; every GRM parameter quoted at 2 decimals; information values and intervals; θ at maximum; shares at θ = ±2.
-- **Models:** M3 discriminations; nine / nine unordered; M1 fit.
-- **Raw mean vs GRM:** every cell of `tbl-raw-mean-vs-grm` quoted.
-- **Score agreement:** `tbl-score-agreement`; ladder correlations .980–.993 / .983–.996; 1.000.
-- **Sensitivity:** all values.
-- **Discussion:** R17 1.45, R12 2.90.
+**None found.** Every number in the abstract, Methods, Results, Discussion, Conclusion and supplement text was checked against `03_findings.md`:
+- **Cleaning and design:** 9,148 / 1,290 / 0.0 (R04) / 12 pairs, 13 rows / 7,844 / 22; R20 13, R21 9, R22 2 (24); one product dropped; 7,820 / 3,668 / 19; 2.132, median 2, 1–10, 1.726; .112; 17 of 171; median overlap 13; unused categories (R01, R03, R06, R18: 7; R17: 6 and 7); 50–1,174 ratings per rater.
+- **Estimation:** 61 points, 0.0001, 165 iterations; 200 draws, 87 rejected.
+- **Fit:** −11,733.227 / −11,756.510 / 46.566 / 127 parameters; S-X² *p* .294–.671; infit 0.334–0.971, outfit 0.322–0.961 (R19, R18); Q3 −.238, 137, 20, ten shown, 9 negative, R10–R11 positive; C2 17 of 171; "about 90%" (notebook note `3b49bdab`).
+- **Reliability:** .672 [.649, .687]; .960 [.953, .968], grid .960; .928 [.891, .943] (14 raters, 1,900); .658 [.526, .756] (3, 139); .392 [.362, .417] (19, 2,771); 1,000 / 361; by n: .520 (897), .698 (2,080), .757 (357), .919 (3), monotone; PSD 0.686 → 0.285; rel~post~ median .698, IQR .173 (.596, .769), .057–.929; *r* = .935; 320.
+- **Raters:**
+  - Means 1.760–3.836; SD 1.022–1.953; floor .579 / .016; ceiling .080, five at .000; central .799 / .764 / .735 / .192; categories 2,029 / 2,113 / 109.
+  - b1 −6.56 (*SE* 3.05) to 0.29 (0.06); −3.38 (0.49); R02 −0.71 / 2.03; R13 −3.38 / 4.43; threshold counts.
+  - *a* 0.63 (0.26), 3.71 (2.22), 3.70 (1.36), 0.86 (0.15), 1.96 (0.16), 2.50 (0.33), 2.81 (0.42).
+  - Information 0.12 [0.01, 0.35], 3.54 [0.41, 11.02], 3.30 [0.73, 6.49], 0.24 [0.11, 0.42], 0.98 [0.72, 1.22], 1.70 [0.90, 2.56]; shares .005 [.000, .013], .135 [.017, .331]; θ max 2.700 / 2.400 / −0.550; shares at θ = ±2 (.001, .083, .221).
+- **Ladder:** χ²(84) = 737.457, χ²(18) = 121.958; AIC 23,767.020 / 23,852.978; BIC 24,529.585 / 24,555.360; M3 *a* 0.283 (0.055) – 2.606 (1.419); nine / nine unordered; M1 fit R17 1.328 / 1.190, R18 1.009 / 1.071, R12 0.238 / 0.255.
+- **Raw mean vs GRM:** all 12 cells of `tbl-raw-mean-vs-grm`.
+- **Score agreement:** .975 / .978 / .042 / .202; .985 / .983 / .033 / .150; .996 / .996 / .017 / .075; ladder .980–.993, .983–.996; 1.000.
+- **Sensitivity:** all values (.67199 / .67186; .95986 / .96186; .99997; .99996; 0.00171; 0.16246; .00491; .99880; 0.19820).
+- **Discussion:** R17 1.45, R12 2.90; projection .508, .688, .925; 50 replications, 2,000 products, seed 20260713.
 
-### Values no longer printed
+### Removed or unprinted values (Flag 13)
 
-**None quoted.** The following are all correctly absent:
-- the 3-decimal GRM parameters (3.709, −6.565);
-- the plain share 0.350 and its old comparison with 0.202;
-- the pooled maximum range 2.252;
-- AUDIT's "6 unused end categories";
-- REPORT's 0.7–1.3;
-- any target-k value derived from the projection.
-
-### Correct numbers, questionable use
-
-- **.754 and .108 (abstract, 162, 226).** These are single-rater point estimates (R19, R18) treated as known (N-C1).
-- **τb .796, .083 and .237 (abstract, 242).** These are pooled across n (N-M1).
-- **1.436 (abstract, 238).** This is a maximum over point estimates and is framed as severity (N-M5).
-- **0.86–2.81 (abstract).** This depends on the post hoc ≥400 grouping (N-m8).
+**None quoted.**
+- The most/least-informative values (.754, .947, .108, .884, .892, .920, .701) are absent.
+- So are true_r2, the pooled raw-mean values (.796, .083 pooled, .237, .350, .906, .932, .995, .814, 2.252), the subgroup correlations, percentile shifts and quintile shares (.104, .220, …), M3 "0.001", the "confounded" and "not comparable" notebook sentences, Tolerance "0.000", and the 3-decimal parameters and CI bounds.
+- The ".083" at line 171 is R06's share at θ = +2 (F2.3), not the removed pooled discordant share.
+- "Confounded" at lines 49 and 211 is attributed to @primi2019, not to the notebook.
+- No target-k value or between-scheme comparison appears.
 
 ### Citations
 
-- All 74 distinct citation keys resolve. Each is defined in exactly one of `phd_library.bib` or `web_references.bib`, with no duplicates across the two files.
+- **All cited keys resolve** in at least one bibliography file.
+- **Key conflicts** (kaufman2008/2008a swapped; wind2019a two different papers): see N3-M2.
 - **Still awaiting PDF verification (FI-17, marked):**
   - worldeconomicforum2025;
   - the framing claims for safardilha2019, memmert2011, batey2012 and barbot2019b;
-  - the ".70" claim (baer2004, kaufman2008, hennessey2011);
-  - kaufman2008a (five to ten raters);
+  - the ".70" claim;
+  - kaufman2008a;
+  - primi2019 / forthmann2023 on product-level precision;
+  - pellegrino2025 "retained a GRM";
   - the kempe2018 / zahno2023 / dejoode2023 characterisation.
-- **Unmarked, should be added to FI-17:**
-  - primi2019 and forthmann2023 as sources for model-based projection (line 46; N-m4);
-  - pellegrino2025 "retained a GRM" (lines 50, 240).
+- **Should be added to FI-17:** see n9.
 
 ### Interpretation in the Results
 
-The Results are now essentially descriptive and contain no ATC markers. The remaining evaluative sentences are methodological caveats rather than substantive interpretation, and I consider them acceptable:
-- line 156: "The informative value of these statistics is limited";
-- line 166: the projection qualifications;
-- line 172: "These values are observational";
-- line 212: "they show that the scores differ, not which score is more accurate".
+The Results are descriptive and carry no ATC markers. The remaining evaluative sentences are methodological caveats and are acceptable:
+- line 161: "spacing is partly the same fact as discrimination";
+- line 175: "supported by the LR test and AIC, but not by BIC";
+- line 187: "the scores differ, not which score is more accurate".
+
+**One exception:** line 149, "Products with different numbers of ratings were also rated by different raters". This is an unsupported factual claim about the design, not printed in the notebook (n2).
 
 ---
 
 ## 5. Marker check
 
-**Volume.** There are **76 visible markers: 46 [AUTHOR TO CONFIRM] and 30 [FILL IN]**, up from about 40. In addition, the hidden comment block lists FI-16, 18 and 19 and the optional analyst actions FI-11, 12 and 24–29.
-- The growth is mostly legitimate: Methods FILL INs are now itemised, and claims carry finer-grained ATCs.
-- Still, the Discussion has a marker after nearly every paragraph, and the callout box has one on every line.
-- Resolving them is a substantial task. Several ATCs repeat the same point (ATC-6 three times in lines 232; ATC-15 and ATC-22 on lines 242, 250 and 258) and can be resolved together.
+**Volume.** There are **58 visible markers: 31 [AUTHOR TO CONFIRM] and 27 [FILL IN]**, down from 76. The reduction is appropriate. The Discussion still has a marker after almost every paragraph, but each now corresponds to a distinct claim.
 
-**Present and appropriate.**
-- All Methods gaps.
-- The FI-17 verification items.
-- The departure from the CAT rules (ATC-19).
-- The cumulative-link rationale (ATC-8).
-- The literature-search caveat (ATC-2).
-- Every interpretive Discussion paragraph.
-- Both notebook-derived mechanism sentences (ATC-21, ATC-25). Their wording still needs fixing (N-M3).
-- The "did not change" alternative (ATC-26).
+**Present and appropriate:**
+- all Methods gaps;
+- the FI-17 verification items;
+- the novelty claims, ATC-2 in the abstract and the Introduction;
+- the departure from the CAT rules (ATC-19);
+- the cumulative-link rationale (ATC-8);
+- "did not change" (ATC-26);
+- each interpretive Discussion paragraph;
+- the projection side note (ATC-5);
+- the box (ATC-23).
 
-**Over-claims without a marker, or under a marker that does not fit the claim.**
+**Over-claims without a marker, or under a marker that does not fit the claim:**
 
 | Location | Claim | Problem |
 |---|---|---|
-| 9 (abstract) | "it is unknown how many ratings …"; "increasingly applied" | Novelty claim not covered by ATC-2 (N-m5) |
-| 9, 226, 255 | ".754" / "who rates matters as much as how many" | Marked (ATC-24), but the evidence is a selection artefact (N-C1). A marker does not cure this. |
-| 46 | Projection is supported by primi2019 and forthmann2023 | Citation not verified, no marker (N-m4) |
-| 100 | "higher thresholds indicate a stricter rater" | Unqualified severity reading of b_k (M4 residual). The ATC-6 at the paragraph end covers the spacing point only. |
-| 220 | "non-trivial share" | No marker (N-m6) |
-| 242 | "These differences have consequences …" followed by pooled values | Marked (ATC-22), but the attribution to rater differences is not supported for the pooled values (N-M1) |
-| 248 | A calibration set "would … stabilise the discriminations of raters with few ratings" | Only if those raters rate the set and the set is large. Marked ATC-14, but needs that qualification. |
+| 9, 228, 249 | "model rater differences rather than average them" | Marked (ATC-15), but line 217 concedes that the evidence for accuracy is absent. A marker does not cure this: re-ground or soften it (C-M1). |
+| 51, 61, 213 | The MFRM assumes a shared category structure | Marked only at 213 (ATC-7/9), and conceptually inaccurate (N3-M1). |
+| 149 | Products with different n were rated by different raters | No marker, no support (n2). |
+| 205 | Attributions to primi2019 and myszkowski2021 | No FI-17 marker (n9). |
+| 207 | R18 "widest information intervals" | Factually wrong for R18; ATC-12 covers only the ranking point (n1). |
+| 215 | "These differences have consequences" (n = 2 reversals) | Marked (ATC-22), but needs the rating-pattern qualifier (n3). |
+| 9 | LR tests "rejected … equal discrimination" | No marker, and the BIC disagreement is omitted (n5). |
+| 226 | "so that raters are linked and their parameters comparable" | Covered only by the box-wide ATC-23; overstated (n10). |
 
-**Missing [FILL IN] items to consider.**
-- The identities of the raters in the projection's rater sets (N-C1).
-- k-for-target values (N-M2).
-- The rater composition by number of ratings, to support the confounding claim (N-M3).
-- The definition of a "computable" Q3 pair (m6).
+**Missing [FILL IN] items to consider:**
+- the definition of a "computable" Q3 pair (m6);
+- the rater composition by number of ratings, if the line-149 claim is kept (n2, FI-4).
 
 ---
 
-## 6. Top 5 remaining points
+## 6. Optional extensions (not counted as issues)
 
-1. **Fix the projection's rater sets (N-C1, N-M2).** Restrict "most" and "least informative" to raters with stable parameters, or propagate the 200 parameter draws. Add a workload-weighted random scheme, list the raters in each set, and have the notebook print the k needed for .70, .80 and .90. Then rewrite the abstract's ".754" sentence, line 226 ("who rates matters as much as how many") and callout item 1.
-2. **Headline the within-n raw-mean statistics (N-M1, N-M5).** Replace the pooled τb .796, .083 and .237 in the abstract and line 242 with the 1- and 2-rating values. Describe the 1.436 spread as reflecting severity and discrimination, report it alongside the mean range, and do not present it as the "clearest case" of severity.
-3. **Complete the Methods FILL INs (C2, M7, M8; author).** Above all, cover allocation (FI-4) and the rater pool (FI-21). These also decide whether the projection's "this rater pool" framing and the MAR assumption hold.
-4. **Remove the pipeline residue and settle the data status (N-M3, N-M4, N-m9).** Rewrite the two "analysis notebook" sentences as the authors' own claims, supported by data where possible. Delete "will be refreshed when more ratings have been collected", and either submit after the data update or treat the current data as final.
-5. **Close the analyst actions that a psychometric reviewer will ask for (M1, M2, M3, M5, M12).** In priority order:
-   - the severity test M0 vs M1 (FI-24);
-   - the held-out predictive check (FI-26), which would turn "the scores differ" into "the scores are better or worse";
-   - the same-package M1–M2 LR test (FI-25);
-   - the draw diagnostics (FI-28);
-   - the FI-18 display fixes, which would otherwise cause a desk return.
+The author has deliberately excluded these. They are listed once for completeness, and several are already named as future work at line 245:
+- a severity test (model without rater effects vs M1);
+- an M1–M2 LR test within one package;
+- a held-out predictive check of model-based against raw-mean scores;
+- the projection over parameter draws, with workload-weighted or selected rater sets;
+- k for a target reliability (.70 / .80 / .90);
+- diagnostics of the rejected parameter draws;
+- a sensitivity refit with a non-normal latent distribution;
+- equal-raw-mean ranges without the five raters with fewer than 75 ratings;
+- the rater composition of products by number of ratings.
+
+---
+
+## 7. Top 5 remaining points
+
+1. **Re-ground or soften the "model rather than average" recommendation** (C-M1; abstract line 9, box item 5 line 228, Conclusion line 249). Base it on the observed rater differences plus the known confounding of raw means in incomplete designs (@primi2019), or word it as "consider". Do not imply that the GRM scores were shown to be more accurate (line 217).
+2. **Correct the MFRM framing** (N3-M1; lines 51, 61, 101, 213, 249). A shared category structure is a property of the rating-scale MFRM (M1), and M2 is the partial-credit MFRM. The case against the Rasch family rests on equal discrimination, where BIC disagrees. Also add the BIC qualifier to the abstract (n5).
+3. **Fix the bibliography conflicts** (N3-M2). kaufman2008/kaufman2008a are swapped, and wind2019a points to different papers in the two .bib files. Deduplicate to a single source of truth, realign the keys, re-render and check the reference list.
+4. **Complete the Methods FILL INs and the FI-17 verifications** (C2, M7, M8, n9; author). Above all, cover allocation (FI-4) and the rater pool (FI-21). FI-4 also decides whether the line-149 claim (n2) stays.
+5. **Apply the small accuracy fixes:**
+   - R18's interval claim (n1, line 207);
+   - the n = 2 reversal qualifier (n3, line 215);
+   - the range qualifier (n4, line 211);
+   - "each rater equally likely" in the projection note (n6);
+   - resolve ATC-26 "did not change the scores" (m4, line 91);
+   - define or rephrase Q3 "computable" pairs (m6, lines 111 and 139).
