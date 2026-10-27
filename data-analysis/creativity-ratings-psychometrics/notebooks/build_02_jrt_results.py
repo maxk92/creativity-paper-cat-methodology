@@ -66,7 +66,8 @@ def tidy(df, digits=3):
 # Readable column headers for the manuscript tables (display only; the CSVs keep
 # the code names). Unlisted names: underscores become spaces.
 HEADERS = {
-    "rater_id": "Rater", "n_ratings": "Ratings (n)", "n_products": "Products", "n_raters": "Raters",
+    "rater_id": "Rater", "n_ratings": "Ratings by rater", "ratings_per_product": "Ratings per product",
+    "ratings_total": "Ratings (total)", "n_products": "Products", "n_raters": "Raters",
     "reason": "Reason", "quantity": "Quantity", "value": "Value", "estimate": "Estimate", "se": "SE",
     "ci_low": "95% CI lower", "ci_high": "95% CI upper", "note": "Note", "model": "Model",
     "n_categories_used": "Categories used", "missing_categories": "Missing categories",
@@ -108,7 +109,7 @@ for _k in range(1, 8):
     HEADERS[f"cat_{_k}"] = f"Category {_k}"
 
 # Readable values for code names in table cells (display only).
-VALUES = {"M1_RSM": "M1 (RSM/MFRM)", "M2_PCM": "M2 (PCM)", "M3_GPCM": "M3 (GPCM)", "GRM": "GRM",
+VALUES = {"M1_RSM": "M1 (rating-scale MFRM)", "M2_PCM": "M2 (partial-credit MFRM)", "M3_GPCM": "M3 (GPCM)", "GRM": "GRM",
           "rm_facets_default_grid": "M1, sirt default grid", "pearson": "Pearson", "spearman": "Spearman"}
 
 def pretty_values(df):
@@ -179,7 +180,7 @@ tbl("tbl-category-usage", "Category use per rater (counts of ratings 1-7). Unuse
 md("## 2. Graded response model (central model)")
 note('**Central model.** Judge response theory treats raters as items and products as persons (Myszkowski & Storme, 2019). It is fitted here as a graded response model (Samejima, 1969) by marginal maximum likelihood in `mirt` (Chalmers, 2012). The table shows whether estimation converged and gives the information criteria.')
 tbl("tbl-grm-convergence", "Estimation and convergence of the graded response model (marginal maximum likelihood, EM algorithm, fixed quadrature).",
-    'show_table("grm/convergence.csv", lambda d: d.assign(tol=[power_of_ten(x) for x in d["tol"]])[["method", "quadpts", "se_type", "tol", "converged", "iterations", "information_matrix_pd", "logLik", "npar", "AIC", "BIC", "SABIC", "n_products", "n_ratings"]])')
+    'show_table("grm/convergence.csv", lambda d: d.assign(tol=[power_of_ten(x) for x in d["tol"]])[["method", "quadpts", "se_type", "tol", "converged", "iterations", "information_matrix_pd", "logLik", "npar", "AIC", "BIC", "SABIC", "n_products", "n_ratings"]].rename(columns={"n_ratings": "ratings_total"}))')
 note("**Rater parameters.** a is the rater's discrimination: how sharply the ratings separate products of different creativity. b_k is the θ at which a rating above category k becomes more likely than a rating of k or below; higher b means a stricter rater. No rater has an internal category gap, so b_k always separates categories k and k + 1; raters who never used the top categories have no estimate for the highest thresholds.")
 tbl("tbl-grm-rater-parameters", "Rater parameters of the graded response model in IRT metric: discrimination a and thresholds b1 to b6 (bk separates rating categories k and k + 1), each as estimate (standard error). A dash marks a threshold above the highest category a rater used.",
     'show_table("grm/rater_parameters.csv", lambda d: est_se(d, ["a"] + [f"b{k}" for k in range(1, 7) if f"b{k}" in d])[["rater_id", "n_ratings", "a"] + [f"b{k}" for k in range(1, 7) if f"b{k}" in d]])')
@@ -189,7 +190,7 @@ fig("fig-grm-category-response-functions", "Category response functions of the g
 note('**Rater fit.** Infit and outfit are mean squares of the standardised residuals, with an expected value of 1 (Wright & Masters, 1982). With about 2 ratings per product, values below 1 are expected, because the score is estimated from the very ratings being checked. S-X² (Orlando & Thissen, 2000; Kang & Chen, 2008) needs complete data, so the missing ratings are imputed 20 times from the fitted model and S-X² is averaged. About 90% of the cells are imputed, which makes the test conservative. No misfit cut-offs for infit and outfit are applied in this notebook.')
 tbl("tbl-grm-rater-fit", "Rater fit in the graded response model: infit and outfit mean squares (observed ratings) and S-X² pooled over multiple imputations of the missing ratings.",
     'show_table("grm/rater_fit.csv", lambda d: d[["rater_id", "n_ratings", "infit", "outfit", "S_X2", "df_S_X2", "p_S_X2", "n_imputations"]])')
-note("**Local dependence.** Yen's (1984) Q3 is the correlation between two raters' residuals over the products both rated. With few raters per product, Q3 is biased negatively (Christensen et al., 2017), so the table ranks pairs by their deviation from the mean Q3 over all computable pairs (printed below the table). Flagged marks pairs with at least 30 jointly rated products whose Q3 deviates from the mean Q3 by more than 0.2.")
+note("**Local dependence.** Yen's (1984) Q3 is the correlation between two raters' residuals over the products both rated. It is computed for rater pairs with at least 3 jointly rated products (and residual variance in both raters); other pairs are not computable. With few raters per product, Q3 is biased negatively (Christensen et al., 2017), so the table ranks pairs by their deviation from the mean Q3 over all computable pairs (printed below the table). Flagged marks pairs with at least 30 jointly rated products whose Q3 deviates from the mean Q3 by more than 0.2.")
 tbl("tbl-grm-q3-flagged", "Rater pairs with the largest local dependence (Q3 minus mean Q3) among pairs with at least 30 jointly rated products.",
     'show_table("grm/q3.csv", lambda d: d[d["n_common"] >= 30].assign(_a=lambda x: x["q3_minus_mean"].abs()).sort_values("_a", ascending=False).drop(columns="_a").head(10))')
 code('''_q3 = read_res("grm/q3.csv")
@@ -209,11 +210,11 @@ note("**Information shares.** Each rater's share of the total information of all
 fig("fig-grm-information-shares", "Share of each rater in the information of the full panel across the latent continuum.",
     'show_png("grm/figures/grm_rater_information_shares.png")')
 note("**Information summary.** For each rater: information averaged over the N(0, 1) distribution of θ, where it peaks, and the rater's share of the full-panel information.")
-tbl("tbl-grm-information-summary", "Rater information summary: information integrated over N(0, 1), location and height of the maximum, and share of the full-panel information (weighted over N(0, 1) and at selected values of θ). Ratings (n) is the number of ratings the rater gave.",
+tbl("tbl-grm-information-summary", "Rater information summary: information integrated over N(0, 1), location and height of the maximum, and share of the full-panel information (weighted over N(0, 1) and at selected values of θ).",
     'show_table("grm/rater_information_summary.csv")')
 note('**Full panel.** Information and conditional reliability I/(I+1) if every rater rated a product. This is a hypothetical upper bound, not the precision of the actual scores.')
 note("**Uncertainty of rater information.** 95% intervals for each rater's average information and share, from the same parameter draws. Wide intervals mean that a rater's informativeness is not yet well determined, typically for raters with few ratings.")
-tbl("tbl-grm-rater-information-ci", "Average information per rating (information integrated over θ ~ N(0, 1)) and share of the full-panel information for each rater, with 95% intervals from 200 accepted parameter draws. Ratings (n) is the number of ratings the rater gave.",
+tbl("tbl-grm-rater-information-ci", "Average information per rating (information integrated over θ ~ N(0, 1)) and share of the full-panel information for each rater, with 95% intervals from 200 accepted parameter draws.",
     'show_table("grm/rater_information_ci.csv", lambda d: pd.DataFrame({"rater_id": d["rater_id"], "n_ratings": d["n_ratings"], "Information per rating [95% interval]": est_ci(d, "info_weighted_area", "info_ci_low", "info_ci_high"), "Share of panel information [95% interval]": est_ci(d, "share_weighted", "share_ci_low", "share_ci_high", digits=3)}))')
 fig("fig-grm-panel-information", "Information and conditional reliability I/(I+1) of the full panel. The curve is hypothetical: it applies to a product rated by all raters.",
     'show_png("grm/figures/grm_panel_information_reliability.png")')
@@ -225,7 +226,7 @@ note("**Uncertainty of the marginal reliabilities.** 95% intervals from 200 draw
 tbl("tbl-grm-reliability-ci", "Empirical and model-based marginal reliability of the GRM with 95% intervals from accepted parameter draws; draws that did not give a valid GRM were rejected and replaced.",
     'show_table("grm/reliability_ci.csv", lambda d: d[["quantity", "estimate", "ci_low", "ci_high", "n_draws", "n_draws_rejected"]])')
 tbl("tbl-grm-reliability-by-n", "Product-level reliability and posterior SD by number of ratings per product.",
-    'show_table("grm/reliability_by_n_ratings.csv")')
+    'show_table("grm/reliability_by_n_ratings.csv", lambda d: d.rename(columns={"n_ratings": "ratings_per_product"}))')
 note('Distribution of product-level reliability across products.')
 fig("fig-grm-rel-post-histogram", "Distribution of the product-level reliability (1 − PSD²) across all products.",
     'show_png("grm/figures/grm_rel_post_histogram.png")')
@@ -263,7 +264,7 @@ tbl("tbl-score-agreement", "Change of the product ranking relative to the GRM: c
     'show_table("comparison/score_agreement.csv", lambda d: d.drop(columns=["reference"]))')
 note("**Raw mean versus GRM score.** Common practice scores a product by the unweighted mean of its ratings, which treats all raters as interchangeable. The table compares this raw mean with the GRM score, separately for products with 1, 2 and 3 or more ratings. The raw mean is tied for almost all products (with one rating it takes only 7 values), so agreement is given as Kendall's τ-b and as the share of product pairs with different raw means that the GRM orders the other way round. The last two columns show how far apart the GRM scores of products with the same raw mean lie: products with the same raw mean get different GRM scores when they were rated by raters of different severity or discrimination.")
 tbl("tbl-raw-mean-vs-grm", "Raw mean rating versus GRM score by number of ratings per product: Kendall's tau-b, share of product pairs in reversed order, and range of GRM scores among products with the same raw mean.",
-    'show_table("grm/raw_mean_vs_grm.csv")')
+    'show_table("grm/raw_mean_vs_grm.csv", lambda d: d.rename(columns={"n_ratings": "ratings_per_product"}))')
 note("The same comparison as a figure. Each point is a product; the vertical spread at a given raw mean shows the products whose GRM scores differ although their raw means are equal.")
 fig("fig-raw-mean-vs-theta", "GRM score (EAP) against the raw mean rating of each product, by number of ratings per product. Points are jittered horizontally.",
     'show_png("grm/figures/grm_raw_mean_vs_theta.png", width=9)')
