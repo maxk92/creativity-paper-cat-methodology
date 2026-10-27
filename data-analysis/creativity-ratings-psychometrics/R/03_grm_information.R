@@ -93,11 +93,11 @@ marginal_grid <- sum(w_norm * rel_from_info(panel_info)) / sum(w_norm)
 
 p_panel <- panel %>%
   pivot_longer(c(info, rel), names_to = "quantity") %>%
-  mutate(quantity = recode(quantity, info = "Information I(theta)",
-                           rel = "Reliability I/(I+1)")) %>%
+  mutate(quantity = recode(quantity, info = "Information~italic(I)(theta)",
+                           rel = "Reliability~italic(I)/(italic(I)+1)")) %>%
   ggplot(aes(theta, value)) + geom_line() +
-  facet_wrap(~ quantity, scales = "free_y") +
-  labs(x = expression(theta), y = NULL,
+  facet_wrap(~ quantity, scales = "free_y", labeller = label_parsed) +
+  labs(x = expression(theta), y = "Value",
        title = "Full-panel information and conditional reliability (hypothetical: all raters)") +
   theme_minimal(base_size = 10)
 save_fig(p_panel, "grm_panel_information_reliability", width = 9, height = 4)
@@ -284,8 +284,9 @@ save_fig(p_n, "grm_rel_post_by_n_ratings", width = 7, height = 4)
 p_theta <- ggplot(product_scores, aes(theta_eap, rel_post, colour = factor(pmin(n_ratings, 5)))) +
   geom_point(size = 0.6, alpha = 0.5) +
   scale_colour_viridis_d(labels = c("1", "2", "3", "4", "5+"), end = 0.9) +
-  labs(x = expression(hat(theta)[EAP]), y = expression(rel[post]), colour = "Ratings",
+  labs(x = expression(hat(theta)[EAP]), y = expression(rel[post]), colour = "Ratings per product",
        title = "Product-level reliability by EAP estimate") +
+  guides(colour = guide_legend(override.aes = list(size = 2.5, alpha = 1))) +
   theme_minimal(base_size = 10)
 save_fig(p_theta, "grm_rel_post_by_theta", width = 7, height = 4)
 

@@ -34,7 +34,10 @@ rel_ci_of <- function(q) {
   if (nrow(r) == 0) "" else ci_txt(r$ci_low, r$ci_high, sprintf("%d parameter draws", r$n_draws))
 }
 cron_ci_of <- function(i) if (!"ci_low" %in% names(cron) || nrow(cron) < i) "" else
-  ci_txt(cron$ci_low[i], cron$ci_high[i], sprintf("bootstrap, %d replications", cron$n_boot[i]))
+  ci_txt(cron$ci_low[i], cron$ci_high[i],
+         if (cron$n_boot_failed[i] > 0)
+           sprintf("bootstrap, %d of %d replications computable, approximate", cron$n_boot[i] - cron$n_boot_failed[i], cron$n_boot[i])
+         else sprintf("bootstrap, %d replications", cron$n_boot[i]))
 
 # --- overview table --------------------------------------------------------------------
 marg_of <- function(m) {
