@@ -1,5 +1,5 @@
 Stage: 07_reliability_projection 
-Timestamp: 2026-10-26 09:47:52 
+Timestamp: 2026-10-27 10:03:39 
 Seed: 20260713 
 Smoke run: FALSE 
 
@@ -53,7 +53,7 @@ loaded via a namespace (and not attached):
 [58] bit_4.6.0             otel_0.2.0            gridExtra_2.3.1      
 [61] progressr_0.19.0      ragg_1.5.2            R.methodsS3_1.8.2    
 [64] hms_1.1.4             stringfish_0.19.0     pbapply_1.7-4        
-[67] testthat_3.3.2        viridisLite_0.4.3     mgcv_1.9-4           
-[70] rlang_1.2.0           Rcpp_1.1.1-1.1        nanonext_1.10.1      
-[73] glue_1.8.1            svglite_2.2.2         vroom_1.7.1          
-[76] R6_2.6.1              systemfonts_1.3.2    
+[67] testthat_3.3.2        mgcv_1.9-4            rlang_1.2.0          
+[70] Rcpp_1.1.1-1.1        nanonext_1.10.1       glue_1.8.1           
+[73] svglite_2.2.2         vroom_1.7.1           R6_2.6.1             
+[76] systemfonts_1.3.2    

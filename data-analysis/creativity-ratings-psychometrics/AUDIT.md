@@ -371,3 +371,16 @@ Krippendorff bootstrap), `02` 50 s, `04` 42 s, and the other steps a few seconds
   `tbl-grm-reliability-projection`, `fig-grm-reliability-projection`.
 - Rater parameter table in the notebook as "estimate (SE)"; the redundant
   `category_boundaries` column is dropped (its `|` broke the Markdown table).
+
+### Simplification 2026-10-27 (author priority: empirical findings, simple analysis)
+
+- The paper sticks to the empirical numbers of the actual study. Projections are a side note only.
+- `R/07_reliability_projection.R` reduced to one scheme: k randomly drawn raters of the actual
+  panel. The most/least-informative rater sets were removed: they rest on the least precisely
+  estimated raters (R19, R16, R18 have 50–55 ratings) and add design choices.
+- `raw_mean_vs_grm.csv` reduced to one row per number of ratings (1, 2, 3+; no pooled row, which
+  mixed rater effects with shrinkage) and four columns: Kendall's τ-b, share of pairs in reversed
+  order, mean and maximum range of θ̂ at equal raw mean. The quintile measures were dropped.
+- Not done on purpose (see `ANALYSIS_TODO.md`, "Possible extensions"): severity test M0 vs M1,
+  same-package LR test, held-out check, projection over parameter draws, k for target reliability.
+- Notebook 02: readable column headers (display only), compact interval columns.

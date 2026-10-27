@@ -123,44 +123,30 @@ save_csv(product_scores, DIR_GRM, "product_scores")
 
 # --- raw rater mean vs GRM score -------------------------------------------------------------
 # What changes when rater differences are modelled: the unweighted mean of a
-# product's ratings (common practice) against its GRM EAP score, overall and by
-# number of ratings. The same raw mean can map to different GRM scores, depending
-# on the severity and discrimination of the raters who gave it.
+# product's ratings (common practice) against its GRM EAP score, separately for
+# products with 1, 2 and 3+ ratings (pooling them would mix rater effects with
+# the shrinkage that depends on the number of ratings). The raw mean is tied for
+# almost all products, so agreement is measured by Kendall's tau-b and the share
+# of product pairs with different raw means that the GRM orders the other way
+# round. The same raw mean can map to different GRM scores, depending on the
+# severity and discrimination of the raters who gave it: range of theta_hat
+# among products with the same raw mean.
 raw_mean <- rowMeans(wide, na.rm = TRUE) + SCALE_MIN  # back to the 1-7 scale
 n_group <- function(n) ifelse(n >= 3, "3+", as.character(n))
-# The raw mean has many ties (a product with one rating has one of 7 values);
-# tied products share one percentile rank, which the continuous GRM score cannot
-# match, so the plain quintile comparison of rank_change() overstates the
-# disagreement. Tie-aware columns: quintile change after ordering raw-mean ties
-# by the GRM score (the smallest change any tie-breaking can give), the share of
-# product pairs with different raw means that the GRM orders the other way
-# round, and Kendall's tau-b.
 raw_vs_grm_stats <- function(x, ref) {
-  x_resolved <- order(order(x, ref))  # ranks: raw mean first, GRM score breaks ties
   dx <- sign(outer(x, x, "-"))
   dr <- sign(outer(ref, ref, "-"))
   untied <- upper.tri(dx) & dx != 0
-  rank_change(x, ref) %>%
-    mutate(share_products_changing_quintile_ties_resolved = mean(quintile(x_resolved) != quintile(ref)),
-           share_discordant_pairs = mean(dx[untied] != dr[untied]),
-           kendall_tau_b = cor(x, ref, method = "kendall"),
-           share_products_with_tied_raw_mean = mean(duplicated(x) | duplicated(x, fromLast = TRUE)))
+  ranges <- tapply(ref, x, function(t) if (length(t) >= 2) diff(range(t)) else NA_real_)
+  tibble(kendall_tau_b = cor(x, ref, method = "kendall"),
+         share_discordant_pairs = mean(dx[untied] != dr[untied]),
+         mean_theta_range_same_raw_mean = mean(ranges, na.rm = TRUE),
+         max_theta_range_same_raw_mean = max(ranges, na.rm = TRUE))
 }
-raw_vs_grm <- bind_rows(
-  raw_vs_grm_stats(raw_mean, theta_hat) %>% mutate(n_ratings = "all", n_products = length(theta_hat), .before = 1),
-  bind_rows(lapply(c("1", "2", "3+"), function(g) {
-    i <- n_group(product_scores$n_ratings) == g
-    raw_vs_grm_stats(raw_mean[i], theta_hat[i]) %>% mutate(n_ratings = g, n_products = sum(i), .before = 1)
-  }))
-) %>%
-  left_join(
-    tibble(n_ratings = c(rep("all", length(theta_hat)), n_group(product_scores$n_ratings)),
-           theta = c(theta_hat, theta_hat), raw = c(raw_mean, raw_mean)) %>%
-      group_by(n_ratings, raw) %>% filter(n() >= 2) %>%
-      summarise(theta_range = diff(range(theta)), .groups = "drop_last") %>%
-      summarise(mean_theta_range_same_raw_mean = mean(theta_range),
-                max_theta_range_same_raw_mean = max(theta_range), .groups = "drop"),
-    by = "n_ratings")
+raw_vs_grm <- bind_rows(lapply(c("1", "2", "3+"), function(g) {
+  i <- n_group(product_scores$n_ratings) == g
+  raw_vs_grm_stats(raw_mean[i], theta_hat[i]) %>% mutate(n_ratings = g, n_products = sum(i), .before = 1)
+}))
 save_csv(raw_vs_grm, DIR_GRM, "raw_mean_vs_grm")
 
 p_raw <- tibble(raw = raw_mean, theta = theta_hat,
