@@ -22,6 +22,9 @@ format:
         \sethlcolor{yellow}
 filters:
   - mark-highlight.lua
+  - quarto  # cross-references are resolved before citeproc runs
+  - narrative-and.lua  # runs citeproc itself, then "and" in narrative citations (APA)
+citeproc: false
 bibliography:
   - /home/max/drive/phd_library.bib
 csl: /home/max/drive/utils/csl/apa-7th-edition.csl
