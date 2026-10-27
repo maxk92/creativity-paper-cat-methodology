@@ -13,7 +13,7 @@ All 18 keys now resolve. Citekeys are exactly as in the brief.
 
 | Citekey | Reference (verified) | Identifier | Remarks |
 |---|---|---|---|
-| kaufman2008 | Kaufman, Baer, Cole & Sexton (2008). A comparison of expert and nonexpert raters using the CAT. *CRJ*, 20(2), 171–178 | doi:10.1080/10400410802059929 | — |
+| kaufman2008a | Kaufman, Baer, Cole & Sexton (2008). A comparison of expert and nonexpert raters using the CAT. *CRJ*, 20(2), 171–178 | doi:10.1080/10400410802059929 | — |
 | baer2004 | Baer, Kaufman & Gentile (2004). Extension of the CAT to nonparallel creative products. *CRJ*, 16(1), 113–117 | doi:10.1207/s15326934crj1601_11 | — |
 | hennessey2011 | Hennessey, Amabile & Mueller (2011). Consensual assessment. In Runco & Pritzker (Eds.), *Encyclopedia of Creativity* (2nd ed., pp. 253–260). Academic Press | doi:10.1016/B978-0-12-375038-9.00046-7 | Editors and edition come from the vault; Crossref confirms the rest |
 | long2015 | Long & Pang (2015). Rater effects in creativity assessment: A mixed methods investigation. *Thinking Skills and Creativity*, 15, 13–25 | doi:10.1016/j.tsc.2014.10.004 | — |
@@ -21,18 +21,18 @@ All 18 keys now resolve. Citekeys are exactly as in the brief.
 | eckes2015 | Eckes (2015). *Introduction to many-facet Rasch measurement* (2nd ed.). Peter Lang | ISBN 978-3-631-65615-0; doi:10.3726/978-3-653-04844-5 | The Crossref record for this DOI shows 2011 (first-edition date). The publisher page shows 2nd ed., © 2015 |
 | samejima1969 | Samejima (1969). Estimation of latent ability using a response pattern of graded scores. *Psychometrika*, 34(S1), 1–97 | doi:10.1007/BF03372160 | — |
 | muraki1992 | Muraki (1992). A generalized partial credit model: Application of an EM algorithm. *APM*, 16(2), 159–176 | doi:10.1177/014662169201600206 | **Title includes a subtitle** that the vault omitted |
-| deayala2022 | de Ayala (2022). *The theory and practice of item response theory* (2nd ed.). Guilford | ISBN 978-1-4625-4775-3 | No DOI |
+| ayala2022 | de Ayala (2022). *The theory and practice of item response theory* (2nd ed.). Guilford | ISBN 978-1-4625-4775-3 | No DOI |
 | bond2020 | Bond, Yan & Heene (2020). *Applying the Rasch model* (4th ed.). Routledge | doi:10.4324/9780429030499 | — |
 | andrich1978 | Andrich (1978). A rating formulation for ordered response categories. *Psychometrika*, 43(4), 561–573 | doi:10.1007/BF02293814 | — |
 | masters1982 | Masters (1982). A Rasch model for partial credit scoring. *Psychometrika*, 47(2), 149–174 | doi:10.1007/BF02296272 | — |
 | rasch1960 | Rasch (1960). *Probabilistic models for some intelligence and attainment tests*. Danmarks Pædagogiske Institut | OCLC 247512453 (no DOI/ISBN) | Expanded edition 1980, University of Chicago Press |
 | lord1980 | Lord (1980). *Applications of item response theory to practical testing problems*. Erlbaum | ISBN 0-89859-006-X; doi:10.4324/9780203056615 | The DOI belongs to the 2012 Routledge reissue |
-| worldeconomicforum2025 | World Economic Forum (2025, January). *The Future of Jobs Report 2025*. WEF | URL only | **Partly verified.** The report and its 7 Jan 2025 date are confirmed. The WEF pages returned 403 and the PDF was too large to fetch, so no ISBN was found. A search summary of the WEF skills-outlook page ranks creative thinking 4th among core skills and expected to grow in importance; **the author should check this wording against the PDF** |
+| wef2025 | World Economic Forum (2025, January). *The Future of Jobs Report 2025*. WEF | URL only | **Partly verified.** The report and its 7 Jan 2025 date are confirmed. The WEF pages returned 403 and the PDF was too large to fetch, so no ISBN was found. A search summary of the WEF skills-outlook page ranks creative thinking 4th among core skills and expected to grow in importance; **the author should check this wording against the PDF** |
 | oecd2024 | OECD (2024). *PISA 2022 Results (Volume III): Creative Minds, Creative Schools*. OECD Publishing | doi:10.1787/765ee8c2-en; ISBN 978-92-64-88953-8 | First PISA cycle to assess creative thinking |
 | amabile1985 | Amabile (1985). Motivation and creativity: Effects of motivational orientation on creative writers. *JPSP*, 48(2), 393–399 | doi:10.1037/0022-3514.48.2.393 | — |
 | engelhard1994 | Engelhard (1994). Examining rater errors in the assessment of written composition with a many-faceted Rasch model. *JEM*, 31(2), 93–112 | doi:10.1111/j.1745-3984.1994.tb00436.x | — |
 
-**Keys not fully verifiable:** none are missing. Two are only partly verified: **linacre1989** (MESA Press imprint not confirmed; dissertation confirmed) and **worldeconomicforum2025** (no DOI/ISBN; the creative-thinking claim was not checked against the primary text).
+**Keys not fully verifiable:** none are missing. Two are only partly verified: **linacre1989** (MESA Press imprint not confirmed; dissertation confirmed) and **wef2025** (no DOI/ISBN; the creative-thinking claim was not checked against the primary text).
 
 ## B. Methods citekeys from the dossier
 
@@ -40,7 +40,7 @@ Vault keys are kept. Where the key's year differs from the issue year, it is mar
 
 | Citekey | Reference (verified) | DOI | Suggested section |
 |---|---|---|---|
-| forthmann2023 ⚠ | Forthmann, Goecke & Beaty. Planning missing data designs for human ratings in creativity research. *CRJ*, **2025**, 37(1), 167–178 (online 2023) | 10.1080/10400419.2023.2250976 | Methods (design), Discussion (panel size) |
+| forthmann2025 ⚠ | Forthmann, Goecke & Beaty. Planning missing data designs for human ratings in creativity research. *CRJ*, **2025**, 37(1), 167–178 (online 2023) | 10.1080/10400419.2023.2250976 | Methods (design), Discussion (panel size) |
 | pellegrino2025 | Pellegrino, Saretzki & Benedek (2025). Controlling rater effects in DT assessment: an IRT approach. *J. Intelligence*, 13(6), 69 | 10.3390/jintelligence13060069 | Introduction (JRT applications), Discussion |
 | barbot2023 | Barbot, Kaufman & Myszkowski (2023). Creativity with 6 degrees of freedom. *CRJ*, 35(4), 783–800 | 10.1080/10400419.2023.2193040 | Introduction (JRT applications) |
 | chalmers2012 | Chalmers (2012). mirt. *JSS*, 48(6) | 10.18637/jss.v048.i06 | Methods (software) |
@@ -48,13 +48,13 @@ Vault keys are kept. Where the key's year differs from the issue year, it is mar
 | uto2020 | Uto & Ueno (2020). A generalized many-facet Rasch model … HMC. *Behaviormetrika*, 47(2), 469–496 | 10.1007/s41237-020-00115-7 | Discussion (extensions) |
 | kaufman2009 | Kaufman, Baer & Cole (2009). Expertise, domains, and the CAT. *JCB*, 43(4), 223–233 | 10.1002/j.2162-6057.2009.tb01316.x | Introduction/Discussion (expertise) |
 | kaufman2012a | Kaufman & Baer (2012). Beyond new and appropriate: Who decides what is creative? *CRJ*, 24(1), 83–91 | 10.1080/10400419.2012.649237 | Discussion (expertise) |
-| barth2020 ⚠ | Barth & Stadtmann. Creativity assessment over time: Examining the reliability of CAT ratings. *JCB*, **2021**, 55(2), 396–409 (online 2020) | 10.1002/jocb.462 | Discussion (rater drift) |
+| barth2021 ⚠ | Barth & Stadtmann. Creativity assessment over time: Examining the reliability of CAT ratings. *JCB*, **2021**, 55(2), 396–409 (online 2020) | 10.1002/jocb.462 | Discussion (rater drift) |
 | zahno2024 | Zahno (2024). Creativity in sports: The crucial role of motor skills. *J. Creativity*, 34(3), 100091 | 10.1016/j.yjoc.2024.100091 | Introduction (CAT in sport) |
-| dejoode2023 | de Joode, van der Kamp & Savelsbergh (2023). … expert judgement and frequency count. *PSE*, 69, 102502 | 10.1016/j.psychsport.2023.102502 | Introduction (CAT-like sport panels) |
-| tenhove2024 ⚠(minor) | ten Hove, Jorgensen & van der Ark (2024). Updated guidelines on selecting an ICC … incomplete observational designs. *Psych. Methods*, 29(5), 967–979 | 10.1037/met0000516 | Methods (non-IRT comparison statistics) |
+| joode2023 | de Joode, van der Kamp & Savelsbergh (2023). … expert judgement and frequency count. *PSE*, 69, 102502 | 10.1016/j.psychsport.2023.102502 | Introduction (CAT-like sport panels) |
+| hove2024 ⚠(minor) | ten Hove, Jorgensen & van der Ark (2024). Updated guidelines on selecting an ICC … incomplete observational designs. *Psych. Methods*, 29(5), 967–979 | 10.1037/met0000516 | Methods (non-IRT comparison statistics) |
 | muraki1990 | Muraki (1990). Fitting a polytomous item response model to Likert-type data. *APM*, 14(1), 59–71 | 10.1177/014662169001400106 | Methods (GRSM in the `jrt` model set) |
 
-tenhove2024: Crossref shows a 2022 creation date (online-first), and the issue is 2024, so the key matches the issue year.
+hove2024: Crossref shows a 2022 creation date (online-first), and the issue is 2024, so the key matches the issue year.
 
 ---
 
@@ -90,7 +90,7 @@ tenhove2024: Crossref shows a 2022 creation date (online-first), and the issue i
 **Novelty-check outcome.** No study was found that applies JRT, polytomous IRT with judge-specific discrimination, or MFRM to **CAT creativity ratings of sport actions** (football or any other sport). Searches covered: IRT/JRT and CAT with football/soccer; "judge response theory" with sport, dance or movement; MFRM/Rasch with judged sports; G-theory and number of raters with sport creativity. Closest precedents:
 1. Rasch/MFRM on judges of *performance quality* in judged sports (looney2004; anderlucci2021; statistical judge evaluation in heiniger2021). These are not creativity ratings and are Rasch-family (equal discrimination) or non-IRT.
 2. A Rasch validation of a coach-completed creativity-related *questionnaire* (shin2025), not ratings of actions.
-3. CAT-like expert ratings of football actions that report only ICCs or agreement (kempe2018; zahno2023; zahno2024; dejoode2023).
+3. CAT-like expert ratings of football actions that report only ICCs or agreement (kempe2018; zahno2023; zahno2024; joode2023).
 
 The gap claim in the vault ("no sport study has examined the psychometrics of CAT ratings themselves") is **consistent with what was found**. The search was not systematic (web search only, no database searches in SPORTDiscus/PsycINFO), so the author should phrase the claim cautiously ("to our knowledge") and may want a database search before submission.
 
@@ -116,10 +116,10 @@ The gap claim in the vault ("no sport study has examined the psychometrics of CA
 - **Abstract summary:** Expert and non-expert observers rated technical and aesthetic quality of swimmers. Only experts' ratings tracked actual proficiency, and non-experts tended to merge technique and aesthetics. Summary from search-result abstract.
 - **Suggested citation context:** Discussion (expertise; also Gap 6): sport-movement evidence that expertise affects both rating accuracy and the separation of technical from aesthetic dimensions.
 
-**[kaufman2008a]** Kaufman, J. C., Plucker, J. A., & Baer, J. (2008). *Essentials of creativity assessment*. Wiley.
+**[kaufman2008]** Kaufman, J. C., Plucker, J. A., & Baer, J. (2008). *Essentials of creativity assessment*. Wiley.
 - **DOI:** none; ISBN 978-0-470-13742-0
 - **Abstract summary:** Handbook covering DT tests, the CAT, other-ratings and self-assessment. The vault notes it as the source of the "5–10 judges" rule of thumb (not verified from the text here).
-- **Suggested citation context:** Introduction: rule of thumb on panel size. Citekey `kaufman2008a` avoids a clash with the brief's `kaufman2008`.
+- **Suggested citation context:** Introduction: rule of thumb on panel size. Citekey `kaufman2008` avoids a clash with the brief's `kaufman2008a`.
 
 **[kaufman2024]** Kaufman, J. C., Xie, L., & Baer, J. (2024). The consensual assessment technique. In M. A. Runco & S. Acar (Eds.), *Handbook of creativity assessment* (pp. 320–333). Edward Elgar.
 - **DOI:** `doi:10.4337/9781839102158.00029`
@@ -165,7 +165,7 @@ No paper was found that compares coaches, players and lay people as raters of *f
 **[leckie2011]** Leckie, G., & Baird, J.-A. (2011). Rater effects on essay scoring: A multilevel analysis of severity drift, central tendency, and rater experience. *Journal of Educational Measurement*, 48(4), 399–418.
 - **DOI:** `doi:10.1111/j.1745-3984.2011.00152.x`
 - **Abstract summary:** Multilevel analysis of severity drift over scoring time, central tendency and the role of rater experience (title/metadata only).
-- **Suggested citation context:** Discussion: within-period rater drift and central tendency, both of which the JRT thresholds can reveal. Complements barth2020's between-occasion drift.
+- **Suggested citation context:** Discussion: within-period rater drift and central tendency, both of which the JRT thresholds can reveal. Complements barth2021's between-occasion drift.
 
 **[myford2009]** Myford, C. M., & Wolfe, E. W. (2009). Monitoring rater performance over time: A framework for detecting differential accuracy and differential scale category use. *Journal of Educational Measurement*, 46(4), 371–389.
 - **DOI:** `doi:10.1111/j.1745-3984.2009.00088.x`
@@ -183,7 +183,7 @@ Only **[zamparo2017]** (listed under Gap 3) addresses this directly for sport mo
 - **Abstract summary:** Simulation. Examinee and task estimates were robust to the size, fit and location of the linking set, but rater estimates were more affected when the link shrank.
 - **Suggested citation context:** Methods/Discussion: in sparse designs, rater parameters depend on the linking (co-rating) set, which supports the dossier point that a_j is informed mainly by co-rated actions.
 
-**[wind2019a]** Wind, S. A., & Jones, E. (2019). The effects of incomplete rating designs in combination with rater effects. *Journal of Educational Measurement*, 56(1), 76–100.
+**[wind2019]** Wind, S. A., & Jones, E. (2019). The effects of incomplete rating designs in combination with rater effects. *Journal of Educational Measurement*, 56(1), 76–100.
 - **DOI:** `doi:10.1111/jedm.12201`
 - **Abstract summary:** Simulation of leniency, severity and central tendency under three incomplete designs (systematic links, anchor performances, spiral) with RSM/PCM. Rater effects were detectable in all designs, but indicator sensitivity depended on effect type, design and the proportion of affected raters.
 - **Suggested citation context:** Methods (design): justifies the benchmark-set plus overlapping-pairs design and its limits for detecting rater effects.
@@ -193,18 +193,18 @@ Only **[zamparo2017]** (listed under Gap 3) addresses this directly for sport mo
 - **Abstract summary:** Classic GRM parameter-recovery simulation across sample sizes (title/metadata only).
 - **Suggested citation context:** Discussion (limitations): sample-size demands for GRM discrimination and threshold parameters, relevant to per-judge estimation.
 
-No source gives explicit guidance on the **number of co-ratings per judge needed for stable judge-discrimination estimates in a JRT (raters-as-items) sparse design** (see "Papers not found"). forthmann2023 (simulation-based planning) remains the closest creativity-specific source.
+No source gives explicit guidance on the **number of co-ratings per judge needed for stable judge-discrimination estimates in a JRT (raters-as-items) sparse design** (see "Papers not found"). forthmann2025 (simulation-based planning) remains the closest creativity-specific source.
 
 ### Gap 8: Local dependence and differential judge functioning
 
-**[wind2019b]** Wind, S. A., & Sebok-Syer, S. S. (2019). Examining differential rater functioning using a between-subgroup outfit approach. *Journal of Educational Measurement*, 56(2), 217–250.
+**[wind2019a]** Wind, S. A., & Sebok-Syer, S. S. (2019). Examining differential rater functioning using a between-subgroup outfit approach. *Journal of Educational Measurement*, 56(2), 217–250.
 - **DOI:** `doi:10.1111/jedm.12198`
 - **Abstract summary:** Proposes a Rasch-based between-subgroup outfit method to detect differential rater functioning (title/metadata only).
 - **Suggested citation context:** Discussion/Future research: methods for testing whether judges function differently for subgroups of actions (e.g., competitions, action types) or by rater background.
 
 ### Gap 9: Introduction framing sources
 
-worldeconomicforum2025 and oecd2024 are resolved in section A. safardilha2019, memmert2011, batey2012 and barbot2019b are in the main bib, so they were not re-searched. Their claims in the brief still need checking against the PDFs by the author.
+wef2025 and oecd2024 are resolved in section A. safardilha2019, memmert2011, batey2012 and barbot2019b are in the main bib, so they were not re-searched. Their claims in the brief still need checking against the PDFs by the author.
 
 ### Gap 10: Sport creativity background
 
@@ -228,7 +228,7 @@ worldeconomicforum2025 and oecd2024 are resolved in section A. safardilha2019, m
 ## Papers not found
 
 - **Football-specific rater-expertise comparison** (coaches vs. players vs. students/lay people rating the creativity of football actions): none found.
-- **Sample-size guidance for judge discrimination in sparse raters-as-items IRT/JRT designs** (number of co-ratings per judge): no explicit source. Only general linking studies (wind2018, wind2019a), GRM recovery (reise1990) and forthmann2023.
+- **Sample-size guidance for judge discrimination in sparse raters-as-items IRT/JRT designs** (number of co-ratings per judge): no explicit source. Only general linking studies (wind2018, wind2019), GRM recovery (reise1990) and forthmann2025.
 - **Fatigue or vigilance in *video* rating of sport actions**: none found. Only scoring-fatigue studies in language testing (ling2014) and workload in DT scoring (forthmann2017).
 - **Discriminant validity of creativity vs. technical correctness vs. aesthetic appeal for football actions**: none found (zamparo2017 for swimming only).
 - **Local dependence among judges with shared background (applied, creativity)**: none found.
