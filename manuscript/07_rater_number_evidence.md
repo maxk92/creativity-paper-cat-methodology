@@ -347,6 +347,14 @@ Derived from this review; these are not published standards. The numeric fallbac
 
 Fallback without pilot (author synthesis): At least 5-7 domain experts for product ratings. Three raters only for short, homogeneous responses with trained raters and a clear rubric. Avoid fewer than about 10 lay raters for expert-domain products.
 
+## Resolutions from the targeted web search of 2026-11-09 (coordinator note)
+
+- Kaufman et al. (2008, `kaufman2008a`): .58 (.575 [.562, .588]) is their own Spearman–Brown projection to 10 novice poetry raters; .53 is the ten-novice stories value from Kaufman et al. (2013, `kaufman2013`). Use the values with their sources accordingly.
+- `goecke2024` author list and title confirmed; now the published JCB version (58(3), 321–327).
+- Memmert-group soccer reliabilities: `memmert2010` (3 trained experts, 1–10 scale, mean ICC .82) located in full text; `kempe2018` used 3 UEFA A/Pro coaches (reliabilities known only from a secondary summary; scale 0–10 vs 1–10 unresolved); `roca2018` 3 coaches, ICC .85; `joode2023` 4 coaches, ICC(A,k) .84. No sport application of JRT located.
+- `daly2016` added to the library; the "2 judges / 439 designs / .70" detail is still unverified against the full text, so cite it only via `cseh2019`.
+- `terai2026` issue year confirmed (68(3), 393–406). Still unresolved (paywalled): Terai Table 3, Haller 2011 values, Kaufman 2007 D-study coefficients, Long & Pang 2015 D-study numbers, Barth & Stadtmann 2021 Table 2.
+
 ## Open verification items (report)
 
 - Long and Pang (2015): exact D-study rater numbers.

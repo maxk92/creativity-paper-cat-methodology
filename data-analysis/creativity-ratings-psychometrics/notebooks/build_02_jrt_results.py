@@ -288,7 +288,7 @@ with plt.rc_context(PLOT_STYLE):
 note('**Category response functions.** The probability of each rating category as a function of θ, one panel per rater.')
 fig("fig-grm-category-response-functions", "Category response functions of the graded response model for each rater.",
     'show_png("grm/figures/grm_category_response_functions.png", width=11)')
-note('**Rater fit.** Infit and outfit are mean squares of the standardised residuals, with an expected value of 1 (Wright & Masters, 1982). With about 2 ratings per product, values below 1 are expected, because the score is estimated from the very ratings being checked. S-X² (Orlando & Thissen, 2000; Kang & Chen, 2008) needs complete data, so the missing ratings are imputed 20 times from the fitted model and S-X² is averaged. About 90% of the cells are imputed, which makes the test conservative. No misfit cut-offs for infit and outfit are applied in this notebook.')
+note('**Rater fit.** Infit and outfit are mean squares of the standardised residuals, with an expected value of 1 (Wright & Masters, 1982). With about 2 ratings per product, values below 1 are expected, because the score is estimated from the very ratings being checked. S-X² (Orlando & Thissen, 2000; Kang & Chen, 2008) needs complete data, so the missing ratings are imputed 20 times from the fitted model and S-X² is averaged. About 90% of the cells are imputed, which makes the test conservative. The flags in the rater-fit output (flag_infit, flag_outfit; R/02_grm.R) mark values outside 0.7–1.3; with this design they mostly mark values below 0.7, which is expected rather than misfit. No further cut-offs are applied in this notebook.')
 tbl("tbl-grm-rater-fit", "Rater fit in the graded response model: infit and outfit mean squares (observed ratings) and S-X² pooled over multiple imputations of the missing ratings.",
     'show_table("grm/rater_fit.csv", lambda d: d[["rater_id", "n_ratings", "infit", "outfit", "S_X2", "df_S_X2", "p_S_X2", "n_imputations"]])')
 note("**Local dependence.** Yen's (1984) Q3 is the correlation between two raters' residuals over the products both rated. It is computed for rater pairs with at least 3 jointly rated products (and residual variance in both raters); other pairs are not computable. With few raters per product, Q3 is biased negatively (Christensen et al., 2017), so the table ranks pairs by their deviation from the mean Q3 over all computable pairs (printed below the table). Flagged marks pairs with at least 30 jointly rated products whose Q3 deviates from the mean Q3 by more than 0.2.")
@@ -354,7 +354,9 @@ fig("fig-grm-reliability-projection", "Projected empirical marginal reliability 
     'show_png("grm/figures/grm_reliability_projection.png", width=6)')
 code('''_pr = read_res("grm/reliability_projection.csv")
 if _pr is not None:
-    print(f"{int(_pr['n_reps'].iloc[0])} replications of {int(_pr['n_products_per_rep'].iloc[0])} simulated products per k; seed {int(_pr['seed'].iloc[0])}.")''')
+    print(f"{int(_pr['n_reps'].iloc[0])} replications of {int(_pr['n_products_per_rep'].iloc[0])} simulated products per k; seed {int(_pr['seed'].iloc[0])}.")
+_k80 = _pr.loc[_pr["empirical"] >= 0.80, "k"]
+print("Smallest k with simulated empirical reliability of at least .80: " + (str(int(_k80.min())) if len(_k80) else "none up to k = " + str(int(_pr["k"].max()))) + ".")''')
 note("**Minimum number of ratings per product.** The actual design with every product topped up to at least 4 ratings: for each product with fewer than 4 ratings, the missing ratings are generated from the fitted GRM by raters of the panel drawn at random (equal probability), the real ratings are kept, and all products are rescored with the GRM (parameters treated as known). The row for the actual design repeats the simulation on the unchanged design, as a check against the observed empirical reliability.")
 tbl("tbl-grm-reliability-min-ratings", "Simulated reliability of the actual design (check) and of the actual design topped up so that every product has at least 4 ratings: empirical marginal reliability with its 95% range over 50 replications, mean product-level reliability (1 − PSD²), and the number of products topped up and ratings added.",
     'show_table("grm/reliability_min_ratings.csv", lambda d: pd.DataFrame({"design": d["design"].map({"actual": "Actual design", "min_4": "At least 4 ratings per product"}).fillna(d["design"]), "n_products_topped_up": d["n_products_topped_up"], "n_ratings_added": d["n_ratings_added"], "ratings_total": d["n_ratings"], "empirical": est_ci(d, "empirical", "empirical_q025", "empirical_q975", digits=3), "mean_rel_post": d["mean_rel_post"], "n_reps": d["n_reps"]}))')
@@ -411,7 +413,7 @@ md("## 4. Comparison: model ladder and MFRM")
 note('**Model comparison.** The adjacent-category models form a ladder:\n- M1, the rating scale model with a rater shift (Andrich, 1978). This is the many-facet Rasch model (Linacre, 1989; Primi et al., 2019), fitted with `sirt::rm.facets`.\n- M2, the partial credit model (Masters, 1982): adds rater-specific thresholds.\n- M3, the generalized partial credit model (Muraki, 1992): adds rater-specific discriminations.\n\nThe GRM belongs to the cumulative family, so it is compared with the ladder by information criteria only (lower is better).')
 tbl("tbl-model-fit", "Fit of the adjacent-category ladder (M1 rating-scale MFRM, M2 partial-credit MFRM, M3 generalized partial credit model) and the graded response model: log-likelihood, number of parameters, information criteria and their difference (delta) to the best model on each criterion.",
     'show_table("comparison/model_fit.csv", lambda d: d[d["status"] == "estimated"][["model", "software", "family", "logLik", "npar", "AIC", "BIC", "SABIC", "delta_AIC", "delta_BIC", "delta_SABIC"]])')
-note('**Likelihood-ratio tests.** Each test checks whether the next step up the ladder improves fit: rater-specific thresholds (M1 vs M2), then rater-specific discriminations (M2 vs M3). "df if all categories used" is the df if every rater used all 7 categories: (J − 1)(K − 2) for M1 vs M2 and J − 1 for M2 vs M3, with J raters and K categories. A rater who never uses an end category of the scale has one step parameter less in M2 (see the category-use table), so the observed df of M1 vs M2 is smaller by the number of unused end categories.')
+note('**Likelihood-ratio tests.** Each test checks whether the next step up the ladder improves fit: rater-specific thresholds (M1 vs M2), then rater-specific discriminations (M2 vs M3). "df if all categories used" is the df if every rater used all 7 categories: (J − 1)(K − 2) for M1 vs M2 and J − 1 for M2 vs M3, with J raters and K categories. A rater who never uses an end category of the scale has one step parameter less in M2 (see the category-use table), so the observed df of M1 vs M2 is smaller by the number of categories raters never used (unused end categories and any internal gap).')
 tbl("tbl-lr-tests", "Likelihood-ratio tests within the adjacent-category ladder. \'df if all categories used\' gives the df if every rater had used all 7 categories; unused end categories reduce the df of M1 vs M2.",
     'show_table("comparison/lr_tests.csv", lambda d: d[["comparison", "X2", "df", "df_expected_formula", "df_matches_formula", "p"]])')
 note('**Agreement of scores.** Correlations of the product scores between models. High values mean the ranking of products hardly depends on the model.')
@@ -427,11 +429,13 @@ tbl("tbl-raw-mean-vs-grm", "Raw mean rating versus GRM score by number of rating
 note("The same comparison as a figure. Each point is a product; the vertical spread at a given raw mean shows the products whose GRM scores differ although their raw means are equal.")
 fig("fig-raw-mean-vs-theta", "GRM score (EAP) against the raw mean rating of each product, by number of ratings per product. Points are jittered horizontally.",
     'show_png("grm/figures/grm_raw_mean_vs_theta.png", width=9)')
-note("**Sensitivity to the rater exclusion.** The GRM refitted on all raters, including the three with fewer than 15 ratings, compared with the final GRM: reliability, agreement of the product scores, and the discriminations of the common raters.")
+note("**Sensitivity to the rater exclusion.** The GRM refitted on all raters, including those with fewer than 15 ratings, compared with the final GRM: reliability, agreement of the product scores, and the discriminations of the common raters.")
 tbl("tbl-sensitivity-rater-exclusion", "Sensitivity of the GRM results to excluding raters with fewer than 15 ratings: final data versus all raters.",
     'show_table("comparison/sensitivity_rater_exclusion.csv", digits=5)')
 tbl("tbl-discrimination-m3", "Rater discriminations in the generalized partial credit model (M3).",
     'show_table("comparison/discrimination_m3.csv", lambda d: d[["rater_id", "n_ratings", "estimate", "se"]])')
+tbl("tbl-discrimination-summary", "Spread of the rater discriminations in M3 (GPCM): minimum, quartiles, median, maximum, ratio of the largest to the smallest discrimination, and standard deviation across raters.",
+    'show_table("comparison/discrimination_summary.csv")')
 note('Raters whose adjacent-category step parameters are out of order. In adjacent-category models this means that some category is never the most likely response (Andrich, 1978). In the GRM, thresholds are ordered by construction.')
 tbl("tbl-threshold-order", "Raters with unordered step parameters in M2 (partial-credit MFRM) and M3 (GPCM).",
     'show_table("comparison/threshold_order.csv", lambda d: d[~d["ordered"]])')
@@ -459,6 +463,10 @@ with plt.rc_context(PLOT_STYLE):
     _a2.grid(axis="y", visible=False)
     _f.tight_layout()
     plt.show()''')
+code('''_sv = read_res("comparison/rater_parameters_by_model.csv")
+_sv = _sv[(_sv["model"] == "M1_RSM") & (_sv["parameter"] == "b_rater")].sort_values("estimate")
+_lo, _hi = _sv.iloc[0], _sv.iloc[-1]
+print(f"M1 severity ranges from {_lo['estimate']:.3f} (SE {_lo['se']:.3f}, {_lo['rater_id']}) to {_hi['estimate']:.3f} (SE {_hi['se']:.3f}, {_hi['rater_id']}): a span of {_hi['estimate'] - _lo['estimate']:.3f} logits.")''')
 note('Marginal reliability (hypothetical full panel) and empirical reliability (actual scores) for each model.')
 tbl("tbl-marginal-reliability-models", "Marginal and empirical reliability by model, for comparison.",
     'show_table("comparison/marginal_reliability.csv")')
@@ -484,8 +492,8 @@ tbl("tbl-naive-indices", "Cronbach's alpha (consistency of the unweighted rater 
 note('**Overview.** All indices side by side, with what each refers to. They answer different questions: the reliability of the actual scores, of a hypothetical full panel, or of single ratings. They are not interchangeable.')
 tbl("tbl-reliability-overview", "Overview of the reliability and agreement indices and what each refers to.",
     'show_table("summary/reliability_overview.csv", _with_min4_row)')
-note("**Rater overview.** One row per rater: number of ratings, raw mean, M1 severity, GRM discrimination, share of the full-panel information with 95% interval, GRM infit and outfit (⚑ = flagged in the rater-fit output), and categories never used. Sorted by M1 severity.")
-tbl("tbl-rater-overview", "Rater overview sorted by severity: number of ratings, raw mean rating, severity in M1 (rating-scale MFRM), discrimination a in the GRM, share of the full-panel information with 95% interval, GRM infit and outfit mean squares (⚑ = flagged), and categories never used.",
+note("**Rater overview.** One row per rater: number of ratings, raw mean, M1 severity, GRM discrimination, share of the full-panel information with 95% interval, GRM infit and outfit (⚑ = infit or outfit outside 0.7–1.3, the flag rule of the rater-fit output), and categories never used. Sorted by M1 severity.")
+tbl("tbl-rater-overview", "Rater overview sorted by severity: number of ratings, raw mean rating, severity in M1 (rating-scale MFRM), discrimination a in the GRM, share of the full-panel information with 95% interval, GRM infit and outfit mean squares (⚑ = infit or outfit outside 0.7–1.3), and categories never used.",
     '''_sv = read_res("comparison/rater_parameters_by_model.csv")
 _sv = _sv[(_sv["model"] == "M1_RSM") & (_sv["parameter"] == "b_rater")][["rater_id", "estimate"]].rename(columns={"estimate": "severity_m1"})
 _cc = [f"cat_{i}" for i in range(1, 8)]
