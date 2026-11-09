@@ -11,8 +11,8 @@ code = lambda s: cells.append(nbf.v4.new_code_cell(s))
 md("""# JRT results: graded response model, model ladder and reliability
 
 Display notebook for the manuscript. It fits nothing: it shows the CSV and figure
-outputs of the R pipeline in `../R/` (`01_data_design.R` … `06_summary.R`, see
-`../server/README.md` and `../AUDIT.md`) as labelled tables and figures,
+outputs of the R pipeline in `../R/` (`01_data_design.R` … `08_reliability_min_ratings.R`, see
+`../server/README.md` and `../AUDIT.md`) as labelled tables and figures (a few figures are drawn here from the CSVs),
 so the manuscript can embed them. Re-execute it (seconds) after every pipeline run.
 Objects whose source file does not exist yet show a placeholder line.
 
@@ -114,6 +114,9 @@ HEADERS = {
     "true_r2": "Squared correlation with true θ", "mean_rel_post": "Mean rel_post",
     "index_value": "Value",
 }
+HEADERS.update({"design": "Design", "n_products_topped_up": "Products topped up", "n_ratings_added": "Ratings added",
+                "n_reps": "Replications", "observed_mean_rel_post": "Observed mean rel_post",
+                "simulated_empirical": "Simulated empirical reliability [95% range]"})
 for _k in range(1, 8):
     HEADERS[f"cat_{_k}"] = f"Category {_k}"
 
@@ -182,23 +185,106 @@ def tbl(label, cap, call):
 def fig(label, cap, call):
     code(f'#| label: {label}\n#| fig-cap: "{cap}"\n{call}')
 
+code("""# Plot style for the figures drawn in this notebook (Okabe-Ito palette, colour-blind safe).
+C = dict(blue="#0072B2", orange="#E69F00", green="#009E73", red="#D55E00",
+         sky="#56B4E9", purple="#CC79A7", grey="#7F7F7F", ink="#222222")
+PLOT_STYLE = {
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "grid.color": "#E5E5E5", "grid.linewidth": 0.6,
+    "axes.axisbelow": True, "axes.edgecolor": "#888888",
+    "axes.labelcolor": C["ink"], "xtick.color": "#444444", "ytick.color": "#444444",
+    "font.size": 9.5, "axes.titlesize": 10.5, "legend.frameon": False,
+}
+
+def r3(x):
+    # three decimals without the leading zero for bounded statistics (display only)
+    t = f"{x:.3f}"
+    return t.replace("0.", ".", 1) if abs(x) < 1 else t
+
+def _with_min4_row(d):
+    # Adds the simulated "at least 4 ratings per product" design (grm/reliability_min_ratings.csv)
+    # below the empirical reliability of the actual scores. Display only; the R output is unchanged.
+    m = read_res("grm/reliability_min_ratings.csv")
+    if m is None or "min_4" not in set(m["design"]):
+        return d
+    r = m.set_index("design").loc["min_4"]
+    row = pd.DataFrame([{"index": "GRM: empirical marginal reliability, at least 4 ratings per product (simulated)",
+                         "refers_to": "actual design topped up to at least 4 ratings per product",
+                         "value": r["empirical"],
+                         "ci_or_note": f"95% range [{r['empirical_q025']:.3f}, {r['empirical_q975']:.3f}], {int(r['n_reps'])} replications; "
+                                       f"{int(r['n_ratings_added']):,} ratings added to {int(r['n_products_topped_up']):,} products"}])
+    i = d.index[d["index"] == "GRM: empirical marginal reliability"]
+    pos = (int(i[0]) + 1) if len(i) else len(d)
+    return pd.concat([d.iloc[:pos], row, d.iloc[pos:]], ignore_index=True)""")
+
 md("## 1. Data and design")
 note('**Design.** Size and coverage of the products × raters matrix that every model uses. The design is incomplete: each product is rated by a few raters only, and missing ratings are left out of the likelihood, not imputed. A connected design (one component) is required so that all raters and products lie on one scale (Eckes, 2015).')
 tbl("tbl-design-summary", "Data basis shared by all models: ratings, products, raters, coverage of the product x rater matrix and connectivity of the design.",
     'show_table("data/design_summary.csv", lambda d: d[d["quantity"] != "data_fingerprint"])')
+note("**Ratings per product.** Number of products by the number of ratings they received.")
+fig("fig-design-ratings-per-product", "Number of products by number of ratings received.",
+    '''_rpp = read_res("data/design_summary_ratings_per_product.csv")
+with plt.rc_context(PLOT_STYLE):
+    _f, _ax = plt.subplots(figsize=(7, 2.8))
+    _ax.bar(_rpp["n_ratings"], _rpp["n_products"], color=C["blue"], width=0.75)
+    for _x, _y in zip(_rpp["n_ratings"], _rpp["n_products"]):
+        _ax.text(_x, _y, f"{_y:,}", ha="center", va="bottom", fontsize=8)
+    _ax.set_xticks(_rpp["n_ratings"])
+    _ax.set_xlabel("Ratings per product")
+    _ax.set_ylabel("Products")
+    _ax.grid(axis="x", visible=False)
+    _f.tight_layout()
+    plt.show()''')
 tbl("tbl-excluded-raters", "Raters excluded from all analyses because they gave fewer than 15 ratings.",
     'show_table("data/excluded_raters.csv")')
 note('**Category use.** How often each rater used each of the 7 categories. Raters who never use a category get fewer thresholds in mirt, because mirt only models the categories a rater actually used.')
 tbl("tbl-category-usage", "Category use per rater (counts of ratings 1-7). Unused categories at the ends of the scale reduce the number of thresholds of a rater; an unused category inside the observed range (internal gap) makes that rater's thresholds incomparable with those of other raters.",
     'show_table("data/category_usage.csv", lambda d: d[["rater_id"] + [c for c in d if c.startswith("cat_")] + ["n_ratings", "missing_categories", "internal_gap"]])')
+note("The same category use as shares of each rater's ratings. Raters sorted by mean rating; ✕ marks categories a rater never used.")
+fig("fig-category-usage-shares", "Share of each rater's ratings in each of the 7 categories, sorted by the rater's mean rating; n = number of ratings; ✕ = category never used.",
+    '''_cu = read_res("data/category_usage.csv").merge(read_res("data/design_summary_raters.csv")[["rater_id", "mean"]], on="rater_id").sort_values("mean", ascending=False)
+_cc = [f"cat_{i}" for i in range(1, 8)]
+_sh = _cu[_cc].div(_cu[_cc].sum(axis=1), axis=0).to_numpy()
+_cm = plt.get_cmap("viridis_r")
+with plt.rc_context(PLOT_STYLE):
+    _f, _ax = plt.subplots(figsize=(7, 5.2))
+    _y = np.arange(len(_cu))
+    _left = np.zeros(len(_cu))
+    for _j in range(7):
+        _ax.barh(_y, _sh[:, _j], left=_left, color=_cm(.08 + .84 * _j / 6), height=.78, label=str(_j + 1), edgecolor="white", lw=.3)
+        _left += _sh[:, _j]
+    for _i, (_, _r) in enumerate(_cu.iterrows()):
+        _un = ",".join(str(_j + 1) for _j in range(7) if _r[_cc[_j]] == 0)
+        _ax.text(1.01, _i, f"n={int(_r['n_ratings'])}" + (f"  ✕ {_un}" if _un else ""), va="center", fontsize=7.5, color="#444444")
+    _ax.set_yticks(_y, _cu["rater_id"], fontsize=8)
+    _ax.set_xlim(0, 1)
+    _ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
+    _ax.set_xlabel("Share of ratings")
+    _ax.grid(False)
+    _ax.legend(title="Category", ncol=7, loc="upper center", bbox_to_anchor=(.5, -.1), fontsize=8, title_fontsize=8)
+    _f.tight_layout()
+    plt.show()''')
 
 md("## 2. Graded response model (central model)")
 note('**Central model.** Judge response theory treats raters as items and products as persons (Myszkowski & Storme, 2019). It is fitted here as a graded response model (Samejima, 1969) by marginal maximum likelihood in `mirt` (Chalmers, 2012). The table shows whether estimation converged and gives the information criteria.')
 tbl("tbl-grm-convergence", "Estimation and convergence of the graded response model (marginal maximum likelihood, EM algorithm, fixed quadrature).",
     'show_table("grm/convergence.csv", lambda d: d.assign(tol=[power_of_ten(x) for x in d["tol"]])[["method", "quadpts", "se_type", "tol", "converged", "iterations", "information_matrix_pd", "logLik", "npar", "AIC", "BIC", "SABIC", "n_products", "n_ratings"]].rename(columns={"n_ratings": "ratings_total"}))')
-note("**Rater parameters.** a is the rater's discrimination: how sharply the ratings separate products of different creativity. b_k is the θ at which a rating above category k becomes more likely than a rating of k or below; higher b means a stricter rater. No rater has an internal category gap, so b_k always separates categories k and k + 1; raters who never used the top categories have no estimate for the highest thresholds.")
+note("**Rater parameters.** a is the rater's discrimination: how sharply the ratings separate products of different creativity. b_k is the θ at which a rating above category k becomes more likely than a rating of k or below; higher b means a stricter rater. For a rater without an internal category gap, b_k separates categories k and k + 1; raters who never used the top categories have no estimate for the highest thresholds. For a rater with an internal gap (an unused category inside the observed range, see the category-use table), the thresholds separate other category boundaries and are not directly comparable with those of the other raters.")
 tbl("tbl-grm-rater-parameters", "Rater parameters of the graded response model in IRT metric: discrimination a and thresholds b1 to b6 (bk separates rating categories k and k + 1), each as estimate (standard error). A dash marks a threshold above the highest category a rater used.",
     'show_table("grm/rater_parameters.csv", lambda d: est_se(d, ["a"] + [f"b{k}" for k in range(1, 7) if f"b{k}" in d])[["rater_id", "n_ratings", "a"] + [f"b{k}" for k in range(1, 7) if f"b{k}" in d]])')
+note("Discrimination per rater as a figure, with 95% intervals (estimate ± 1.96 SE). Under M1 and M2 all raters would share one value.")
+fig("fig-grm-rater-discrimination-ci", "Discrimination a per rater in the graded response model with 95% intervals (estimate ± 1.96 SE), sorted by a. Dashed line: median. Under the Rasch-family models M1 and M2 all raters share one value.",
+    '''_g = read_res("grm/rater_parameters.csv").sort_values("a")
+with plt.rc_context(PLOT_STYLE):
+    _f, _ax = plt.subplots(figsize=(7, 4.4))
+    _y = np.arange(len(_g))
+    _ax.errorbar(_g["a"], _y, xerr=1.96 * _g["a_se"], fmt="o", color=C["blue"], ecolor="#9BBBD9", elinewidth=1.4, capsize=0, ms=5)
+    _ax.axvline(_g["a"].median(), ls="--", color=C["grey"], lw=1)
+    _ax.set_yticks(_y, _g["rater_id"], fontsize=8)
+    _ax.set_xlabel("Discrimination a")
+    _ax.grid(axis="y", visible=False)
+    _f.tight_layout()
+    plt.show()''')
 note('**Category response functions.** The probability of each rating category as a function of θ, one panel per rater.')
 fig("fig-grm-category-response-functions", "Category response functions of the graded response model for each rater.",
     'show_png("grm/figures/grm_category_response_functions.png", width=11)')
@@ -231,6 +317,19 @@ note('**Full panel.** Information and conditional reliability I/(I+1) if every r
 note("**Uncertainty of rater information.** 95% intervals for each rater's average information and share, from the same parameter draws. Wide intervals mean that a rater's informativeness is not yet well determined, typically for raters with few ratings.")
 tbl("tbl-grm-rater-information-ci", "Average information per rating (information integrated over θ ~ N(0, 1)) and share of the full-panel information for each rater, with 95% intervals from 200 accepted parameter draws.",
     'show_table("grm/rater_information_ci.csv", lambda d: pd.DataFrame({"rater_id": d["rater_id"], "n_ratings": d["n_ratings"], "Information per rating [95% interval]": est_ci(d, "info_weighted_area", "info_ci_low", "info_ci_high"), "Share of panel information [95% interval]": est_ci(d, "share_weighted", "share_ci_low", "share_ci_high", digits=3)}))')
+note("Average information per rating as a figure, with the same 95% intervals.")
+fig("fig-grm-rater-information-ci", "Average information per rating (information integrated over θ ~ N(0, 1)) for each rater with 95% intervals from 200 accepted parameter draws, sorted by information. Point size is proportional to the square root of the rater's number of ratings.",
+    '''_i = read_res("grm/rater_information_ci.csv").sort_values("info_weighted_area")
+with plt.rc_context(PLOT_STYLE):
+    _f, _ax = plt.subplots(figsize=(7, 4.4))
+    _y = np.arange(len(_i))
+    _ax.hlines(_y, _i["info_ci_low"], _i["info_ci_high"], color="#BBBBBB", lw=1.6)
+    _ax.scatter(_i["info_weighted_area"], _y, s=10 + 120 * np.sqrt(_i["n_ratings"] / _i["n_ratings"].max()), color=C["green"], zorder=3)
+    _ax.set_yticks(_y, _i["rater_id"], fontsize=8)
+    _ax.set_xlabel("Information per rating")
+    _ax.grid(axis="y", visible=False)
+    _f.tight_layout()
+    plt.show()''')
 fig("fig-grm-panel-information", "Information and conditional reliability I/(I+1) of the full panel. The curve is hypothetical: it applies to a product rated by all raters.",
     'show_png("grm/figures/grm_panel_information_reliability.png")')
 note("**Reliability of the actual scores.** The empirical marginal reliability Var(θ̂)/(Var(θ̂) + mean PSD²) refers to the EAP scores actually obtained (Chalmers, 2012) and is the primary figure. The model-based marginal reliability (Green et al., 1984) refers to the hypothetical full panel. rel_post = 1 − PSD² gives each product's reliability from its own raters.")
@@ -248,7 +347,7 @@ fig("fig-grm-rel-post-histogram", "Distribution of the product-level reliability
 note('Product-level reliability by number of ratings (the same information as the table above, as a figure).')
 fig("fig-grm-rel-post-by-n", "Product-level reliability (1 − PSD²) by number of ratings per product.",
     'show_png("grm/figures/grm_rel_post_by_n_ratings.png")')
-note("**Side note: projected reliability with more ratings.** A simple gauge of the value of adding ratings, supplementary to the observed values above. Products with θ ~ N(0, 1) are simulated; each gets k ratings from k raters of the actual panel, drawn at random, with ratings generated from the fitted GRM and scored with its parameters (treated as known). The table gives the empirical marginal reliability (mean and 95% range over replications) and the mean product-level reliability rel_post.")
+note("**Projected reliability with more ratings.** A model-based gauge of the value of adding ratings, complementing the observed values above. Products with θ ~ N(0, 1) are simulated; each gets k ratings from k raters of the actual panel, drawn at random, with ratings generated from the fitted GRM and scored with its parameters (treated as known). The table gives the empirical marginal reliability (mean and 95% range over replications) and the mean product-level reliability rel_post.")
 tbl("tbl-grm-reliability-projection", "Projected reliability of GRM scores by number of ratings per product (k), simulated from the fitted model with raters of the panel drawn at random (each equally likely): empirical marginal reliability with its 95% range over 50 replications of 2,000 products, and mean product-level reliability (1 − PSD²).",
     'show_table("grm/reliability_projection.csv", lambda d: pd.DataFrame({"k": d["k"], "empirical": est_ci(d, "empirical", "empirical_q025", "empirical_q975", digits=3), "mean_rel_post": d["mean_rel_post"]}))')
 fig("fig-grm-reliability-projection", "Projected empirical marginal reliability by number of ratings per product, simulated from the fitted GRM with randomly drawn raters. Band: 95% range over replications.",
@@ -256,6 +355,51 @@ fig("fig-grm-reliability-projection", "Projected empirical marginal reliability 
 code('''_pr = read_res("grm/reliability_projection.csv")
 if _pr is not None:
     print(f"{int(_pr['n_reps'].iloc[0])} replications of {int(_pr['n_products_per_rep'].iloc[0])} simulated products per k; seed {int(_pr['seed'].iloc[0])}.")''')
+note("**Minimum number of ratings per product.** The actual design with every product topped up to at least 4 ratings: for each product with fewer than 4 ratings, the missing ratings are generated from the fitted GRM by raters of the panel drawn at random (equal probability), the real ratings are kept, and all products are rescored with the GRM (parameters treated as known). The row for the actual design repeats the simulation on the unchanged design, as a check against the observed empirical reliability.")
+tbl("tbl-grm-reliability-min-ratings", "Simulated reliability of the actual design (check) and of the actual design topped up so that every product has at least 4 ratings: empirical marginal reliability with its 95% range over 50 replications, mean product-level reliability (1 − PSD²), and the number of products topped up and ratings added.",
+    'show_table("grm/reliability_min_ratings.csv", lambda d: pd.DataFrame({"design": d["design"].map({"actual": "Actual design", "min_4": "At least 4 ratings per product"}).fillna(d["design"]), "n_products_topped_up": d["n_products_topped_up"], "n_ratings_added": d["n_ratings_added"], "ratings_total": d["n_ratings"], "empirical": est_ci(d, "empirical", "empirical_q025", "empirical_q975", digits=3), "mean_rel_post": d["mean_rel_post"], "n_reps": d["n_reps"]}))')
+note("Observed and simulated reliability by number of ratings side by side. Observed: mean rel_post of the actual products with that many ratings. Simulated: the projection above (k raters drawn at random per simulated product).")
+tbl("tbl-grm-reliability-observed-vs-simulated", "Reliability by number of ratings per product: observed mean product-level reliability (1 − PSD²) of the actual products, and simulated empirical marginal reliability with its 95% range over 50 replications (projection with randomly drawn raters).",
+    '''_m = read_res("grm/reliability_projection.csv")[["k", "empirical", "empirical_q025", "empirical_q975"]].merge(
+    read_res("grm/reliability_by_n_ratings.csv")[["n_ratings", "n_products", "rel_post_mean"]], left_on="k", right_on="n_ratings", how="outer")
+_m["k"] = _m["k"].fillna(_m["n_ratings"]).astype(int)
+_m = _m.sort_values("k")
+Markdown(pretty_headers(pd.DataFrame({
+    "k": _m["k"],
+    "n_products": [("–" if pd.isna(v) else f"{int(v):,}") for v in _m["n_products"]],
+    "observed_mean_rel_post": [("–" if pd.isna(v) else f"{v:.3f}") for v in _m["rel_post_mean"]],
+    "simulated_empirical": [("–" if pd.isna(e) else f"{e:.3f} [{a:.3f}, {b:.3f}]") for e, a, b in zip(_m["empirical"], _m["empirical_q025"], _m["empirical_q975"])],
+})).to_markdown(index=False, disable_numparse=True))''')
+fig("fig-grm-reliability-observed-vs-simulated", "Reliability by number of ratings per product. Dots: observed mean product-level reliability (1 − PSD²) of the actual products with that many ratings (dot size = number of products; faded = fewer than 10 products). Line and band: simulated empirical marginal reliability (mean and 95% range over 50 replications) for products that each receive exactly k ratings from k raters drawn at random from the panel with equal probability, with ratings generated and scored by the fitted GRM. Dashed lines: simulated reliability of the actual design topped up to at least 4 ratings per product, and model-based reliability of the hypothetical full panel.",
+    '''_pr = read_res("grm/reliability_projection.csv")
+_bn = read_res("grm/reliability_by_n_ratings.csv")
+_m4 = read_res("grm/reliability_min_ratings.csv").set_index("design").loc["min_4"]
+_full = float(read_res("summary/reliability_overview.csv").set_index("index")["value"]["GRM: model-based marginal reliability"])
+_nr = int(float(read_res("data/design_summary.csv").set_index("quantity")["value"]["n_raters"]))
+with plt.rc_context(PLOT_STYLE):
+    _f, _ax = plt.subplots(figsize=(7, 4))
+    _ax.fill_between(_pr["k"], _pr["empirical_q025"], _pr["empirical_q975"], color=C["orange"], alpha=.25, lw=0)
+    _ax.plot(_pr["k"], _pr["empirical"], color=C["orange"], lw=2, marker="s", ms=4, label="Simulated (k random raters)")
+    _big = _bn["n_products"] >= 10
+    _sz = 15 + 220 * np.sqrt(_bn["n_products"] / _bn["n_products"].max())
+    _ax.scatter(_bn.loc[_big, "n_ratings"], _bn.loc[_big, "rel_post_mean"], s=_sz[_big], color=C["blue"], alpha=.85, zorder=3, label="Observed (actual products)")
+    _ax.scatter(_bn.loc[~_big, "n_ratings"], _bn.loc[~_big, "rel_post_mean"], s=_sz[~_big], color=C["blue"], alpha=.25, zorder=3)
+    _xmax = int(_bn["n_ratings"].max())
+    for _lvl in (.70, .80):
+        _ax.axhline(_lvl, color=C["grey"], ls=":", lw=1)
+        _ax.text(_xmax + .2, _lvl, f"{_lvl:.2f}".lstrip("0"), va="center", fontsize=8, color=C["grey"])
+    _ax.axhline(_m4["empirical"], color=C["purple"], ls="--", lw=1)
+    _ax.text(_xmax + .3, _m4["empirical"] + .008, f"actual design, at least 4 ratings per product: {r3(_m4['empirical'])}", fontsize=8, color=C["purple"], ha="right")
+    _ax.axhline(_full, color=C["green"], ls="--", lw=1)
+    _ax.text(1, _full + .008, f"full panel of {_nr} raters: {r3(_full)}", fontsize=8, color=C["green"])
+    _ax.set_xticks(range(1, _xmax + 1))
+    _ax.set_xlim(.5, _xmax + .8)
+    _ax.set_ylim(.45, 1.0)
+    _ax.set_xlabel("Ratings per product")
+    _ax.set_ylabel("Reliability")
+    _ax.legend(loc="lower right")
+    _f.tight_layout()
+    plt.show()''')
 note("Product-level reliability by estimated creativity. Precision depends on where a product lies relative to its raters' thresholds.")
 fig("fig-grm-rel-post-by-theta", "Product-level reliability (1 − PSD²) by EAP estimate, coloured by number of ratings per product.",
     'show_png("grm/figures/grm_rel_post_by_theta.png")')
@@ -294,6 +438,27 @@ tbl("tbl-threshold-order", "Raters with unordered step parameters in M2 (partial
 note('Infit and outfit under M1, the fit statistics usually reported for many-facet Rasch models (Eckes, 2015).')
 tbl("tbl-rater-fit-m1", "Rater infit and outfit mean squares under M1 (rating-scale MFRM).",
     'show_table("comparison/rater_fit_m1.csv", lambda d: d[["rater_id", "n_ratings", "infit", "outfit"]])')
+note("**Rater severity under M1.** The rating-scale MFRM summarises each rater in one severity parameter (0 = average rater; higher = stricter), shown with 95% intervals next to the rater's raw mean rating.")
+fig("fig-m1-rater-severity", "Left: rater severity in M1 (rating-scale MFRM) with 95% intervals (estimate ± 1.96 SE); 0 = average rater, higher = stricter. Right: the rater's raw mean rating (1–7). Raters sorted by severity.",
+    '''_sv = read_res("comparison/rater_parameters_by_model.csv")
+_sv = _sv[(_sv["model"] == "M1_RSM") & (_sv["parameter"] == "b_rater")][["rater_id", "estimate", "se"]].merge(
+    read_res("data/design_summary_raters.csv")[["rater_id", "n_ratings", "mean"]], on="rater_id").sort_values("estimate")
+with plt.rc_context(PLOT_STYLE):
+    _f, (_a1, _a2) = plt.subplots(1, 2, figsize=(7, 4.8), sharey=True, gridspec_kw=dict(width_ratios=[1.6, 1]))
+    _y = np.arange(len(_sv))
+    _col = np.where(_sv["estimate"] > 0, C["red"], C["blue"])
+    _a1.errorbar(_sv["estimate"], _y, xerr=1.96 * _sv["se"], fmt="none", ecolor="#BBBBBB", elinewidth=1.4)
+    _a1.scatter(_sv["estimate"], _y, c=_col, s=28, zorder=3)
+    _a1.axvline(0, color=C["grey"], lw=1)
+    _a1.set_yticks(_y, _sv["rater_id"], fontsize=8)
+    _a1.set_xlabel("Severity (logits): lenient ← 0 → strict")
+    _a1.grid(axis="y", visible=False)
+    _a2.barh(_y, _sv["mean"], color=_col, alpha=.75, height=.65)
+    _a2.set_xlim(1, 7)
+    _a2.set_xlabel("Raw mean rating")
+    _a2.grid(axis="y", visible=False)
+    _f.tight_layout()
+    plt.show()''')
 note('Marginal reliability (hypothetical full panel) and empirical reliability (actual scores) for each model.')
 tbl("tbl-marginal-reliability-models", "Marginal and empirical reliability by model, for comparison.",
     'show_table("comparison/marginal_reliability.csv")')
@@ -318,7 +483,29 @@ tbl("tbl-naive-indices", "Cronbach's alpha (consistency of the unweighted rater 
     '_naive = naive_indices()\n_missing("naive/*.csv") if _naive is None else Markdown(pretty_headers(tidy(_naive)).to_markdown(index=False, disable_numparse=True))')
 note('**Overview.** All indices side by side, with what each refers to. They answer different questions: the reliability of the actual scores, of a hypothetical full panel, or of single ratings. They are not interchangeable.')
 tbl("tbl-reliability-overview", "Overview of the reliability and agreement indices and what each refers to.",
-    'show_table("summary/reliability_overview.csv")')
+    'show_table("summary/reliability_overview.csv", _with_min4_row)')
+note("**Rater overview.** One row per rater: number of ratings, raw mean, M1 severity, GRM discrimination, share of the full-panel information with 95% interval, GRM infit and outfit (⚑ = flagged in the rater-fit output), and categories never used. Sorted by M1 severity.")
+tbl("tbl-rater-overview", "Rater overview sorted by severity: number of ratings, raw mean rating, severity in M1 (rating-scale MFRM), discrimination a in the GRM, share of the full-panel information with 95% interval, GRM infit and outfit mean squares (⚑ = flagged), and categories never used.",
+    '''_sv = read_res("comparison/rater_parameters_by_model.csv")
+_sv = _sv[(_sv["model"] == "M1_RSM") & (_sv["parameter"] == "b_rater")][["rater_id", "estimate"]].rename(columns={"estimate": "severity_m1"})
+_cc = [f"cat_{i}" for i in range(1, 8)]
+_t = (read_res("data/design_summary_raters.csv")[["rater_id", "n_ratings", "mean"]]
+      .merge(_sv, on="rater_id")
+      .merge(read_res("grm/rater_parameters.csv")[["rater_id", "a"]], on="rater_id")
+      .merge(read_res("grm/rater_information_ci.csv")[["rater_id", "share_weighted", "share_ci_low", "share_ci_high"]], on="rater_id")
+      .merge(read_res("grm/rater_fit.csv")[["rater_id", "infit", "outfit", "flag_infit", "flag_outfit"]], on="rater_id")
+      .merge(read_res("data/category_usage.csv")[["rater_id"] + _cc], on="rater_id")
+      .sort_values("severity_m1"))
+_unused = [",".join(str(j + 1) for j in range(7) if r[_cc[j]] == 0) or "–" for _, r in _t.iterrows()]
+Markdown(pd.DataFrame({
+    "Rater": _t["rater_id"], "Ratings": _t["n_ratings"].astype(int),
+    "Mean rating": _t["mean"].map(lambda v: f"{v:.2f}"),
+    "Severity (M1)": _t["severity_m1"].map(lambda v: f"{v:.2f}"),
+    "a (GRM)": _t["a"].map(lambda v: f"{v:.2f}"),
+    "Share of panel information [95% interval]": [f"{100 * s:.1f}% [{100 * l:.1f}, {100 * h:.1f}]" for s, l, h in zip(_t["share_weighted"], _t["share_ci_low"], _t["share_ci_high"])],
+    "Infit / outfit (GRM)": [f"{i:.2f} / {o:.2f}" + (" ⚑" if (fi or fo) else "") for i, o, fi, fo in zip(_t["infit"], _t["outfit"], _t["flag_infit"], _t["flag_outfit"])],
+    "Unused categories": _unused,
+}).to_markdown(index=False, disable_numparse=True))''')
 
 md("## References\n\n- Andrich, D. (1978). A rating formulation for ordered response categories. *Psychometrika, 43*(4), 561–573.\n- Cai, L., & Monroe, S. (2014). *A new statistic for evaluating item response theory models for ordinal data* (CRESST Report 839). University of California, Los Angeles.\n- Chalmers, R. P. (2012). mirt: A multidimensional item response theory package for the R environment. *Journal of Statistical Software, 48*(6), 1–29.\n- Christensen, K. B., Makransky, G., & Horton, M. (2017). Critical values for Yen's Q3: Identification of local dependence in the Rasch model using residual correlations. *Applied Psychological Measurement, 41*(3), 178–194.\n- Cronbach, L. J. (1951). Coefficient alpha and the internal structure of tests. *Psychometrika, 16*(3), 297–334.\n- Eckes, T. (2015). *Introduction to many-facet Rasch measurement* (2nd ed.). Peter Lang.\n- Green, B. F., Bock, R. D., Humphreys, L. G., Linn, R. L., & Reckase, M. D. (1984). Technical guidelines for assessing computerized adaptive tests. *Journal of Educational Measurement, 21*(4), 347–360.\n- Hayes, A. F., & Krippendorff, K. (2007). Answering the call for a standard reliability measure for coding data. *Communication Methods and Measures, 1*(1), 77–89.\n- Kang, T., & Chen, T. T. (2008). Performance of the generalized S-X² item fit index for polytomous IRT models. *Journal of Educational Measurement, 45*(4), 391–406.\n- Linacre, J. M. (1989). *Many-facet Rasch measurement*. MESA Press.\n- Masters, G. N. (1982). A Rasch model for partial credit scoring. *Psychometrika, 47*(2), 149–174.\n- Muraki, E. (1992). A generalized partial credit model: Application of an EM algorithm. *Applied Psychological Measurement, 16*(2), 159–176.\n- Myszkowski, N., & Storme, M. (2019). Judge response theory? A call to upgrade our psychometrical account of creativity judgments. *Psychology of Aesthetics, Creativity, and the Arts, 13*(2), 167–175.\n- Orlando, M., & Thissen, D. (2000). Likelihood-based item-fit indices for dichotomous item response theory models. *Applied Psychological Measurement, 24*(1), 50–64.\n- Primi, R., Silvia, P. J., Jauk, E., & Benedek, M. (2019). Applying many-facet Rasch modeling in the assessment of creativity. *Psychology of Aesthetics, Creativity, and the Arts, 13*(2), 176–186.\n- Samejima, F. (1969). Estimation of latent ability using a response pattern of graded scores. *Psychometrika Monograph Supplement*, No. 17.\n- Wright, B. D., & Masters, G. N. (1982). *Rating scale analysis*. MESA Press.\n- Yen, W. M. (1984). Effects of local item dependence on the fit and equating performance of the three-parameter logistic model. *Applied Psychological Measurement, 8*(2), 125–145.")
 
