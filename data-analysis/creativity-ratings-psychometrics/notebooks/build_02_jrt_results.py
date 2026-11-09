@@ -240,8 +240,8 @@ tbl("tbl-excluded-raters", "Raters excluded from all analyses because they gave 
 note('**Category use.** How often each rater used each of the 7 categories. Raters who never use a category get fewer thresholds in mirt, because mirt only models the categories a rater actually used.')
 tbl("tbl-category-usage", "Category use per rater (counts of ratings 1-7). Unused categories at the ends of the scale reduce the number of thresholds of a rater; an unused category inside the observed range (internal gap) makes that rater's thresholds incomparable with those of other raters.",
     'show_table("data/category_usage.csv", lambda d: d[["rater_id"] + [c for c in d if c.startswith("cat_")] + ["n_ratings", "missing_categories", "internal_gap"]])')
-note("The same category use as shares of each rater's ratings. Raters sorted by mean rating; ✕ marks categories a rater never used.")
-fig("fig-category-usage-shares", "Share of each rater's ratings in each of the 7 categories, sorted by the rater's mean rating; n = number of ratings; ✕ = category never used.",
+note("The same category use as shares of each rater's ratings. Raters sorted by mean rating; the labels at the right give the number of ratings and the categories a rater never used.")
+fig("fig-category-usage-shares", "Share of each rater's ratings in each of the 7 categories, sorted by the rater's mean rating. Labels at the right: n = number of ratings, followed by the categories the rater never used.",
     '''_cu = read_res("data/category_usage.csv").merge(read_res("data/design_summary_raters.csv")[["rater_id", "mean"]], on="rater_id").sort_values("mean", ascending=False)
 _cc = [f"cat_{i}" for i in range(1, 8)]
 _sh = _cu[_cc].div(_cu[_cc].sum(axis=1), axis=0).to_numpy()
@@ -255,7 +255,7 @@ with plt.rc_context(PLOT_STYLE):
         _left += _sh[:, _j]
     for _i, (_, _r) in enumerate(_cu.iterrows()):
         _un = ",".join(str(_j + 1) for _j in range(7) if _r[_cc[_j]] == 0)
-        _ax.text(1.01, _i, f"n={int(_r['n_ratings'])}" + (f"  ✕ {_un}" if _un else ""), va="center", fontsize=7.5, color="#444444")
+        _ax.text(1.01, _i, f"n={int(_r['n_ratings'])}" + (f"  unused: {_un}" if _un else ""), va="center", fontsize=7.5, color="#444444")
     _ax.set_yticks(_y, _cu["rater_id"], fontsize=8)
     _ax.set_xlim(0, 1)
     _ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
@@ -492,8 +492,8 @@ tbl("tbl-naive-indices", "Cronbach's alpha (consistency of the unweighted rater 
 note('**Overview.** All indices side by side, with what each refers to. They answer different questions: the reliability of the actual scores, of a hypothetical full panel, or of single ratings. They are not interchangeable.')
 tbl("tbl-reliability-overview", "Overview of the reliability and agreement indices and what each refers to.",
     'show_table("summary/reliability_overview.csv", _with_min4_row)')
-note("**Rater overview.** One row per rater: number of ratings, raw mean, M1 severity, GRM discrimination, share of the full-panel information with 95% interval, GRM infit and outfit (⚑ = infit or outfit outside 0.7–1.3, the flag rule of the rater-fit output), and categories never used. Sorted by M1 severity.")
-tbl("tbl-rater-overview", "Rater overview sorted by severity: number of ratings, raw mean rating, severity in M1 (rating-scale MFRM), discrimination a in the GRM, share of the full-panel information with 95% interval, GRM infit and outfit mean squares (⚑ = infit or outfit outside 0.7–1.3), and categories never used.",
+note("**Rater overview.** One row per rater: number of ratings, raw mean, M1 severity, GRM discrimination, share of the full-panel information with 95% interval, GRM infit and outfit († = infit or outfit outside 0.7–1.3, the flag rule of the rater-fit output), and categories never used. Sorted by M1 severity.")
+tbl("tbl-rater-overview", "Rater overview sorted by severity: number of ratings, raw mean rating, severity in M1 (rating-scale MFRM), discrimination a in the GRM, share of the full-panel information with 95% interval, GRM infit and outfit mean squares († = infit or outfit outside 0.7–1.3), and categories never used.",
     '''_sv = read_res("comparison/rater_parameters_by_model.csv")
 _sv = _sv[(_sv["model"] == "M1_RSM") & (_sv["parameter"] == "b_rater")][["rater_id", "estimate"]].rename(columns={"estimate": "severity_m1"})
 _cc = [f"cat_{i}" for i in range(1, 8)]
@@ -511,7 +511,7 @@ Markdown(pd.DataFrame({
     "Severity (M1)": _t["severity_m1"].map(lambda v: f"{v:.2f}"),
     "a (GRM)": _t["a"].map(lambda v: f"{v:.2f}"),
     "Share of panel information [95% interval]": [f"{100 * s:.1f}% [{100 * l:.1f}, {100 * h:.1f}]" for s, l, h in zip(_t["share_weighted"], _t["share_ci_low"], _t["share_ci_high"])],
-    "Infit / outfit (GRM)": [f"{i:.2f} / {o:.2f}" + (" ⚑" if (fi or fo) else "") for i, o, fi, fo in zip(_t["infit"], _t["outfit"], _t["flag_infit"], _t["flag_outfit"])],
+    "Infit / outfit (GRM)": [f"{i:.2f} / {o:.2f}" + (" †" if (fi or fo) else "") for i, o, fi, fo in zip(_t["infit"], _t["outfit"], _t["flag_infit"], _t["flag_outfit"])],
     "Unused categories": _unused,
 }).to_markdown(index=False, disable_numparse=True))''')
 
