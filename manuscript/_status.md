@@ -105,3 +105,6 @@
   with their context, in `author_todo.md`. [FILL IN] placeholders stay in the text (highlighted)
   until the author fills them; the highlight filter is removed after that.
 - 02_artifacts.md / 03_findings.md were not regenerated for these display-only changes.
+
+## New rating data (2026-11-04): revision pending
+- Data updated to 9,046 ratings, 3,669 products, 24 raters; analysis re-run with permanent rater IDs. Manuscript, findings and artifacts still describe the old data. Next run: follow `revision_instructions_new_data.md`, after the author confirms the data freeze. Not started.

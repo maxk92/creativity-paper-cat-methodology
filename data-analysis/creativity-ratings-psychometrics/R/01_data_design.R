@@ -33,7 +33,7 @@ stopifnot(!anyNA(long$product_id), !anyNA(long$rater_id), !anyNA(long$rating))
 stopifnot(all(long$rating >= SCALE_MIN & long$rating <= SCALE_MAX))
 
 # --- check: duplicate ratings --------------------------------------------------
-# 00_data_loading_preprocessing.ipynb resolves duplicates ("last entry kept") and
+# 00_data_loading_preprocessing.ipynb resolves duplicates ("latest entry kept") and
 # lists them in results/tables/flagged_duplicate_rater_action_pairs.csv. Here we
 # (a) assert that none remain and (b) report how many there were and whether the
 # repeated entries disagree. Nothing is averaged.
@@ -46,7 +46,7 @@ dup_report <- if (file.exists(flagged_path)) {
     group_by(product_id = action_id, rater_id) %>%
     summarise(n_entries = n(), ratings = paste(rating, collapse = " | "),
               conflicting = n_distinct(rating) > 1, .groups = "drop") %>%
-    mutate(resolution_in_00 = "last entry kept")
+    mutate(resolution_in_00 = "latest entry kept")
 } else {
   tibble(product_id = character(), rater_id = character(), n_entries = integer(),
          ratings = character(), conflicting = logical(), resolution_in_00 = character())

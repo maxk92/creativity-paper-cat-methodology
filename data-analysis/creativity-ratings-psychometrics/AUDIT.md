@@ -384,3 +384,19 @@ Krippendorff bootstrap), `02` 50 s, `04` 42 s, and the other steps a few seconds
 - Not done on purpose (see `ANALYSIS_TODO.md`, "Possible extensions"): severity test M0 vs M1,
   same-package LR test, held-out check, projection over parameter draws, k for target reliability.
 - Notebook 02: readable column headers (display only), compact interval columns.
+
+### Data update and pipeline fixes 2026-11-04
+
+- Data update: 9,046 ratings of 3,669 products by 24 raters (was 7,820 / 3,668 / 19). The previous
+  results are archived in the gitignored `data/archive_pre_rerun_20261103/`.
+- **Permanent rater IDs.** `00` used to renumber all raters by workload on every download, so an ID
+  could mean a different person after a data update. Raters now keep their pseudonym and new raters
+  get the next free number. The key was rebuilt so that the existing raters keep the IDs used in the
+  manuscript (checked against every rating of the previous data set); the new raters are R23–R28.
+- **Duplicates.** "Keep the last entry" assumed the sheet is chronological, but it is not: the last
+  row was the newest entry in only 7 of 21 duplicate pairs. `00` now keeps the entry with the latest
+  timestamp. Only one pair has conflicting values (R14: rating 1 on 2026-05-21, rating 2 on
+  2026-05-11), so one rating is affected.
+- **Order of the exclusion list.** `01_data_overview.ipynb` reads `excluded_raters.csv`, which comes
+  from `R/01_data_design.R`, but the README ran the notebook first, so it could apply an out-of-date
+  list. The README order is corrected and the notebook now stops if the list does not match the data.

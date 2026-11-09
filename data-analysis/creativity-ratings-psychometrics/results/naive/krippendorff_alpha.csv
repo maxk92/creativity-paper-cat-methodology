@@ -1,2 +1,2 @@
 method,alpha,ci_low,ci_high,ci_type,n_boot,n_boot_failed,seed,n_units,n_pairable_units,n_raters,package,interpretation
-ordinal,0.39159016511570033,0.3624634772369863,0.417114446306189,"percentile bootstrap, resampling products",1000,0,20260713,3668,2771,19,irr 0.85,Agreement (consensus) of single ratings; raters treated as interchangeable.
+ordinal,0.3914043339354839,0.36285166555062,0.4170968045057375,"percentile bootstrap, resampling products",1000,0,20260713,3669,2837,24,irr 0.85,Agreement (consensus) of single ratings; raters treated as interchangeable.

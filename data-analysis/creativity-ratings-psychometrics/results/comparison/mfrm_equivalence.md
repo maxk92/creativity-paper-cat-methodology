@@ -16,7 +16,7 @@ The original call (`rm.facets(dat, pid, rater)`, formerly in `02_creativity_rati
 - Every rater keeps the full 0–6 category set (no recoding per rater), so unused categories do not shift thresholds.
 
 This is the rating scale model with a rater shift, i.e. M1. Its free parameters are J − 1 + K − 1 + 1 = J + K − 1
-(25 here); rm.facets' own count `ic$np` is 24.
+(30 here); rm.facets' own count `ic$np` is 29.
 
 ## Why M1 is fitted with rm.facets, not mirt
 
@@ -42,13 +42,13 @@ integration error, so M1 (rm.facets) and M2 (mirt) likelihoods can be compared i
 
 | Quantity | Original call (30 points, [−9, 9]) | M1 (321 points, [−8, 8]) |
 |---|---|---|
-| logLik | -12186.25 | -12186.22 |
-| latent variance | 0.961 | 0.962 |
-| EAP reliability (sirt) | 0.626 | 0.626 |
+| logLik | -13994.51 | -13994.49 |
+| latent variance | 1.056 | 1.053 |
+| EAP reliability (sirt) | 0.653 | 0.653 |
 
 - Correlation of rater severities: 1.000
 - Correlation of θ̂ (EAP): Pearson 1.000, Spearman 1.000
 
 Differences come only from the integration grid (same model, data and identification).
 
-No rater has an internal category gap, so M1 is strictly nested in M2 (end gaps only).
+Raters with internal category gaps (R27): the M1-vs-M2 test is approximate for them, because mirt rescores their categories in M2.

@@ -1,0 +1,538 @@
+---
+title: "Creativity ratings of football actions: JRT results in brief"
+subtitle: "Summary for discussion: model fit, agreement, rater tendencies"
+date: today
+date-format: "D MMMM YYYY"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 2
+    theme: cosmo
+    fig-width: 7
+    fig-height: 4
+    fig-dpi: 150
+    tbl-cap-location: top
+  typst:
+    toc: true
+    toc-depth: 2
+    papersize: a4
+    margin:
+      x: 2cm
+      y: 2cm
+    fontsize: 10pt
+    fig-width: 7
+    fig-height: 4
+    fig-dpi: 200
+    tbl-cap-location: top
+execute:
+  echo: false
+  warning: false
+  message: false
+jupyter: python3
+---
+
+```{python}
+#| label: setup
+from pathlib import Path
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+from IPython.display import Markdown
+
+R = Path("../results")
+
+def csv(p, **kw):
+    return pd.read_csv(R / p, **kw)
+
+# Okabe-Ito, colour-blind safe
+C = dict(blue="#0072B2", orange="#E69F00", green="#009E73", red="#D55E00",
+         sky="#56B4E9", purple="#CC79A7", grey="#7F7F7F", ink="#222222")
+plt.rcParams.update({
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.grid": True, "grid.color": "#E5E5E5", "grid.linewidth": 0.6,
+    "axes.axisbelow": True, "axes.edgecolor": "#888888",
+    "axes.labelcolor": C["ink"], "xtick.color": "#444444", "ytick.color": "#444444",
+    "font.size": 9.5, "axes.titlesize": 10.5, "axes.titleweight": "bold",
+    "legend.frameon": False,
+})
+
+def f2(x):  # display only: two decimals, APA style without leading zero for |x|<1 bounded stats
+    return f"{x:.2f}"
+
+def r3(x):
+    s = f"{x:.3f}"
+    return s.replace("0.", ".", 1) if abs(x) < 1 else s
+
+def pct(x, d=0):
+    return f"{100 * x:.{d}f}%"
+
+def pfmt(p):
+    return "< .001" if p < .001 else r3(p)
+
+def md(df, colalign=None, widths=None, **kw):
+    """Pipe table. `widths` = relative column widths (pandoc reads them from the dash counts)."""
+    if widths is None:
+        return Markdown(df.to_markdown(index=False, disable_numparse=True, colalign=colalign, **kw))
+    al = colalign or ("left",) * df.shape[1]
+    sep = []
+    for a, w in zip(al, widths):
+        d = "-" * max(3, w)
+        sep.append(":" + d[1:] if a == "left" else d[:-1] + ":" if a == "right" else ":" + d[2:] + ":")
+    lines = ["| " + " | ".join(map(str, df.columns)) + " |", "|" + "|".join(sep) + "|"]
+    lines += ["| " + " | ".join(str(v) for v in row) + " |" for row in df.itertuples(index=False)]
+    return Markdown("\n".join(lines))
+
+# ---- data used throughout ----
+design = csv("data/design_summary.csv").set_index("quantity")["value"]
+dnum = lambda k: float(design[k])
+fingerprint = design["data_fingerprint"]
+
+fit = csv("comparison/model_fit.csv")
+fit = fit[fit["model"].isin(["M1_RSM", "M2_PCM", "M3_GPCM", "GRM"])].copy()
+lr = csv("comparison/lr_tests.csv")
+agree = csv("comparison/score_agreement.csv")
+rawgrm = csv("grm/raw_mean_vs_grm.csv")
+sens = csv("comparison/sensitivity_rater_exclusion.csv").set_index("quantity")
+glob = csv("grm/global_fit.csv").iloc[0]
+conv = csv("grm/convergence.csv").iloc[0]
+rel = csv("summary/reliability_overview.csv").set_index("index")
+relv = rel["value"]
+by_n = csv("grm/reliability_by_n_ratings.csv")
+proj = csv("grm/reliability_projection.csv")
+min4 = csv("grm/reliability_min_ratings.csv").set_index("design")
+m4 = min4.loc["min_4"]
+m4_actual = min4.loc["actual"]
+kripp = relv["Krippendorff's alpha (ordinal)"]
+emp = relv["GRM: empirical marginal reliability"]
+full = relv["GRM: model-based marginal reliability"]
+med_post = relv["GRM: median rel_post"]
+
+pars = csv("comparison/rater_parameters_by_model.csv")
+sev = pars.query("model == 'M1_RSM' and parameter == 'b_rater'")[["rater_id", "estimate", "se"]]
+raters = csv("data/design_summary_raters.csv")
+cats = csv("data/category_usage.csv")
+desc = csv("tables/rater_descriptive_statistics.csv")
+grm_par = csv("grm/rater_parameters.csv")
+info = csv("grm/rater_information_ci.csv")
+rfit = csv("grm/rater_fit.csv")
+disc = csv("comparison/discrimination_summary.csv").set_index("statistic")["value"]
+thr = csv("comparison/threshold_order.csv")
+
+MODEL_LABEL = {"M1_RSM": "M1 (RS-MFRM)", "M2_PCM": "M2 (PC-MFRM)",
+               "M3_GPCM": "M3 (GPCM)", "GRM": "GRM"}
+```
+
+**Data version:** `{python} fingerprint`. All numbers below are read directly from the
+analysis output files (`results/`); nothing was re-estimated for this summary.
+
+# At a glance
+
+```{python}
+#| label: glance
+best_bic = fit.loc[fit["BIC"].idxmin(), "model"]
+k80 = int(proj.loc[proj["empirical"] >= .80, "k"].min())
+gpcm_r = agree.set_index("model").loc["M3_GPCM", "pearson"]
+m1_r = agree.set_index("model").loc["M1_RSM", "pearson"]
+sev_range = sev["estimate"].max() - sev["estimate"].min()
+```
+
+- **Fit:** Raters differ in how they use the 1–7 scale *and* in how well they separate
+  actions. The most flexible models (GRM, GPCM) fit best by AIC; by BIC the simplest
+  model (`{python} MODEL_LABEL[best_bic]`, rating-scale MFRM) wins narrowly over the GRM.
+- **Agreement:** Single ratings agree weakly (Krippendorff's α = `{python} r3(kripp)`).
+  The model-based scores have reliability `{python} r3(emp)` overall. Most actions have only
+  1–2 ratings, which limits this value.
+- **Number of raters:** Reliability rises from about `{python} r3(proj.loc[0, "empirical"])` with 1 rating
+  to `{python} r3(proj.loc[1, "empirical"])` with 2 and passes .80 at `{python} k80` ratings per action
+  (model-based simulation). Topping up our actual design to at least 4 ratings per action would give
+  `{python} r3(m4["empirical"])`.
+- **Raters:** They differ clearly in strictness, scale use and informativeness, but the final
+  scores barely depend on the model (r = `{python} r3(m1_r)` to `{python} r3(gpcm_r)` with the GRM).
+
+## Terms used in this summary
+
+| Term | Plain meaning |
+|:--|:--|
+| **IRT / JRT** | Item response theory treats each rating as a noisy signal of an unobserved quality. *Judge* response theory (JRT) applies this to raters: rater = "item", rated action = "person". |
+| **θ (theta)** | The estimated creativity of an action on a common scale (mean 0, SD 1), adjusted for *who* rated it. |
+| **Threshold (b)** | How much creativity is needed before a rater moves up to the next scale point. High thresholds = strict rater. |
+| **Discrimination (a)** | How sharply a rater's ratings separate less from more creative actions. Higher = more consistent with the shared scale. |
+| **Information** | How much one rating by a given rater reduces uncertainty about θ. Depends on a and on where the thresholds sit. |
+| **Reliability** | Share of score variance that is true differences rather than noise (0–1). |
+| **rel_post** | Reliability of one action's score, from its posterior uncertainty (1 − PSD²). |
+| **AIC / BIC** | Fit indices that penalise complexity; lower is better. BIC penalises extra parameters more strongly. |
+
+**Why a model at all?** The design is sparse: each action was rated by only a few of the 24
+raters (mean `{python} f2(dnum("ratings_per_product_mean"))`, median `{python} int(dnum("ratings_per_product_median"))`
+ratings per action; `{python} pct(dnum("matrix_fill"))` of the action × rater matrix is filled). A plain
+average then depends on which raters an action happened to get. JRT puts all ratings on one
+scale while accounting for rater differences.
+
+## Design snapshot
+
+```{python}
+#| label: tbl-design
+#| tbl-cap: "Data after cleaning."
+rows = [
+    ("Ratings", f"{int(dnum('n_ratings')):,}"),
+    ("Rated actions", f"{int(dnum('n_products')):,}"),
+    ("Raters", f"{int(dnum('n_raters'))} (excluded with < {int(dnum('min_ratings_per_rater (exclusion cut-off)'))} ratings: {design['raters_excluded'].replace(';', ', ')})"),
+    ("Ratings per rater", f"{int(dnum('ratings_per_rater_min'))}–{int(dnum('ratings_per_rater_max')):,}"),
+    ("Ratings per action: mean / median / range", f"{f2(dnum('ratings_per_product_mean'))} / {int(dnum('ratings_per_product_median'))} / {int(dnum('ratings_per_product_min'))}–{int(dnum('ratings_per_product_max'))}"),
+    ("Actions with only 1 rating", f"{int(dnum('products_with_1_rating')):,}"),
+    ("Rater pairs sharing no action", f"{int(dnum('rater_pairs_without_overlap'))} of {int(dnum('rater_pairs_total'))}"),
+    ("Scale", f"{design['scale']} ({int(dnum('n_categories'))} categories)"),
+]
+md(pd.DataFrame(rows, columns=["Quantity", "Value"]))
+```
+
+```{python}
+#| label: fig-design
+#| fig-cap: "Number of actions by how many ratings they received."
+#| fig-height: 2.6
+rpp = csv("data/design_summary_ratings_per_product.csv")
+fig, ax = plt.subplots(figsize=(7, 2.6))
+ax.bar(rpp["n_ratings"], rpp["n_products"], color=C["blue"], width=0.75)
+for x, y in zip(rpp["n_ratings"], rpp["n_products"]):
+    ax.text(x, y, f"{y:,}", ha="center", va="bottom", fontsize=8)
+ax.set_xticks(rpp["n_ratings"])
+ax.set_xlabel("Ratings per action")
+ax.set_ylabel("Actions")
+ax.grid(axis="x", visible=False)
+plt.tight_layout(); plt.show()
+```
+
+# 1. Model fit: which assumptions hold?
+
+We fitted four models that make increasingly fewer assumptions about the raters.
+
+```{python}
+#| label: tbl-fit
+#| tbl-cap: "Model comparison. Δ = difference to the best model in that column (0 = best)."
+assume = {
+    "M1_RSM": "Rating-scale many-facet Rasch: one strictness value per rater, shared scale spacing, equal discrimination",
+    "M2_PCM": "Partial-credit many-facet Rasch: own thresholds per rater, equal discrimination",
+    "M3_GPCM": "Generalised partial credit: own thresholds and own discrimination",
+    "GRM": "Graded response: as M3, cumulative form (main model)",
+}
+t = fit.copy()
+for c in ["AIC", "BIC", "SABIC"]:
+    t["Δ" + c] = t[c] - t[c].min()
+t = pd.DataFrame({
+    "Model": t["model"].map(MODEL_LABEL),
+    "Assumes": t["model"].map(assume),
+    "Par.": t["npar"].astype(int).astype(str),
+    "ΔAIC": t["ΔAIC"].map(lambda v: f"{v:.1f}"),
+    "ΔBIC": t["ΔBIC"].map(lambda v: f"{v:.1f}"),
+    "ΔSABIC": t["ΔSABIC"].map(lambda v: f"{v:.1f}"),
+})
+md(t, colalign=("left", "left", "right", "right", "right", "right"), widths=(21, 47, 7, 9, 9, 10))
+```
+
+```{python}
+#| label: tbl-lr
+#| tbl-cap: "Likelihood-ratio tests between nested models."
+lab = {"M1 vs M2: rater-specific thresholds": "Do raters need their own thresholds? (M1 vs M2)",
+       "M2 vs M3: rater-specific discriminations": "Do raters need their own discrimination? (M2 vs M3)"}
+md(pd.DataFrame({
+    "Question": lr["comparison"].map(lab).fillna(lr["comparison"]),
+    "χ²": lr["X2"].map(lambda v: f"{v:.2f}"),
+    "df": lr["df"].astype(int),
+    "p": lr["p"].map(pfmt),
+}), colalign=("left", "right", "right", "right"))
+```
+
+**Reading:** Both likelihood-ratio tests and AIC favour giving each rater their own thresholds and
+their own discrimination. BIC, which penalises the extra parameters strongly, prefers the
+simplest model by a small margin (ΔBIC for the GRM = `{python} f"{fit.set_index('model').loc['GRM','BIC'] - fit['BIC'].min():.1f}"`).
+In the GPCM, the most discriminating rater's value is `{python} f"{disc['ratio_max_min']:.1f}"` times that of the
+least discriminating one. @fig-disc shows the same spread in the GRM.
+
+```{python}
+#| label: fig-disc
+#| fig-cap: "Discrimination per rater (GRM) with 95% intervals. Under the Rasch-family models (M1, M2) all raters would share one value (dashed line: median)."
+#| fig-height: 4.2
+g = grm_par.sort_values("a")
+fig, ax = plt.subplots(figsize=(7, 4.2))
+y = np.arange(len(g))
+ax.errorbar(g["a"], y, xerr=1.96 * g["a_se"], fmt="o", color=C["blue"],
+            ecolor="#9BBBD9", elinewidth=1.4, capsize=0, ms=5)
+ax.axvline(g["a"].median(), ls="--", color=C["grey"], lw=1)
+ax.set_yticks(y, g["rater_id"], fontsize=8)
+ax.set_xlabel("Discrimination a (higher = sharper separation of actions)")
+ax.grid(axis="y", visible=False)
+plt.tight_layout(); plt.show()
+```
+
+### Does the model choice change the scores?
+
+Barely. The table compares each model's action scores with the GRM scores.
+
+```{python}
+#| label: tbl-agree
+#| tbl-cap: "Agreement of action scores with the GRM."
+md(pd.DataFrame({
+    "Model": agree["model"].map(MODEL_LABEL),
+    "Pearson r": agree["pearson"].map(r3),
+    "Spearman ρ": agree["spearman"].map(r3),
+    "Mean rank shift (pct. points)": agree["mean_abs_percentile_shift"].map(lambda v: f"{100*v:.1f}"),
+    "Change quintile": agree["share_products_changing_quintile"].map(lambda v: pct(v, 1)),
+    "Change ≥ 2 quintiles": agree["share_products_changing_quintile_by_2_or_more"].map(lambda v: pct(v, 1)),
+}), colalign=("left",) + ("right",) * 5, widths=(18, 11, 12, 20, 16, 18))
+```
+
+Raw mean ratings versus GRM scores: Kendall's τ~b~ =
+`{python} ", ".join(f"{r3(t)} ({n} rating{'s' if n != '1' else ''})" for n, t in zip(rawgrm['n_ratings'].astype(str), rawgrm['kendall_tau_b']))`.
+Actions with the *same* raw mean can differ by up to
+`{python} f2(rawgrm['max_theta_range_same_raw_mean'].max())` SD on θ, because the model accounts for who rated them.
+
+**Checks.** The GRM converged (`{python} int(conv['iterations'])` iterations). A global
+fit statistic (C2) cannot be computed because `{python} int(glob['rater_pairs_without_overlap'])` of
+`{python} int(glob['rater_pairs'])` rater pairs share no action. Re-fitting with the 4 excluded low-volume
+raters changes almost nothing (θ correlation `{python} f"{float(sens.loc['theta_pearson_common_products','final_data']):.4f}"`; reliability
+`{python} r3(float(sens.loc['empirical_marginal_reliability','all_raters']))` vs `{python} r3(float(sens.loc['empirical_marginal_reliability','final_data']))`).
+
+# 2. Agreement and reliability
+
+Different indices answer different questions, which is why their values differ so much.
+
+```{python}
+#| label: tbl-rel
+#| tbl-cap: "Agreement and reliability indices."
+plain = {
+    "Krippendorff's alpha (ordinal)": ("Do two raters give the same rating to an action?", "Krippendorff's α"),
+    "Cronbach's alpha (fully crossed block)": ("How consistent is the plain mean of 3 raters? (the largest set of ≥ 3 raters who all rated the same actions)", "Cronbach's α, crossed block"),
+    "GRM: empirical marginal reliability": ("How reliable are the scores we actually have? (main value)", "GRM, actual scores"),
+    "GRM: model-based marginal reliability": ("How reliable would scores be if all 24 raters rated every action?", "GRM, full panel (hypothetical)"),
+    "GRM: median rel_post": ("Reliability of a typical single action's score", "GRM, median per action"),
+}
+keep = [k for k in plain if k in rel.index]
+tab = pd.DataFrame({
+    "Index": [plain[k][1] for k in keep],
+    "Answers": [plain[k][0] for k in keep],
+    "Value": [r3(relv[k]) for k in keep],
+    "Note": [str(rel.loc[k, "ci_or_note"]).split(";")[0] if pd.notna(rel.loc[k, "ci_or_note"]) else "" for k in keep],
+})
+# simulated design: actual raters kept, actions with < 4 ratings topped up to 4
+row4 = pd.DataFrame([{
+    "Index": "GRM, at least 4 ratings per action (simulated)",
+    "Answers": "How reliable would our scores be if every action had at least 4 ratings?",
+    "Value": r3(m4["empirical"]),
+    "Note": f"95% range [{r3(m4['empirical_q025'])}, {r3(m4['empirical_q975'])}] over {int(m4['n_reps'])} simulations; "
+            f"{int(m4['n_ratings_added']):,} ratings added to {int(m4['n_products_topped_up']):,} actions",
+}])
+pos = tab.index[tab["Index"] == "GRM, actual scores"][0] + 1
+tab = pd.concat([tab.iloc[:pos], row4, tab.iloc[pos:]], ignore_index=True)
+md(tab, colalign=("left", "left", "right", "left"), widths=(22, 38, 8, 34))
+```
+
+**Reading:** Raters agree only modestly on *individual* ratings (α = `{python} r3(kripp)`). Combining
+several ratings in the model gives usable scores (`{python} r3(emp)`). If every action had at least 4
+ratings, reliability would rise to `{python} r3(m4["empirical"])` (simulation). This keeps the actual raters and
+adds `{python} f"{int(m4['n_ratings_added']):,}"` ratings by randomly drawn raters to the
+`{python} f"{int(m4['n_products_topped_up']):,}"` actions with fewer than 4. The same simulation run on the
+actual design gives `{python} r3(m4_actual["empirical"])`, close to the observed `{python} r3(emp)`.
+A full panel (all 24 raters rate every action) would reach `{python} r3(full)`, but that design is far from ours.
+
+```{python}
+#| label: fig-reln
+#| fig-cap: "Reliability by number of ratings per action. Dots: observed mean rel_post of the actual actions with that many ratings (dot size = number of actions; faded = fewer than 10 actions). Line and band: model-based simulation (mean and 95% range over 50 replications). For each k, 2,000 simulated actions with creativity drawn from a standard normal distribution each receive exactly k ratings. The k raters are drawn at random from the 24 raters, all with equal probability, regardless of how many ratings each rater gave in reality. Ratings are generated from the fitted GRM and scored with it. The simulated curve therefore does not use our distribution of ratings per action (Figure 1); the observed dots do. Pink dashed line: actual design with every action topped up to at least 4 ratings."
+#| fig-height: 4
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.fill_between(proj["k"], proj["empirical_q025"], proj["empirical_q975"],
+                color=C["orange"], alpha=.25, lw=0)
+ax.plot(proj["k"], proj["empirical"], color=C["orange"], lw=2, marker="s", ms=4,
+        label="Simulated (k random raters)")
+big = by_n["n_products"] >= 10
+sizes = 15 + 220 * np.sqrt(by_n["n_products"] / by_n["n_products"].max())
+ax.scatter(by_n.loc[big, "n_ratings"], by_n.loc[big, "rel_post_mean"], s=sizes[big],
+           color=C["blue"], alpha=.85, zorder=3, label="Observed (actual actions)")
+ax.scatter(by_n.loc[~big, "n_ratings"], by_n.loc[~big, "rel_post_mean"], s=sizes[~big],
+           color=C["blue"], alpha=.25, zorder=3)
+for lvl in (.70, .80):
+    ax.axhline(lvl, color=C["grey"], ls=":", lw=1)
+    ax.text(by_n["n_ratings"].max() + .2, lvl, f"{lvl:.2f}".lstrip("0"), va="center", fontsize=8, color=C["grey"])
+ax.axhline(m4["empirical"], color=C["purple"], ls="--", lw=1)
+ax.text(13.3, m4["empirical"] + .008, f"actual design, ≥ 4 ratings per action: {r3(m4['empirical'])}",
+        fontsize=8, color=C["purple"], ha="right")
+ax.axhline(full, color=C["green"], ls="--", lw=1)
+ax.text(1, full + .008, f"full panel of 24 raters: {r3(full)}", fontsize=8, color=C["green"])
+ax.set_xticks(range(1, int(by_n["n_ratings"].max()) + 1))
+ax.set_xlim(.5, by_n["n_ratings"].max() + .8)
+ax.set_ylim(.45, 1.0)
+ax.set_xlabel("Ratings per action")
+ax.set_ylabel("Reliability")
+ax.legend(loc="lower right")
+plt.tight_layout(); plt.show()
+```
+
+```{python}
+#| label: tbl-reln
+#| tbl-cap: "Reliability by number of ratings (observed vs simulated)."
+m = proj[["k", "empirical", "empirical_q025", "empirical_q975"]].merge(
+    by_n[["n_ratings", "n_products", "rel_post_mean"]], left_on="k", right_on="n_ratings", how="left")
+md(pd.DataFrame({
+    "Ratings per action": m["k"],
+    "Actions observed": m["n_products"].map(lambda v: f"{int(v):,}" if pd.notna(v) else "–"),
+    "Observed mean rel_post": m["rel_post_mean"].map(lambda v: r3(v) if pd.notna(v) else "–"),
+    "Simulated reliability [95% range]": [f"{r3(e)} [{r3(a)}, {r3(b)}]" for e, a, b in
+                                          zip(m["empirical"], m["empirical_q025"], m["empirical_q975"])],
+}), colalign=("right", "right", "right", "right"))
+```
+
+# 3. Rater tendencies
+
+## Leniency and strictness
+
+```{python}
+#| label: fig-sev
+#| fig-cap: "Left: rater strictness from the rating-scale MFRM (M1), with 95% intervals; 0 = average rater, higher = stricter. Right: the rater's raw mean rating (1–7). Raters sorted by strictness."
+#| fig-height: 4.6
+s = sev.merge(raters[["rater_id", "n_ratings", "mean"]], on="rater_id").sort_values("estimate")
+y = np.arange(len(s))
+fig, (a1, a2) = plt.subplots(1, 2, figsize=(7, 4.6), sharey=True,
+                             gridspec_kw=dict(width_ratios=[1.6, 1]))
+col = np.where(s["estimate"] > 0, C["red"], C["blue"])
+a1.errorbar(s["estimate"], y, xerr=1.96 * s["se"], fmt="none", ecolor="#BBBBBB", elinewidth=1.4)
+a1.scatter(s["estimate"], y, c=col, s=28, zorder=3)
+a1.axvline(0, color=C["grey"], lw=1)
+a1.set_yticks(y, s["rater_id"], fontsize=8)
+a1.set_xlabel("← lenient     Strictness (logits)     strict →")
+a1.grid(axis="y", visible=False)
+a2.barh(y, s["mean"], color=col, alpha=.75, height=.65)
+a2.set_xlim(1, 7)
+a2.set_xlabel("Raw mean rating")
+a2.grid(axis="y", visible=False)
+plt.tight_layout(); plt.show()
+```
+
+Strictness spans `{python} f2(sev_range)` logits from the most lenient
+(`{python} s.iloc[0]['rater_id']`, mean rating `{python} f2(s.iloc[0]['mean'])`) to the strictest rater
+(`{python} s.iloc[-1]['rater_id']`, mean `{python} f2(s.iloc[-1]['mean'])`). M1 summarises strictness in one number
+per rater. The GRM thresholds show the same pattern in more detail.
+
+## Use of the scale
+
+```{python}
+#| label: fig-scale
+#| fig-cap: "How often each rater used each scale point (share of their ratings). Sorted by mean rating; n = number of ratings. ✕ = scale point never used."
+#| fig-height: 5
+cc = [f"cat_{i}" for i in range(1, 8)]
+u = cats.merge(raters[["rater_id", "mean"]], on="rater_id").sort_values("mean", ascending=False)
+shares = u[cc].div(u[cc].sum(axis=1), axis=0).to_numpy()
+cmap = plt.get_cmap("viridis_r")
+colors = [cmap(.08 + .84 * i / 6) for i in range(7)]
+fig, ax = plt.subplots(figsize=(7, 5))
+y = np.arange(len(u))
+left = np.zeros(len(u))
+for j in range(7):
+    ax.barh(y, shares[:, j], left=left, color=colors[j], height=.78, label=str(j + 1), edgecolor="white", lw=.3)
+    left += shares[:, j]
+for i, (_, r) in enumerate(u.iterrows()):
+    unused = [str(j + 1) for j in range(7) if r[cc[j]] == 0]
+    lab = f"n={int(r['n_ratings'])}" + (f"  ✕ {','.join(unused)}" if unused else "")
+    ax.text(1.01, i, lab, va="center", fontsize=7.5, color="#444444")
+ax.set_yticks(y, u["rater_id"], fontsize=8)
+ax.set_xlim(0, 1)
+ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
+ax.set_xlabel("Share of ratings")
+ax.grid(False)
+ax.legend(title="Scale point", ncol=7, loc="upper center", bbox_to_anchor=(.5, -.1), fontsize=8, title_fontsize=8)
+plt.tight_layout(); plt.show()
+```
+
+```{python}
+#| label: scale-stats
+n_gap = int((cats["n_categories_used"] < 7).sum())
+n_floor = desc.loc[desc["floor_rate"].idxmax()]
+n_thr_rev = int((thr.query("model == 'M2_PCM'")["ordered"] == False).sum())
+```
+
+`{python} n_gap` of 24 raters never used at least one scale point; in every case this included the top category (7).
+Floor use varies widely: `{python} n_floor['rater_id']` gave a "1" in `{python} pct(n_floor['floor_rate'])` of ratings,
+others rarely did.
+
+## Informativeness
+
+```{python}
+#| label: fig-info
+#| fig-cap: "Information per rating (GRM, averaged over the distribution of creativity) with 95% intervals from 200 parameter draws. Dot size = number of ratings by that rater."
+#| fig-height: 4.4
+i_ = info.sort_values("info_weighted_area")
+y = np.arange(len(i_))
+fig, ax = plt.subplots(figsize=(7, 4.4))
+ax.hlines(y, i_["info_ci_low"], i_["info_ci_high"], color="#BBBBBB", lw=1.6)
+ax.scatter(i_["info_weighted_area"], y, s=10 + 120 * np.sqrt(i_["n_ratings"] / i_["n_ratings"].max()),
+           color=C["green"], zorder=3)
+ax.set_yticks(y, i_["rater_id"], fontsize=8)
+ax.set_xlabel("Information per rating (higher = one rating says more about an action)")
+ax.grid(axis="y", visible=False)
+plt.tight_layout(); plt.show()
+```
+
+```{python}
+#| label: info-stats
+top = info.loc[info["info_weighted_area"].idxmax()]
+low = info.loc[info["info_weighted_area"].idxmin()]
+```
+
+Information per rating ranges from `{python} f2(low['info_weighted_area'])` (`{python} low['rater_id']`) to
+`{python} f2(top['info_weighted_area'])` (`{python} top['rater_id']`). Information adds up across ratings, so one rating by the
+top rater carries as much as several ratings by the least informative one.
+Raters with few ratings have wide intervals, so their rank is uncertain.
+
+## Rater overview
+
+```{python}
+#| label: tbl-raters
+#| tbl-cap: "Rater summary, sorted by strictness. Fit flag: GRM infit or outfit outside 0.7–1.3."
+t = (raters[["rater_id", "n_ratings", "mean"]]
+     .merge(sev.rename(columns={"estimate": "sev"})[["rater_id", "sev"]], on="rater_id")
+     .merge(grm_par[["rater_id", "a"]], on="rater_id")
+     .merge(info[["rater_id", "share_weighted", "share_ci_low", "share_ci_high"]], on="rater_id")
+     .merge(rfit[["rater_id", "infit", "outfit", "flag_infit", "flag_outfit"]], on="rater_id")
+     .merge(cats[["rater_id", "cat_1", "cat_2", "cat_3", "cat_4", "cat_5", "cat_6", "cat_7"]], on="rater_id")
+     .sort_values("sev"))
+unused = t[cc].apply(lambda r: ",".join(str(j + 1) for j in range(7) if r.iloc[j] == 0) or "–", axis=1)
+md(pd.DataFrame({
+    "Rater": t["rater_id"],
+    "n": t["n_ratings"].astype(int),
+    "Mean": t["mean"].map(f2),
+    "Strictness": t["sev"].map(f2),
+    "a": t["a"].map(f2),
+    "Info share [95% CI]": [f"{100*s:.1f}% [{100*l:.1f}, {100*h:.1f}]" for s, l, h in
+                            zip(t["share_weighted"], t["share_ci_low"], t["share_ci_high"])],
+    "Infit / outfit": [f"{f2(i)} / {f2(o)}" + (" ⚑" if (fi or fo) else "") for i, o, fi, fo in
+                       zip(t["infit"], t["outfit"], t["flag_infit"], t["flag_outfit"])],
+    "Unused": unused.values,
+}), colalign=("left", "right", "right", "right", "right", "right", "right", "left"))
+```
+
+*Info share* = this rater's share of the total information of the full panel. Infit/outfit
+values below 1 mostly reflect the design (about two ratings per action), not misfit.
+
+# 4. Research questions in one line
+
+*Descriptive summary for discussion; interpretation is still open.*
+
+```{python}
+#| label: rq
+m2 = agree.set_index("model").loc["M2_PCM"]
+```
+
+- **RQ1. Reliability and number of ratings.** The actual scores reach `{python} r3(emp)`
+  (single ratings: α = `{python} r3(kripp)`); with at least 4 ratings per action they would reach
+  `{python} r3(m4["empirical"])` (simulation). Reliability per action
+  rises from `{python} r3(by_n.loc[0, 'rel_post_mean'])` with 1 rating to `{python} r3(by_n.loc[1, 'rel_post_mean'])`
+  with 2 and passes .80 from about `{python} k80` ratings.
+- **RQ2. Rater differences.** Raters differ in strictness (range `{python} f2(sev_range)` logits),
+  scale use (`{python} n_gap` leave points unused), discrimination (`{python} f"{disc['ratio_max_min']:.1f}"`-fold) and
+  information. The estimates are precise for high-volume raters and uncertain for low-volume ones.
+- **RQ3a. Are the simpler models' constraints tenable?** Not by LR tests and AIC: rater-specific thresholds
+  (χ²(`{python} int(lr.loc[0,'df'])`) = `{python} f"{lr.loc[0,'X2']:.2f}"`) and discriminations
+  (χ²(`{python} int(lr.loc[1,'df'])`) = `{python} f"{lr.loc[1,'X2']:.2f}"`) both improve fit, p < .001. BIC narrowly prefers the simplest model.
+- **RQ3b. Do scores change?** Little. Correlations with the GRM are `{python} r3(m1_r)`–`{python} r3(gpcm_r)`,
+  but `{python} pct(m2['share_products_changing_quintile'])`–`{python} pct(agree['share_products_changing_quintile'].max())` of actions change quintile
+  under the Rasch-family models. Raw means and GRM scores rank actions with τ~b~ = `{python} r3(rawgrm['kendall_tau_b'].min())`–`{python} r3(rawgrm['kendall_tau_b'].max())`.

@@ -1,5 +1,5 @@
 Stage: 05_naive_indices 
-Timestamp: 2026-10-23 10:44:59 
+Timestamp: 2026-11-04 15:36:24 
 Seed: 20260713 
 Smoke run: FALSE 
 
