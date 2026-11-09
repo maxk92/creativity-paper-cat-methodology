@@ -1,131 +1,123 @@
-# 04_outline.md: Argument architecture (Phase 5), GRM/JRT version
+# 04_outline.md: Argument architecture (Phase 5), REVISION 2026-11-09 (frozen data 9,046 ratings / 3,669 products / 24 raters)
 
-> **Revision round 5 (final wording pass) after checkpoint 2 (2026-10-27, relayed via coordinating session); notebooks at 04aefc5.**
+> Replaces the round-5 outline of 2026-10-27. Notebooks at commit 164c146. This outline goes to **human checkpoint 1**; the decisions for the author are collected in "Decisions for checkpoint 1" near the end.
 
 Profile: `imrad-apa`. Venue: *Creativity Research Journal*. Style: APA 7th.
-Structure: Abstract, Introduction, Method, Results, Discussion, Conclusion, References.
+Structure: Abstract, Introduction, Method, Results, Discussion, Conclusion, References, Supplementary Material.
 
-Sources (all re-read for this update):
-- Brief: `~/drive/KNOWLEDGE/Paper_CreativityAssessmentInSportsCAT.md`
-- Dossier: `01_dossier.md`
-- Labels: `02_artifacts.md` (re-run after 04aefc5; **43 labels**; one new label, `tbl-overview-rater-response-styles`; nothing removed or renamed)
-- Numbers: `03_findings.md` (re-run after 04aefc5). This is the ONLY source of numbers. Values are unchanged. Display changes: model labels in cells ("M1 (rating-scale MFRM)", "M2 (partial-credit MFRM)", "M3 (GPCM)", "GRM"); the "Ratings (n)" header is replaced by "Ratings by rater", "Ratings per product" and "Ratings (total)"; the Q3 note now defines a computable pair (F1.9); R09's mean prints 3.643 in the new table (3.642 only in an unlabelled cell; never quote that form).
-- Review: `05_review.md` (round 4: 0 critical, 0 major, 11 minor; "minor revision, close to acceptance"). Each point is mapped in "Revision plan vs 05_review.md (round 4)" at the end of this file.
-- Citekeys: **`phd_library.bib` is the single source.** The author fixed its entries; **the bib is not edited** by the pipeline. Citekeys are unchanged. No new keys are added. No Bayesian references.
-
-**Author priority (checkpoint 2, rounds 3 to 5), overriding earlier plans:**
-- The paper reports the actual rating study and its empirical findings. It does not make predictions or explore what-if scenarios about other raters or designs.
-- The projection (F1.20, random raters only) appears **only as a side note**: in the supplement, one pointer sentence in Method 2.10 (round 5, m-5), and one or two sentences in the Discussion.
-- No analyses that add design choices only to project or extrapolate. Keep it simple.
-- The sparse design is not foregrounded. APA number formatting. The Methods FILL INs stay for the author.
-
-Conventions in this file:
-- **F…** is a finding ID in `03_findings.md`. Every number below is copied from there as printed, except for the APA formatting below.
-- `tbl-…` / `fig-…` are labels from `02_artifacts.md`. **[MAIN]** means the object is embedded in the main text; **[SUPP]** means it is embedded in the online supplement.
-- **[ATC-n]** marks an interpretive or contribution claim that the author must confirm. **[FI-n]** marks a FILL IN item that the author must supply. FI and ATC numbers stay stable; closed items are listed as closed, not renumbered.
-- **APA number format.**
-  - Values that cannot exceed 1 drop the leading zero: correlations (incl. Q3, τ-b), reliabilities, α, shares/proportions, and *p*. Values that can exceed 1 keep it: a, b_k, information, θ̂ and θ̂ ranges, PSD, infit/outfit, means, SDs, entropy, χ², information criteria, |Δθ̂|, |Δa|, and the Q3 criterion 0.2.
-  - Numbers of 1,000 or more take a comma: 7,820; 3,668; −11,733.227; 23,720.455. This also applies to values that the notebook prints without a separator in text notes or stdout ("639 of 1000" → 639 of 1,000; "3668 common products" → 3,668). Seeds and identifiers do not (seed 20260713).
-  - No other change: **no rounding, and no added or removed decimals**. Never quote *p* in scientific notation; write *p* < .001.
-  - All values in this outline are already in APA form.
-- **Precision as printed.** Rater parameters (F2.1/F2.2) and rater information with its intervals (F2.4) are printed at **2 decimals**; shares at 3. Response styles (F0.8, `tbl-overview-rater-response-styles`) are at 3 decimals; whole numbers print without decimals there (R08's mean "3"; five raters' share of 7s "0"), so the text describes those cells in words rather than quoting "3.000" or ".000". Sensitivity values (F2.8) are at 5 decimals. Category shares (F0.6) are not quoted; quote the counts instead.
-- **Never quote** any value that `03_findings.md` lists as removed or NOT IN NOTEBOOK:
-  - the most- or least-informative projection values, `true_r2`, and quantiles of mean rel_post;
-  - every pooled raw-mean value, every raw-mean correlation, percentile shift, quintile measure and tied-raw-mean share;
-  - 3-decimal rater parameters and 3-decimal information CI bounds;
-  - Tolerance "0.000" or "0.0001" (it now prints "10⁻⁴"), and M3 ≥ 2 quintiles "0.000545256" (it now prints "0.001", APA .001);
-  - the "confounded" and "not comparable" notebook sentences;
-  - "6 unused end categories", the 0.7–1.3 misfit range, and any RMSEA or other global fit index;
-  - **R09's mean as 3.642** (unlabelled cell); if R09's mean is quoted, it is **3.643** with @tbl-overview-rater-response-styles;
-  - the number of non-computable Q3 pairs as a printed value (it is not printed; do not derive it in the text);
-  - the old labels "Ratings (n)", "M1 (RSM/MFRM)" and "M2 (PCM)" in prose.
-- **No pipeline wording in the prose.** The text never cites "the analysis notebook" or "the output" as an authority. It never says that values "will be refreshed" or that more data are coming. Statements taken from notebook notes become the authors' own wording, marked [ATC] where they interpret.
-- **Design wording.** The sparse design is not foregrounded. The design numbers are given once, via @tbl-design-summary. Avoid framing such as "most products were rated only once or twice" or "in this sparse design".
-- **MFRM wording (round 4, N3-M1).** "A shared category structure" is a property of the **rating-scale MFRM (M1)** only. A partial-credit MFRM relaxes it (eckes2015), and M2 corresponds to that model. The constraint that every Rasch/MFRM model imposes is **equal discrimination**, which LR and AIC reject but BIC does not. Never write "the MFRM assumes a shared category structure" without "rating-scale".
-- **Author names in hand-written prose (round 5).** Particles stay with the surname: "de Ayala", "ten Hove", "de Joode", "de Sa Fardilha", "van der Ark", "van der Kamp" (e.g., "ten Hove et al." in narrative text). CSL handles the reference list; do not hand-edit it.
-- **linacre1989 (round 5).** The entry is the MESA Press book *Many-facet Rasch measurement*. Prose uses "many-facet", never "many-faceted".
+Sources (all re-read for this revision; precedence in this order where they disagree):
+1. `revision_brief_2026-11-09.md` (author priorities; §B Introduction arc; §C decisions; §D D1–D6)
+2. Coordinator corrections from pause A (rating-design gap wording; C-A qualitative; sport product ratings "three or four licensed coaches"; DT-in-sport citation as an ATC item)
+3. `07_rater_number_evidence.md` (binding instructions, key map, resolutions of 2026-11-09)
+4. `revision_instructions_new_data.md` (§3 C1–C13; §4; §6; §8; §5 as a locator only)
+5. `03_findings.md` incl. "Delta 2026-11-09" (the ONLY source of numbers)
+6. `02_artifacts.md` incl. Delta (53 labels: NB00 1, NB01 6, NB02 46)
+7. `01_dossier.md` ("Targeted addition 2026-11-09"), `06_web_literature.md` ("Targeted search 2026-11-09")
+8. Brief `~/drive/KNOWLEDGE/Paper_CreativityAssessmentInSportsCAT.md`; `author_todo.md`; `manuscript.qmd` (old data; structure only); `05_review.md` (round 6)
+9. `~/drive/utils/writing-models/` (introduction, methods, results, discussion-conclusion, abstract, title)
 
 ---
 
-## Working title (unchanged)
+## Conventions in this file
 
-**Number of ratings, rater differences, and score reliability in creativity ratings of football actions: A judge response theory analysis**
+- **F…** = finding ID in `03_findings.md` (F0.1–F2.14 plus F1.4a, F1.20a, F2.8a from the Delta). Every number below is copied from there as printed, converted to APA form only as stated next.
+- `tbl-…` / `fig-…` = labels from `02_artifacts.md`. **[MAIN]** embedded in the main text; **[SUPP]** embedded in the online supplement. Embed syntax: `{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/<notebook>.ipynb#<label> >}}`; cross-reference `@<label>`.
+- **[ATC-n]** = interpretive or contribution claim the author must confirm. **[FI-n]** = FILL IN item the author must supply. Numbers are stable; closed items are listed as closed, never renumbered.
+- **APA number format.** Values that cannot exceed 1 drop the leading zero: reliabilities, correlations (incl. Q3, τ-b), α, shares/proportions, *p*. Values that can exceed 1 keep it: a, b_k, information, θ̂ and θ̂ ranges, PSD, infit/outfit, means, SDs, entropy, severity (logits), χ², information criteria, |Δθ̂|, |Δa|, the Q3 criterion 0.2, the flag bounds 0.7–1.3. Numbers ≥ 1,000 take a comma (9,046; 3,669; −13,471.275; 28,239.363), also where the notebook prints none ("1174" in `tbl-rater-overview` → 1,174; "222 computable" stays). Seeds and identifiers take no comma (seed 20260713). **No rounding, no added or removed decimals.** *p* is written *p* < .001.
+- **Precision as printed.** GRM a and b_k: 2 decimals (`tbl-grm-rater-parameters`). Information with intervals: 2 decimals (`tbl-grm-rater-information-ci`), 3 without (`tbl-grm-information-summary`); shares 3. M1 severity: 2 decimals from `tbl-rater-overview`, except the two extremes and the span, which print at 3 decimals in the stdout line (F2.8a: −0.878, SE 0.066; 1.369, SE 0.057; 2.247 logits). M3 discriminations 3 decimals. Response styles 3 decimals; R09's mean is **3.643** (never 3.642). Sensitivity 5 decimals. Projection/min-4: 3 decimals with ranges. Category shares (F0.6) are not quoted; quote counts.
+- **Never quote** (per `03_findings.md` "Not found" / "NOT IN NOTEBOOK", as amended by the Delta):
+  - the md5 fingerprint; any value from `01_data_overview_new_ratings.ipynb`, the archive, R scripts, AUDIT/REPORT files, or the report qmd (incl. its roundings "4.2", "840.45", "0.9999", ".688", "10%", "15.5%", "20.6%", "6.8%" in prose — shares are quoted as .068 from `tbl-grm-information-summary`);
+  - any *previous* data-set value (7,820; 3,668; 19 raters; .672; .960; .928; .658; .392; .520; .698; .815; .842; 0.16246) and any statement that estimates changed;
+  - CIs/SEs that are not printed: for rel_post by n, for the sensitivity differences, for the raw-mean-vs-GRM statistics, for M1 severities other than R24 and R06, for M1/M2 thresholds, for the M1–M3 reliabilities;
+  - the median a drawn in `fig-grm-rater-discrimination-ci`; the number of non-computable Q3 pairs (54) and the full list of 28 flagged pairs; the count of never-used categories behind the df reduction ("10"); exact LR *p* values; the first k reaching .70 or .90 in the projection (only .80 is printed); any k > 10; `true_r2`; workload-weighted or selected rater sets; the min-4 seed; whether a rater may rate the same product twice in the top-up; how θ enters the top-up;
+  - any **difference, test or "which is larger" statement between observed and simulated reliability** as a notebook result (the notebook juxtaposes them only; a comparison is the authors' reading → ATC-32);
+  - the report wording "regardless of how many ratings each rater gave in reality" / "does not use our distribution of ratings per action" as a notebook fact (see the simulation-assumption rule below);
+  - "x-fold" for the discrimination ratio (quote 7.277; a rounding such as "about seven-fold" must be marked as a rounding);
+  - "2.25 logits" (quote 2.247); the "Assumes"/"Answers" column texts of the report; the model labels "M1 (RS-MFRM)", "M2 (PC-MFRM)", "M1 (RSM)", "M2 (PCM)", "Ratings (n)";
+  - the names of the three crossed-block raters and the removal rule of the six raters dropped from the pairwise α (not printed; FI-9);
+  - the data-collection timespan (not printed; FI-32).
+- **Now quotable (Delta):** the ⚑ rule "infit or outfit outside 0.7–1.3" (note `38b48261`, `tbl-rater-overview` caption); the M3 discrimination summary (`tbl-discrimination-summary`: min 0.305, q1 0.915, median 1.240, q3 1.659, max 2.221, ratio 7.277, SD 0.550); "Smallest k with simulated empirical reliability of at least .80: 4" (stdout `c7a7fe2a`); the M1 severity range line (stdout `411ec44f`); the LR-df rule "categories raters never used (unused end categories and any internal gap)" (note `f43c6651`; quote the note, not the `tbl-lr-tests` caption).
+- **Simulation-assumption rule (brief §C).** The Method states the assumptions of the projection and of the min-4 top-up plainly, as the authors' own description of what they did: raters of the panel drawn at random, each rater equally likely to be drawn, so that the draws do not reproduce the raters' actual workloads in the study; ratings generated from the fitted GRM and scored with its parameters, treated as known (no parameter uncertainty in the ranges); θ ~ N(0, 1) for the projection's simulated products; in the top-up the real ratings are kept and all products rescored; 50 replications; the observed data remain primary. The clause on workloads is the authors' methodological statement (it follows from equal drawing probability), not a notebook quotation; it carries **[ATC-35]**.
+- **No pipeline wording in the prose.** No "notebook", "output", "pipeline", "will be refreshed"; no mention of an earlier data set, a data update or how estimates changed. Statements taken from notebook notes become the authors' wording, marked [ATC] where interpretive.
+- **Terminology.**
+  - "Rater" everywhere; one sentence at the first CAT mention says the CAT and JRT literature calls raters "judges".
+  - "Product / action": define once in Method 2.3 ("each rated product was a single football action"). Results and Method use "product"; "action" in the title, the Introduction's sport framing, the stimulus description and the practical implications.
+  - Model names as printed in the tables: "M1 (rating-scale MFRM)", "M2 (partial-credit MFRM)", "M3 (GPCM)", "GRM"; first mention in Method 2.7 spells them out; "RSM"/"PCM" only where andrich1978 / masters1982 are cited; "the MFRM" alone only for claims true of every member (severity facet, equal discrimination). "A shared category structure" is a property of **M1** only.
+  - "First and third quartiles", never Q1/Q3 (Q3 is Yen's statistic).
+  - Response styles: "share of ratings in the lowest category (1)", "in the highest category (7)", "in the extreme categories (1, 7)", "in the middle categories (3–5)".
+  - "Average information" = information integrated over θ ~ N(0, 1); table header "Information per rating".
+  - Column names as printed: "Ratings by rater", "Ratings per product", "Ratings (total)".
+  - Severity: "severity (M1)" with "0 = average rater, higher = stricter" (caption wording). In the GRM, speak of "threshold location", not severity, unless the author confirms the stricter-rater gloss [ATC-6].
+  - "Rating-design evidence" (rater number, expertise, scoring model) is the term for the sport gap; never "no evidence".
+  - Author names typed in prose keep their particles: "de Ayala", "ten Hove", "de Joode", "de Sa Fardilha", "van der Ark", "van Hooijdonk". linacre1989 is the MESA Press book *Many-facet Rasch measurement*; prose says "many-facet".
+- **Rater-ID rules (C8, §6).** Final raters: R01–R19 and R23–R27 (24). Excluded: R20, R21, R22, R28. IDs do not follow workload order; never imply they do. **R16 (268 ratings) is never described as a rater with few ratings.** Raters with 73 or fewer ratings: R26 (46), R27 (47), R19 (50), R17 (52), R18 (55), R15 (73) (F0.5). "About 50 ratings" refers to R17, R18, R19, R26, R27.
+- **Figure annotations.** The in-image labels of `fig-grm-reliability-observed-vs-simulated` (".835", ".969", "24 raters") are quoted from `tbl-grm-reliability-min-ratings`, `tbl-grm-reliability-ci` / `tbl-reliability-overview` and `tbl-design-summary`, never from the image.
+- **No accuracy claim.** Nowhere does the paper say that model-based scores are more accurate than raw means or than the constrained models.
+- **Exploratory framing.** No "hypothesis", "supported", "confirmed" for the RQs; the only exception is the LR/AIC/BIC wording under RQ3(a) [ATC-20].
 
-The title still fits: "number of ratings" now refers to the observed reliability by number of ratings (F1.14).
+---
 
-## Terminology (round 5: model labels aligned with the tables)
+## Working title
 
-- **Raters.** One sentence at the first CAT mention (Introduction P3) says that the CAT and JRT literature calls raters "judges". After that, use "rater" everywhere, except in the term *judge response theory*.
-- **Product / action.** Define the pair **once**, in Method 2.3: "each rated product was a single football action".
-  - Results and Method use "product".
-  - "Action" appears in the title, the Introduction's sport framing, the stimulus description, and the practical implications.
-  - Do not define the pair a second time in the Discussion (round-2 m16).
-- **Average information.** Use this term for information integrated over θ ~ N(0, 1), defined once in Method 2.11. The table header reads "Information per rating".
-- **Model names (round 5; match the table cells).** The tables print "M1 (rating-scale MFRM)", "M2 (partial-credit MFRM)", "M3 (GPCM)" and "GRM". The prose uses the same names:
-  - first mention in Method 2.7: "M1, the rating-scale MFRM", "M2, the partial-credit MFRM (a partial credit model with raters as items)", "M3, the GPCM"; thereafter "M1 (rating-scale MFRM)", "M2 (partial-credit MFRM)", "M3 (GPCM)" or the short forms M1/M2/M3;
-  - "RSM" and "PCM" as model names appear only where the original model is cited (andrich1978; masters1982), not as labels;
-  - "the MFRM" alone refers to the family and is used only for claims that hold for every member (severity facet, equal discrimination).
-- **Ratings headers (round 5).** When the text points to a column, use the printed headers: "Ratings by rater", "Ratings per product", "Ratings (total)". "Ratings (n)" does not exist.
-- **Quartiles (round 5, m-3).** Write "first and third quartiles"; never "Q1"/"Q3" for quartiles, because Q3 is Yen's statistic.
-- **Response styles (round 5).** Use the table's terms: share of ratings in the lowest category (1), in the highest category (7), in the extreme categories (1, 7) and in the middle categories (3–5). "Floor", "ceiling" and "central" may be used once as glosses in Method 2.11.
+**Keep (recommended, D7):** *Number of ratings, rater differences, and score reliability in creativity ratings of football actions: A judge response theory analysis*
+
+It states the three RQs in order, names the product class and the method, has no question mark and no value word (title model). "Number of ratings" now carries both the observed by-n reliabilities and the number needed (RQ1).
+
+**Alternative for the author (D7):** *How many ratings, and from whom: Reliability, rater differences, and the number of ratings needed in creativity ratings of football actions, a judge response theory analysis* — longer and closer to the new RQ1, but the colon-free run-on is awkward; the outline recommends keeping the current title. Short title (YAML `shorttitle`): "Rater differences and reliability in creativity ratings of football actions" (unchanged).
 
 ---
 
 ## Central contribution [ATC-1]
 
-The study applies judge response theory (JRT) to CAT-style creativity ratings of football actions (final data in @tbl-design-summary; F0.3). Its contribution is empirical and comes in three parts.
+The study applies judge response theory (JRT) to consensual creativity ratings of football actions, an ecologically valid class of nonverbal, time-pressured products for which rating-design evidence (how many raters, of what kind, scored with which model) has been missing. Its contribution is empirical and comes in three parts, all from @tbl-design-summary (F0.3: 9,046 ratings of 3,669 products by 24 raters).
 
-1. **How reliable the obtained scores are, and how reliability varies with the number of ratings a product received.**
-   - The empirical marginal reliability of the scores actually obtained is .672 [.649, .687]. A hypothetical full panel would reach .960 [.953, .968] (F1.12).
-   - Conventional indices give quite different values: pairwise Cronbach's α .928 [.891, .943] and Krippendorff's ordinal α .392 [.362, .417] (F1.18).
-   - Mean product-level reliability (rel_post) is .520 for products with 1 rating, .698 with 2 and .757 with 3, and rises to .919 with 10 (F1.14). These are observed values, not the result of a design manipulation; how products came to have their number of ratings is FI-4.
-2. **How raters differ, with the uncertainty of each difference.**
-   - Raters differ in category use, threshold location and discrimination (F0.8, F2.1, F2.2) and in average information (F2.4).
-   - Ranges are given over all 19 raters. Their extremes come from raters with few ratings and large SEs, for example a from 0.63 (R18, *SE* 0.26) to 3.71 (R19, *SE* 2.22).
-3. **How much the scores depend on whether rater differences are modelled.**
-   - The likelihood-ratio test rejects the shared category structure of the rating-scale MFRM (M1 vs M2, *p* < .001; F1.2). Equal discrimination, the constraint shared by all Rasch-family models including the partial-credit MFRM (M2), is rejected by the LR test (*p* < .001) and AIC, but not by BIC (F1.1, F1.2).
-   - Raw mean ratings and GRM scores order products differently (F2.9). For products with 1 and 2 ratings, Kendall's τ-b is .832 and .815, and .042 and .067 of the product pairs are in reversed order. With 1 rating, the reversals reflect only the raters' modelled parameters; with 2 ratings, they also reflect the pattern of the two ratings behind the same mean [ATC-21, ATC-22]. Products with the same raw mean receive GRM scores on average 1.283 and 1.537 apart; as ranges, these are set by the most extreme raters, some of whom are imprecisely estimated [ATC-21].
-   - The choice among the scoring models also shifts rankings: .202 of products change quintile under M1 (rating-scale MFRM) relative to the GRM, with a mean percentile shift of .042, although Pearson *r* = .975 (F2.7).
+1. **Reliability as a function of the number of ratings, and the number needed in this rater pool (RQ1).**
+   - The empirical marginal reliability of the scores actually obtained is .689 [.669, .703]; a hypothetical full panel would reach .969 [.965, .974] (F1.12). Conventional indices give very different pictures of the same ratings: pairwise Cronbach's α .949 [.926, .958], Krippendorff's ordinal α .391 [.363, .417] (F1.18).
+   - Observed mean product-level reliability (rel_post) is .522 with one rating (832 products), .699 with two (2,107) and .756 with three (68), rising overall to .948 at twelve ratings, with exceptions at ten and thirteen ratings that rest on 14 and 1 products (F1.14). These are observed values, not a design manipulation (FI-4).
+   - Simulated from the fitted GRM with randomly drawn raters of this panel, reliability rises from .530 [.513, .544] at one rating to .928 [.925, .931] at ten; the smallest number of ratings at which it reaches .80 is four (.834 [.827, .841]) (F1.20, F1.20a). Topping the actual design up so that every product has at least four ratings gives .835 [.829, .840], against .686 [.675, .695] for the simulated actual design (F1.21). Assumptions stated plainly (Method 2.10).
+2. **Rater differences, with their uncertainty (RQ2).**
+   - M1 severity spans 2.247 logits, from −0.878 (SE 0.066, R24) to 1.369 (SE 0.057, R06) (F2.8a). Raters differ in category use (eight raters never used at least one category; R27 has an internal gap; F0.7), in response styles (share of lowest-category ratings .579 for R06 to .016 for R13; F0.9), in GRM thresholds and discrimination (a from 0.66, R18, SE 0.27, to 3.19, R26, SE 1.72; well-estimated raters span 0.93, R09, SE 0.15, to 3.10, R06, SE 0.45; F2.1) and in average information (0.13 [0.02, 0.39] for R18 to 2.52 [0.11, 6.75] for R26; F2.5). In M3 the discriminations range from 0.305 to 2.221, a ratio of 7.277 (F1.4, F1.4a).
+3. **Whether the Rasch-family constraints hold, and what the model choice does to the scores (RQ3).**
+   - The LR test rejects the shared category structure of M1 (χ²(105) = 840.447, *p* < .001) and equal discrimination (M2 vs M3, χ²(23) = 156.593, *p* < .001); AIC agrees in both cases, BIC in neither (M1 28,235.202 < M2 28,256.560 < M3 28,288.744) (F1.1, F1.2). The GRM has the lowest AIC and SABIC overall; BIC favours M1 by 4.161 (F1.1).
+   - Raw means and GRM scores order products partly differently: Kendall's τ-b .833 (one rating), .818 (two), .849 (three or more); .041, .066 and .071 of pairs with different raw means are in reversed order; equal raw means map to GRM scores on average 1.229, 1.531 and 0.537 apart (F2.13). Relative to the GRM, .206 of products change quintile under M1, .155 under M2, .081 under M3, with mean percentile shifts .042, .032, .016, although all correlations are ≥ .977 (F2.10, F2.11).
    - These are differences between scores, not evidence that one score is more accurate [ATC-15, ATC-22].
 
-Implication [ATC-3, ATC-5, ATC-14, ATC-15]:
-- Report the reliability of the scores actually used.
-- Plan the number of ratings per action with that reliability in mind.
-- Because parameters of raters with few ratings were imprecise, consider linking raters through a common calibration set (round 5: conditional wording, m-1).
-- **Re-grounded (C-M1):** because raters differed in thresholds and discrimination in these data, and raw means and model-based scores ordered actions partly differently, consider scoring with a model that adjusts for rater differences (under its assumptions), and report how far its ordering departs from the raw mean. The study does not show that model-based scores are more accurate.
+Implication [ATC-3, ATC-5, ATC-14, ATC-15, ATC-30, ATC-31]: creativity-rating studies of nonverbal, time-pressured products should report the reliability of the scores actually used and the agreement of single ratings; plan the number of ratings per product from domain-specific evidence (here: about four per action in this panel, by simulation); give each rater enough ratings and link raters through a common calibration set; and consider a scoring model that adjusts for rater differences, reporting how far its ordering departs from raw means. Required rater numbers do not transfer across product classes, rater pools or reliability targets.
 
-These implications apply to this student rater pool and this scale [FI-21].
+## Core argument (6 sentences)
 
-## Core argument (5 sentences)
-
-1. CAT reliability is conventionally reported for the mean over a rater panel (amabile1982; kaufman2008a; cseh2019). When each action receives only some of the ratings, the precision of each score depends on how many ratings it received and from whom.
-2. JRT treats raters as items with their own severity, scale use and discrimination (myszkowski2019; myszkowski2021). It therefore gives the reliability of the scores actually obtained, the precision of each product's score, and an uncertainty-quantified description of how raters differ.
-3. In the football ratings, three things hold:
-   - the reliability of the obtained scores is well below the full-panel value (F1.12);
-   - product-level reliability is lower for products with one or two ratings than for products with more (F1.14);
-   - raters differ in category use, threshold location, discrimination and information (F0.8, F2.1–F2.4).
-4. The shared category structure of the rating-scale MFRM is rejected; equal discrimination, which every Rasch-family model assumes, is rejected by LR and AIC but not by BIC (F1.1, F1.2). Within products with the same number of ratings, raw means order products partly differently from GRM scores, and equal raw means map to clearly different GRM scores (F2.9, F2.10). The choice of scoring model also shifts rankings (F2.7). The two comparisons are reported separately and not ranked against each other.
-5. Rater differences therefore belong in the design of creativity research in sport (ratings per action; where rater parameters are imprecise, a common calibration set). For scoring, researchers should consider models that adjust for rater differences and report how far their ordering departs from raw means; no accuracy advantage is claimed [ATC-5, ATC-7, ATC-14, ATC-15].
+1. Creative products are judged by consensus (CAT); the reliability of the consensus depends on how many raters judge each product and how far they agree (amabile1982; kaufman2008a).
+2. How many raters are enough is conditional on the reliability target, the object of measurement, rater expertise, scale and domain; across domains the evidence runs from two or three trained raters for short divergent-thinking responses to ten or more lay raters for open-ended products, and no study of this kind exists for sport (07; cseh2019 lists it as an open question; vanhooijdonk2022).
+3. That evidence comes almost entirely from verbal and static material; football actions are nonverbal behaviour under time pressure in complex dynamic environments observed in competition, and the few product-rating studies in sport used three or four coaches, averaged, with an ICC (safardilha2019; kempe2018; roca2018; memmert2010; joode2023).
+4. Methods for the rater question form a ladder from averages and Spearman–Brown, through resampling and G-theory, to MFRM and JRT; only JRT estimates severity, thresholds and discrimination per rater and gives product-specific precision, and whether that flexibility is needed is itself testable (myszkowski2019; myszkowski2021; primi2019).
+5. In 9,046 ratings of 3,669 football actions by 24 raters, the obtained scores had a reliability of .689 against .969 for a full panel; one or two ratings gave .522 and .699, and about four ratings were needed for .80 in simulation; raters differed strongly in severity, scale use, discrimination and information; the Rasch constraints were rejected by LR tests and AIC but favoured by BIC; raw means and model-based scores ordered actions partly differently.
+6. Rating-design figures are therefore domain-specific and must be established for each product class; for nonverbal, time-pressured products, studies should plan several ratings per action, report the reliability of the scores used, and consider rater-adjusting models [ATC-30, ATC-31].
 
 ## Research questions (exploratory; no hypotheses) [ATC-20]
 
-The study is exploratory. The writer must not use the words "hypothesis", "supported" or "confirmed" for the RQs. The only exception is the LR/AIC wording under RQ3(a).
+- **RQ1 (number of ratings and reliability).** How reliable are the creativity scores obtained in this study, how does product-level reliability vary with the number of ratings a product received, and how many ratings per product are needed for reliable estimates in this rater pool, (a) as observed and (b) as simulated from the fitted model? How do these figures compare with a hypothetical full panel and with conventional agreement and consistency indices?
+  - Evidence: F1.12, F1.14, F1.18, F1.19, F1.20, F1.20a, F1.21, F1.22, F1.23; descriptive support F1.13, F1.16, F1.17.
+- **RQ2 (rater differences).** How do raters differ in severity, threshold location, scale use, discrimination and information, and how precisely are these differences estimated?
+  - Evidence: F0.6–F0.9, F2.1–F2.6, F2.8, F2.8a, F2.9.
+  - Severity is now promised, because M1 severities with intervals (`fig-m1-rater-severity`) and the printed range exist. GRM thresholds are "threshold location" [ATC-6].
+- **RQ3 (model constraints and consequences for scores).** (a) Are the Rasch-family constraints of a shared category structure (M1) and of equal discrimination (M1 and M2) tenable for these ratings? (b) How far do product scores and rankings depend on the scoring model, from the raw mean through M1, M2 and M3 to the GRM?
+  - Evidence (a): F1.1, F1.2, F1.4, F1.4a, F1.5, F1.11. Wording: "rejected by the LR test and AIC but not by BIC" (D2).
+  - Evidence (b): F2.10, F2.11, F2.13, F2.14.
 
-- **RQ1 (aim 1): number of ratings and reliability.** How reliable are the creativity scores obtained in this study? How does product-level reliability vary with the number of ratings a product received? How does the reliability of the obtained scores compare with a hypothetical full panel and with conventional agreement and consistency indices?
-  - Evidence: F1.12, F1.14, F1.18, F1.19; descriptive support from F1.13, F1.16, F1.17.
-  - The projection (F1.20) is not RQ1 evidence; it is a side note (Method pointer, supplement, Discussion).
-- **RQ2 (aim 2): rater differences.** How do raters differ in threshold location, scale use (category use, response styles), discrimination and information, and how precisely are these differences estimated?
-  - Evidence: F0.6, F0.7, F0.8, F2.1–F2.5.
-  - "Severity" is **not** promised in RQ2, because no severity measure or test is reported. If the author resolves ATC-6 in favour of reading thresholds as severity, write "threshold location (severity)" with the GRM caveat of Method 2.7.
-- **RQ3 (aim 3): how much do scores depend on whether rater differences are modelled?**
-  - (a) Are the constraints of a shared category structure (M1, rating-scale MFRM) and of equal discrimination (all Rasch-family models, including M2, the partial-credit MFRM) tenable? Evidence: F1.1, F1.2, F1.4, F1.5, F1.11.
-    - Wording: rater-specific discriminations are "supported by the LR test and AIC, but not by BIC".
-    - Severity is described under RQ2. It is not tested on its own.
-  - (b) How far do product scores and rankings change when rater differences are ignored (raw mean) or constrained (M1, M2, M3)? Evidence: F2.9, F2.10, F2.6, F2.7.
+Supporting analyses (Method/Results, not RQs): scoring-model choice and adequacy (F1.1, F1.3, F1.7–F1.10); sensitivity to the rater exclusion (F2.12).
 
-Supporting analyses, reported in the Method/Results but not as RQs:
-- model choice and adequacy: F1.1, F1.3, F1.7–F1.10;
-- robustness to the rater exclusion: F2.8.
+---
+
+## Word budget (target total ≈ 7,500–8,500 words of main text excl. references, tables and box; FI-16 checks the CRJ limit)
+
+| Section | Words | Notes |
+|---|---|---|
+| Abstract | ≤ 250 | hard limit (FI-16) |
+| Introduction | 1,500–1,800 | five moves; budget per move below |
+| Method | 1,900–2,200 | incl. the IRT paragraph moved from the Introduction and the two simulations |
+| Results | 1,700–2,000 | descriptive; RQ order |
+| Discussion | 2,000–2,300 | incl. box (box text ≈ 180) and Limitations |
+| Conclusion | 150–200 | one paragraph |
 
 ---
 
@@ -133,746 +125,416 @@ Supporting analyses, reported in the Method/Results but not as RQs:
 
 ### Abstract (one paragraph, unstructured, ≤ 250 words [FI-16])
 
-Model 2 order: background/aim → method → results with numbers → implications. The abstract has no citations, no sparse-design framing, **no projection values and no R18 values**. Keep the numbers few.
+Abstract model 2: background/gap → method → results with numbers → implications. No citations, no rendered markers (claims tracked as ATC-2, ATC-5, ATC-14, ATC-15, ATC-30, ATC-35 and FI-1 in the hidden comment block). Keep the numbers few; if the limit bites, compress the method sentence first, then drop the τ-b clause, then the severity span.
 
-**Round 5 (m-1): no [AUTHOR TO CONFIRM] or [FILL IN] marker is rendered inside the abstract.** The claims they covered stay on the ATC/FI lists (ATC-2 for "little is known"; ATC-5, ATC-14, ATC-15 for the implications; FI-1 for "student raters"). The writer lists them in the hidden (non-rendering) comment block so that the author still sees them. **Hard limit: ≤ 250 words**; if it runs over, compress the method sentence and the per-n reliabilities first, then drop the optional range clause.
-
-- **Background/gap.** CAT ratings are the standard way to assess creative products and are also used for actions in sport. However, little is known about how reliable such creativity scores are when each action receives only some ratings, or how much raters differ when judging creativity in sport (ATC-2, no rendered marker).
-- **Aim/method.** Student raters (FI-1, no rendered marker) rated football actions on a 7-point creativity scale (counts from F0.3). Judge response theory models were fitted by marginal maximum likelihood: a graded response model (GRM), compared with an adjacent-category ladder from the rating-scale many-facet Rasch model to the generalized partial credit model.
+- **Background/gap (2 sentences).** Creative products are rated by consensus (CAT); how many raters are needed and how raters differ has been studied mostly with verbal and static material. Football actions are nonverbal behaviour under time pressure, observed in competition, and rating-design evidence for such products is lacking (ATC-2, ATC-28, no rendered marker).
+- **Aim/method (1–2 sentences).** 24 raters [FI-1 "student raters", no marker] gave 9,046 ratings of 3,669 football actions on a 7-point creativity scale in an incomplete design (F0.3). JRT models were fitted: a GRM and a ladder from the rating-scale many-facet Rasch model to the GPCM; reliability was studied by the number of ratings per action, observed and simulated.
 - **Results.**
-  - Aim 1: the empirical reliability of the obtained scores was .672, against .960 for a hypothetical full panel (F1.12). Mean product-level reliability was .520 for actions with one rating and .698 with two (F1.14).
-  - Aim 2: raters differed in category use (e.g., the share of lowest-category ratings ranged from .579 to .016; F0.8, traceable to @tbl-overview-rater-response-styles in the supplement), threshold location and discrimination. Parameters of raters with few ratings were imprecise. No numeric parameter range is given, so that R18 stays out.
-  - Aim 3:
-    - LR tests rejected a shared rating-scale structure and equal discrimination (both *p* < .001; F1.2), **although BIC favoured equal discrimination** (F1.1).
-    - Among actions with one and two ratings, raw means and GRM scores agreed with Kendall's τ-b = .832 and .815 (F2.9).
-    - Optional, for density (m21): "and actions with the same raw mean received GRM scores on average 1.283 and 1.537 apart". Drop it first if the word limit bites. If kept, its range qualifier lives in Discussion 4.4 (i).
-- **Implications (hedged; re-grounded, C-M1; round 5 conditional calibration wording).** For this kind of rater pool, creativity studies in sport should:
-  - report the reliability of the scores actually used;
-  - plan the number of ratings per action accordingly;
-  - **because the parameters of raters with few ratings were imprecise, consider linking raters through a common calibration set** (m-1: conditional, not a flat instruction; the study did not use such a set);
-  - and, because raters differed and raw means ordered actions differently from model-based scores, consider scoring with a model that adjusts for rater differences and report how far the ordering departs from raw means.
-- **Do not use:** any projection value, the "who rates" idea, any pooled raw-mean value, any b1 value, "we show", "model rather than average" as a finding, any rendered marker, or any wording implying the GRM scores were shown to be more accurate.
+  - RQ1: empirical reliability of the obtained scores .689, against .969 for a hypothetical full panel; mean product-level reliability .522 with one rating and .699 with two; in simulation from this panel, at least four ratings per action were needed to reach .80 (F1.12, F1.14, F1.20a) [ATC-35].
+  - RQ2: raters differed in severity (span 2.247 logits), category use (share of lowest-category ratings .579 to .016), thresholds, discrimination and information (F2.8a, F0.9, F2.1, F2.5); parameters of raters with about 50 ratings were imprecise.
+  - RQ3: LR tests rejected a shared category structure and equal discrimination (both *p* < .001), **although BIC favoured the constrained models in both cases** (D2; F1.1, F1.2); raw means and GRM scores agreed with Kendall's τ-b = .833 and .818 for one and two ratings (F2.13).
+- **Implications (hedged).** For such products, studies should report the reliability of the scores actually used, plan several ratings per action from domain-specific evidence, link raters through a common calibration set where rater parameters are imprecise, and consider scoring with a model that adjusts for rater differences, reporting how far it departs from raw means (ATC-5, ATC-14, ATC-15, ATC-30, ATC-31).
+- **Do not use:** any projection value other than "four", any R18 value, b_1 values, "we show", "by convention", any accuracy claim, any marker.
 
-### 1 Introduction
+### 1 Introduction (1,500–1,800 words; five moves per brief §B; introduction model: moves 1–3 = background and research map, move 3–4 = gap, move 5 = present paper)
 
-Purpose: move from the importance of creativity, through the CAT and its two weak points (number of ratings; rater differences), to the gap in sport and the present exploratory study. Four moves (writing-models/introduction.md). The sparse design is not part of the framing.
+Purpose: lead the reader from "creativity is judged by consensus" through "how many raters depends on the domain" and "sport is a nonverbal, time-pressured domain without rating-design evidence" to "JRT is the method that can answer both the rating-number and the rater-difference question, and whether its flexibility is needed is testable", ending in RQ1–RQ3. Every move ends with a sentence that hands over to the next. The IRT tutorial (old manuscript line 48) moves to Method 2.7; the Introduction keeps only what the ladder argument needs.
 
-**Move 1: Background**
-- P1. Creativity as a core competence:
-  - ranked among the core workforce skills (wef2025 [FI-17]);
-  - assessed in PISA 2022 (oecd2024);
-  - a development target in sport (safardilha2019 [narrative form "de Sa Fardilha"]; santos2016).
-- P2. 4P taxonomy (batey2012). Each facet needs its own measurement (barbot2019b; barbot2019). This paper concerns the product facet: football actions rated by others.
+**Move 1 — Creativity matters; products are judged by consensus (200–250 words)**
+- P1. Creativity as a core competence: workforce skill (wef2025), PISA 2022 creative thinking (oecd2024), a quality to develop and evaluate in sport (safardilha2019 [narrative "de Sa Fardilha and Allen (2020)"]; santos2016) [FI-17].
+- P2. Of the four facets (person, process, product, press; batey2012), the product is the one that is judged by others, and each facet needs its own measurement approach (barbot2019b). Creative products are assessed by the consensus of independent raters who know the domain: the CAT (amabile1982; hennessey2011; kaufman2024). Terminology sentence: judges = raters. Hand-over: the consensus is only as good as the panel that produces it.
 
-**Move 2: Previous research**
-- P3. **CAT procedure and reliability.**
-  - The CAT procedure (amabile1982; hennessey2011; kaufman2024). Add the terminology sentence on judges and raters here.
-  - Independent raters usually reach α > .70 (baer2004; kaufman2008a; hennessey2011) [FI-17]. Lower agreement has also been reported (long2015; cseh2019).
-  - The CAT requires raters familiar with the domain (amabile1982). State this neutrally, without judging the present raters [FI-21].
-- P4. **Reliability rests on the number of raters (aim 1).**
-  - Spearman–Brown logic: reliability depends on the mean inter-rater correlation and on the number of raters (amabile1982). A high α can mask low single-rater agreement (kaufman2008a [FI-17: verify the "mask" point; round 5, m-2]).
-  - **cseh2019, one paraphrase used in both places (round 5, m-7):** "the number of raters needed for adequate reliability has to be established for each domain" [FI-17: verify against the source]. Use this exact wording here and in Discussion 4.2.
-  - The rule of thumb of "five to ten" raters comes from kaufman2008 (the book *Essentials of Creativity Assessment*) [FI-17].
-  - The key distinction, stated in general terms: a panel coefficient describes the mean over all raters. When each product receives only some ratings, what matters is the precision of each product's score given its own ratings (primi2019; forthmann2025 [FI-17]).
-- P5. **Raters differ (aim 2).**
-  - Raters differ in severity, scale use and beliefs (long2015), and their tendencies drift (barth2021).
-  - Rater-effect taxonomy (engelhard1994; myford2003; myford2004).
-  - Judged sports (looney2004; anderlucci2021; heiniger2021 [FI-17]).
-- P6. **From averaging to JRT (aim 3).** Two paragraphs.
-  - **Severity and the raw mean.** Unweighted means treat raters as interchangeable. When different raters rate different products, the means are confounded with rater severity (primi2019). The many-facet Rasch model adds a severity facet (linacre1989, *Many-facet Rasch measurement*; eckes2015; primi2019).
-    - τ-equivalence sentence as in draft 4.
-  - **Category structure and discrimination (N3-M1).**
-    - The rating-scale form of the MFRM assumes that all raters share one category structure. A partial-credit MFRM relaxes this with rater-specific thresholds (eckes2015 [FI-17]). Every Rasch-family model, including the partial-credit form, assumes equal discrimination; unequal discrimination shows up only as misfit (myford2004; myszkowski2021).
-    - IRT basics: lord1980; embretson2013; ayala2022 (narrative "de Ayala"). Rasch family: rasch1960; bond2020; andrich1978; masters1982.
-    - JRT via the GPCM (muraki1992) or the GRM (samejima1969) (myszkowski2019; myszkowski2021). Applications: barbot2023; pellegrino2025 (also retained a GRM [FI-17]).
-    - The adjacent-category models are nested and testable by LR. The GRM is cumulative [ATC-8] and is compared by information criteria.
+**Move 2 — The reliability problem: how many raters are enough is conditional (450–550 words)**
+- P3. **Aggregation.** CAT reliability rests on aggregation: by Spearman–Brown logic the reliability of the mean depends on the mean inter-rater correlation and on the number of raters, so a larger panel compensates for lower agreement (amabile1982). The reverse also holds: a high α from a large panel can mask low agreement between single raters (kaufman2008a: 106 novices reached α = .94 on poems yet correlated .22 with experts) [FI-17 "mask" wording]. Consistency and absolute agreement are seldom distinguished (cseh2019; stefanic2015).
+- P4. **What the required number depends on.** State the conditions (07 bottom line): reliability target, object of measurement (persons across tasks vs single products), rater expertise and training, scale and scoring format, product heterogeneity and domain. Then the cross-domain evidence, **each figure with its target and object** (binding instruction of 07; verification levels → FI-17):
+  - Trained student raters scoring short, homogeneous divergent-thinking responses (person-level, relative G ≥ .80): two raters for uses and instances, three for consequences under average scoring (silvia2008 [excerpts]); five graduate-student raters with 15 captions for g and φ ≥ .80 (kaufman2007 [excerpts]).
+  - Novices judging expert-domain products (product-level, Cronbach's α): for poems, Kaufman et al.'s own Spearman–Brown projection to ten novices gave .58 (kaufman2008a, full text per 06: .575 [.562, .588]); for short stories, 100 random panels of ten novices averaged α = .53 (range .35–.75) and for five engineering designs .66, against .93 and .86 for ten experts, and ten-novice panels correlated .56 with experts on stories (kaufman2013). **Attribute .58 to poetry (kaufman2008a) and .53 to stories (kaufman2013)** (07 resolution).
+  - Open-ended products rated by non-experts (ICC ≥ .70): seven or more raters for fashion outfits (barth2021 [excerpts]); 10–15 undergraduates for creativity ratings of design products and 15–20 for composite indices (terai2026 [abstract]).
+  - Person-level measurement with large person-by-task variance: with two divergent-thinking items no panel of one to ten lay raters reached .80, and rater main effects (severity) accounted for 26.6% and 56.9% of the variance (hass2018); with two trained raters, five tasks were needed for relative generalizability ≥ .70 and more for absolute decisions (vanhooijdonk2022); dependability was low for all rater groups on science tasks (long2015 [abstract/secondary]).
+  - Practice: most of 84 reviewed studies used fewer than ten raters, about five on average (long2022 [excerpts]); the common recommendation is five to ten (kaufman2008, via cseh2019); reported panels run from two (daly2016, cite via cseh2019 only) to 134 (cseh2019).
+  - **No rater-number study was located for sport, music (headcount), mathematics, advertising or programming** (07; scope: time-limited search, phrase as "we located none").
+- P5. **Conclusion of the move.** No general required number exists; published figures are conditional on target, object, raters, scale and domain. Cseh and Jeffries (2019) list the number of judges needed for reliable consensus among the open questions of the CAT — **do not write that they require domain-by-domain determination** — and G-theory authors argue that each assessment procedure needs its own G- and D-study (vanhooijdonk2022). Hand-over: and the evidence that exists comes from a narrow range of material.
 
-**Move 3: Gap**
-- P7. **Creativity in sport.**
-  - Prior work centres on the process (memmert2011).
-  - Product ratings of football actions: kempe2018; memmert2007; zahno2023; joode2023 (narrative "de Joode et al."). These studies average ratings and report ICCs or agreement [FI-17]. A Rasch analysis exists only for a coach questionnaire (shin2025).
-  - "However" sentence with three gaps:
-    1. little is known about how the reliability of creativity scores of sport actions depends on the number of ratings each action receives (cseh2019, same paraphrase as P4);
-    2. no evidence exists on how raters differ when judging creativity in sport;
-    3. to our knowledge, rater differences have not been modelled with IRT/JRT for creativity ratings in sport [ATC-2].
+**Move 3 — The verbal bias and the sport case (300–350 words)**
+- P6. **Material type (C-A, qualitative) [ATC-28].** The rating-design evidence comes largely from verbal material — divergent-thinking responses, poems, stories, captions, metaphors — and from static products that raters inspect at leisure, such as collages, drawings and designs (amabile1982; kaufman2008a lists the typical CAT tasks; reiterpalmon2019 for the DT scoring tradition; saidmetwaly2017b: the task universe discussed is verbal, figural and mathematical paper-and-pencil material; paca2019 for the measure mix; optional acar2023/acar2024 for text-based scoring). **No percentage.** Within sport, the standard tests are "generalist thinking expressed verbally or through drawing" (safardilha2019 [FI-17: check wording and page]).
+- P7. **Football actions as a product class (C-B).** Nonverbal behaviour produced under time pressure in a complex, dynamic environment: creative motor actions emerge from the performer–environment system (orth2017; hristovski2011; hristovski2012; vaughan2019; rasmussen2019); decisions in team sport are time-constrained option generation (raab2007); players process substantial information within a very short time (memmert2011b). Observed in competition, the product class is ecologically valid in a way laboratory and game-test settings are not (safardilha2019; memmert2011b; joode2023; general anchor cotter2019 [FI-17: author field "Cotter & Silvia"; content unverified]); ratings of such actions exist (kempe2018; joode2023; zahno2023; zahno2024).
+- P8. **The gap in sport (C-C; coordinator wording).** Sport creativity research has concentrated on process measures, divergent thinking in game situations in particular (memmert2007; memmert2010; memmert2013; furley2015; roca2018; fink2018; reviews safardilha2019; memmert2011b). **DT-in-sport citation: memmert2011 vs memmert2013 vs memmert2011b is the author's choice [ATC-29].** The few studies that rated football actions relied on three or four licensed coaches, averaged the ratings and reported an intraclass correlation (kempe2018; memmert2010; roca2018; joode2023) [FI-17: kempe2018 scale and index; zahno2023/2024 panel sizes]; none examined how many raters are needed, how raters differ, or which scoring model suits the ratings. **Phrase as a lack of rating-design evidence, never "no evidence"; no "by convention".** Hand-over: answering these questions requires a method that treats raters as the object of study.
 
-**Move 4: Present study**
-- P8.
-  - Data: CAT-style creativity ratings of football actions by multiple raters (counts via Method / @tbl-design-summary).
-  - The exploratory aims and RQ1–RQ3. Say that no confirmatory hypotheses were formulated.
-  - Analytic route in one sentence: a JRT model ladder plus a GRM, estimated by MML in mirt; the reliability of the obtained scores, overall and by number of ratings; rater parameters with uncertainty; and GRM scores compared with raw means.
-  - Scope: rater expertise and the design of the rating scale are not analysed.
+**Move 4 — The methods ladder (350–400 words)**
+- P9. **From averages to G-theory.** Raw averages with α or Spearman–Brown treat raters as interchangeable and conflate panel size with agreement; α ignores severity, which confounds raw means whenever different raters rate different products (primi2019; myszkowski2019). Resampling raters from a large pool shows the distribution of reliability across panels of size k but is pool-specific (kaufman2013; barth2021; terai2026). G-theory decomposes variance into rater, product and interaction components and projects relative and absolute coefficients to k raters in D-studies, but still treats raters as interchangeable, needs near-balanced designs and cannot correct individual raters (silvia2008; hass2018; vanhooijdonk2022). Classical scoring remains the default in creativity measurement, and IRT or G-theory are rarely used (saidmetwaly2017b).
+- P10. **MFRM.** Many-facet Rasch models add rater severity as a facet, estimate and correct it in incomplete but connected designs, and flag misfitting raters (linacre1989; eckes2015); Primi et al. (2019) showed that severity confounds scores when raters score different subsets and that rater workload could be cut by about a third with severity-adjusted scores. But every Rasch-family model assumes equal discrimination, and the rating-scale form assumes one shared category structure; discrimination differences surface only as misfit (myford2004; myszkowski2021).
+- P11. **JRT.** Judge response theory transposes IRT to multiple-judge data: raters are items whose severity, category thresholds and discrimination are estimated individually, under the GRM or the GPCM; it yields fair scores with product-specific standard errors, reliability conditional on the creativity level, and an explicit model of rater behaviour, in which part of the rater-by-product interaction becomes information rather than error (myszkowski2019; myszkowski2021). Applications since: ratings of 3-D drawings (barbot2023), divergent-thinking ratings with a GRM retained (pellegrino2025 [FI-17]), planning of planned-missing rating designs (forthmann2025; goecke2024), and rubric-coded PISA creative-thinking responses (myszkowski2025, optional, D10). No application to ratings of sport actions was located [ATC-2]. Because the rating-scale and partial-credit models are constrained versions of the GPCM, the constraints become testable by model comparison rather than imposed (myszkowski2021); whether the flexibility of JRT is needed is therefore an empirical question (RQ3).
 
-### 2 Method
+**Move 5 — The present study (200–250 words)**
+- P12. Large set of CAT-style creativity ratings of football actions by 24 raters in a sparse, connected design (the design is named once here and described in Method; no "most products were rated only once or twice" framing outside the Table). Exploratory; no confirmatory hypotheses [ATC-20]. RQ1–RQ3 as worded above, with RQ1 explicitly as reliability as a function of the number of ratings and the number needed for reliable estimates, observed and simulated. One sentence on the analytic route: a GRM and an adjacent-category ladder (M1, M2, M3) by MML; reliability of the obtained scores overall and by number of ratings; a projection and a top-up simulation; rater parameters with uncertainty; GRM scores against raw means and against the constrained models. Scope: rater expertise and the design of the rating scale are not analysed.
 
-Purpose: replication and justification of the analytic choices. Order: overview → details → relation to prior methods → problems (writing-models/methods.md). **All FILL INs stay visible for the author.**
+### 2 Method (1,900–2,200 words; methods model: overview → details → relation to prior methods → problems; all FILL INs stay visible)
 
-**2.1 Overview.** CAT-style rating study: independent raters, relative judgements, randomised order (amabile1982; hennessey2011). Products are football actions rated within a larger project [FI-1, FI-2]. Ethics [FI-1]. Exploratory analysis; preregistration status [FI-15].
+**2.1 Overview.** CAT-style rating study: independent raters, relative judgements, randomised order (amabile1982; hennessey2011). Products are football actions rated within a larger project [FI-1, FI-2]. Ethics and consent [FI-1]. Exploratory; preregistration status [FI-15].
 
 **2.2 Raters.**
-- Bachelor's and Master's students rating as part of thesis projects [FI-1].
-- Rater-pool description [FI-21]. If something was not recorded, say so in one sentence.
-- Final number of raters; ratings per rater from 50 to 1,174 (F0.3; column "Ratings by rater" in the rater tables). Pseudonyms R01–R19.
+- Bachelor's and Master's students rating as part of thesis projects [FI-1]; the raters who joined later (R23–R27) from the same pool? [FI-31; D5]. Rater-pool description or a statement that it was not recorded [FI-21].
+- Final data: 24 raters, pseudonyms R01–R19 and R23–R27 (gaps because four raters were excluded, see 2.6), 46 to 1,174 ratings each (F0.3, F0.5; column "Ratings by rater"). IDs do not reflect workload (C8).
 
-**2.3 Products and stimulus material.** Define the product term here ("each rated product was a single football action"). Matches, competitions, the selection rule, clip length [FI-2].
+**2.3 Products and stimulus material.** Define the product term here. Matches, competitions, selection rule via event data, clip length, source [FI-2].
 
 **2.4 Rating procedure.**
-- Software, instruction and the creativity definition shown to raters (originality × functionality in game context; runco2012) [FI-3].
-- Relation to the CAT "no criteria" rule (hennessey2011) and to trained-rater sport studies (kempe2018; memmert2007) [ATC-19].
-- 7-point unipolar scale with anchors 1 / 4 / 7, plus an off-scale "action not recognised" option [FI-3].
-- Order, sessions and breaks, data-collection timespan, other dimensions rated (not analysed here) [FI-3].
+- Software, instruction, creativity definition shown (originality × functionality in game context; runco2012) [FI-3]; relation to the CAT "no criteria" rule (hennessey2011) and to trained-rater sport studies (kempe2018; memmert2010) [ATC-19].
+- Unipolar 7-point scale, anchors at 1, 4, 7 [FI-3]; "action not recognised" option [FI-3]; order, sessions, breaks [FI-3; C13: timestamps of R03, R06, R13 up to November 2025 are partly batched, so make no timing claim for them]; data-collection period [FI-32]; other dimensions rated, not analysed [FI-3].
 
-**2.5 Rating design (brief).**
-- Allocation of products to raters, and how products came to have 1, 2 or 3+ ratings [FI-4]. This bears on the ignorable-missingness assumption of MML. If FI-4 shows that products with different numbers of ratings were rated by different raters, state it here; otherwise do not state it anywhere.
-- The design is incomplete but connected (one component; F0.3). The coverage numbers are in @tbl-design-summary only.
-- If the planned benchmark set was not realised as a fully crossed block, state this neutrally [ATC-18].
+**2.5 Rating design.**
+- Allocation of products to raters and how products came to have their number of ratings, including the latest collection in which most new ratings went to products that already had three or more ratings [FI-4, FI-31; C13: **do not write an allocation rule the author has not confirmed**]. Bears on ignorable missingness under MML [ATC-18].
+- Incomplete but connected design: one component (F0.3; eckes2015). Coverage numbers in @tbl-design-summary only; `fig-design-ratings-per-product` [SUPP] shows the distribution of ratings per product (F0.4; counts quoted from N1 stdout: 832, 2,107, 68, 153, 198, 137, 95, 36, 22, 14, 4, 2, 1).
 
 **2.6 Data preparation and final data.**
-- Cleaning, in text only (F0.1): 9,148 raw rows; 1,290 ratings marked "action not recognised" removed; 1 out-of-range value (0.0, R04) removed; 13 rows removed when resolving duplicate rater–product pairs (12 pairs, 1 conflicting; last entry kept). Result: 7,844 rows.
-- **Not-recognised sentence (author-supplied; no marker):** "The 1,290 ratings marked 'action not recognised' were removed; such ratings result from video cutting and imperfect material, where close-ups or other TV artefacts render the action non-visible."
-  - Add the non-recognition rate by rater [FI-22].
-  - Compute no percentage from 1,290 / 9,148.
-- **Rater exclusion (F0.2; `tbl-excluded-raters` [SUPP]):**
-  - R20 (13), R21 (9) and R22 (2), together 24 ratings; one product rated only by them was dropped.
-  - Wording: "Raters with fewer than 15 ratings were excluded because their up to seven rater-specific parameters cannot be estimated reliably" [FI-23 for the source of 15]. 15 is the exclusion criterion only; it is never a recommendation.
-  - **Sensitivity sentence (ATC-26):** "Excluding them changed the product scores only slightly (largest change in a product score 0.16246; see @tbl-sensitivity-rater-exclusion) **[AUTHOR TO CONFIRM]**." Do not write "did not change the scores".
-- **Final data** (F0.3; `tbl-design-summary` [MAIN]):
-  - 7,820 ratings of 3,668 products by 19 raters; scale 1–7, coded 0–6 internally;
-  - ratings per product: mean 2.132, median 2, range 1–10, harmonic mean 1.726;
-  - matrix fill .112; one connected component; 17 of 171 rater pairs without a common product; median overlap 13.
-  - Quote these once. Do not repeat them as framing.
-- **Category gaps** (F0.7; `tbl-category-usage` [SUPP]):
-  - category 7 unused by R01, R03, R06 and R18; categories 6–7 unused by R17;
-  - no internal gaps;
-  - these raters therefore have fewer thresholds.
+- Cleaning in text (F0.1): 10,447 raw rows; 1,347 ratings marked "action not recognised" removed (author-supplied explanation sentence on video artefacts, no marker; non-recognition rate by rater [FI-22]); 1 out-of-range value (0.0, R04) removed; 21 rater–product pairs entered more than once, 1 conflicting; **the entry with the latest timestamp was kept**, removing 22 rows (C9); 9,077 ratings by 28 raters remained.
+- Rater exclusion (F0.2; `tbl-excluded-raters` [SUPP]): raters with fewer than 15 ratings, R20 (13), R21 (9), R22 (2) and R28 (7), together 31 ratings; one product rated only by them dropped; "because their up to seven rater-specific parameters cannot be estimated reliably" [FI-23]. Sensitivity sentence (C12, D4) [ATC-26]: "Excluding them left the product scores nearly unchanged on average (*r* = .99994, mean absolute change 0.00204), with a largest change in one product score of 0.35026 (@tbl-sensitivity-rater-exclusion)." Never "did not change".
+- Final data (F0.3; `tbl-design-summary` [MAIN]): 9,046 ratings of 3,669 products by 24 raters; scale 1–7, coded 0–6; ratings per product mean 2.466, median 2, range 1–13, harmonic mean 1.806; 832 products with one rating; fill .103; one component; 30 of 276 rater pairs share no product; median overlap 19. Quote once.
+- Category use (F0.7; `tbl-category-usage` [SUPP]; `fig-category-usage-shares` [SUPP]): eight raters never used at least one category; category 7 never used by R01, R03, R06, R18, R25 and R26; categories 6 and 7 by R17; categories 5 and 7 by R27, so R27 has an **internal gap** (C7). Consequences: R17 and R27 have four thresholds, R01, R03, R06, R18, R25 and R26 five, all others six; R27's thresholds separate other category boundaries and are not directly comparable with other raters' (notebook note, factual).
 
-**2.7 Measurement models.**
-- JRT frame: raters are items and products are persons; unidimensional θ ~ N(0, 1) (myszkowski2019; myszkowski2021).
-- **Threshold definition (neutral):** "b_k is the θ at which a rating above category k becomes more likely than a rating of k or below." Do not add "higher b means a stricter rater" unless the author confirms it **[ATC-6]**.
-- In the GRM, thresholds are expressed relative to discrimination, so threshold spacing is partly the same fact as a. State this once here.
-- Ladder (round 5 names and m-11 wording):
-  - **M1, the rating-scale MFRM:** the rating scale model (andrich1978) with raters as items, which **corresponds to** a two-facet rating-scale MFRM (linacre1989; eckes2015; primi2019), **here estimated by marginal maximum likelihood** with a normal product distribution (sirt::rm.facets; robitzsch2025). Do not write "equivalent to". It is the only model in the ladder with one shared category structure;
-  - **M2, the partial-credit MFRM:** the partial credit model (masters1982) with rater-specific thresholds; with raters as items it corresponds to a partial-credit MFRM (eckes2015). Still Rasch: equal discrimination;
-  - **M3, the GPCM** (muraki1992), adding rater-specific discrimination.
-  - M2 and M3 are fitted in mirt (chalmers2012).
-- Retained scoring model: a GRM (samejima1969) in mirt; its thresholds are ordered by construction.
-- Estimation (F1.3): MML via EM with 61 quadrature points; Oakes SEs (chalmers2018); converged after 165 iterations; information matrix positive definite (`tbl-grm-convergence` [SUPP]). Tolerance prints "10⁻⁴"; quoting it is optional.
+**2.7 Measurement models (receives the IRT paragraph from the old Introduction).**
+- IRT basics in three sentences: response probability as a function of a latent attribute and item parameters (lord1980; embretson2013; ayala2022 "de Ayala"); Rasch models constrain discrimination to be equal, which makes the raw score sufficient (rasch1960; bond2020); polytomous forms: rating scale model (andrich1978) and partial credit model (masters1982) differ in whether items share one category structure; GPCM (muraki1992) and GRM (samejima1969) add item-specific discrimination; adjacent-category vs cumulative link.
+- JRT frame: raters as items, products as persons, one latent dimension θ, normal with mean 0; variance fixed at 1 in M3 and the GRM, estimated in M1 and M2 (myszkowski2019; myszkowski2021). Threshold definition (neutral): b_k is the θ at which a rating above category k becomes more likely than k or below [ATC-6 for "higher b = stricter"]. Discrimination a. GRM threshold spacing is partly the same fact as a (state once).
+- Ladder: M1 (rating-scale MFRM) = rating scale model with raters as items and a rater severity, which corresponds to a two-facet rating-scale MFRM (linacre1989; eckes2015; primi2019), estimated by MML in `sirt::rm.facets` (robitzsch2025); M2 (partial-credit MFRM) = partial credit model with rater-specific thresholds, corresponding to a partial-credit MFRM (eckes2015), still equal discrimination; M3 (GPCM) adds rater-specific discrimination; M2, M3 and the GRM in mirt (chalmers2012). Retained scoring model: GRM, thresholds ordered by construction.
+- Estimation (F1.3; `tbl-grm-convergence` [SUPP]): EM, 61 quadrature points, tolerance 10⁻⁴, Oakes SEs (chalmers2018), converged after **436** iterations, information matrix positive definite.
 
 **2.8 Model comparison.**
-- LR tests M1 vs M2 (shared vs rater-specific category structure) and M2 vs M3 (equal vs rater-specific discrimination); logLik, AIC, BIC and SABIC with Δ to the best model (F1.1). The GRM is compared with the ladder by information criteria only.
-- Problems, stated briefly:
-  - M1 vs M2 is a cross-software comparison (sirt vs mirt), so the test is approximate.
-  - The df of M1 vs M2 is below the formula value (J − 1)(K − 2) = 90, because raters who never used an end category have fewer step parameters (@tbl-category-usage). Do **not** state the count of unused end categories.
-  - Severity differences are not tested on their own (no model without rater effects).
+- LR tests M1 vs M2 and M2 vs M3; log-likelihood, AIC, BIC, SABIC with Δ to the best model; GRM compared by information criteria only (F1.1, F1.2).
+- Problems: M1–M2 crosses software (sirt vs mirt), approximate; **df of M1 vs M2 (105) below the formula value (J − 1)(K − 2) = 115 because the observed df is smaller by the number of categories raters never used, unused end categories and any internal gap (C7; quote the note's rule, not the count)**; no model without rater effects, so severity is not tested on its own.
 
-**2.9 Model adequacy (limits stated here once).**
-- Infit/outfit (wright1982) for M1 and the GRM, with expected value 1 and **no cut-offs**. Values below 1 are expected because each θ̂ is estimated from the ratings being checked.
-- S-X² (orlando2000; kang2008) with the missing ratings imputed 20 times. Most cells are imputed from the fitted model, so the test has little power [ATC-11].
-- Yen's Q3 (yen1984): the correlation of two raters' residuals over the products both rated.
-  - **Computable pairs (round 5; F1.9 note, FI-30 closed):** "Q3 was computed for rater pairs with at least 3 jointly rated products and residual variance in both raters (137 of 171 pairs)." No [FILL IN] marker. Do not state or derive the number of non-computable pairs, and do not explain them by the 17 pairs without shared products.
-  - It is negatively biased with few raters per product (christensen2017), so pairs are compared by their deviation from the mean Q3 over all computable pairs. A pair is flagged when it has at least 30 jointly rated products and |Q3 − mean Q3| > 0.2. This criterion has no reference distribution.
-- C2 (cai2014) could not be computed. It needs the joint distribution of every rater pair, and 17 of 171 pairs share no products (F1.10). Do not embed `tbl-grm-global-fit`.
+**2.9 Model adequacy.**
+- Infit/outfit (wright1982) under M1 and the GRM, expected value 1; **flags mark values outside 0.7–1.3, the rule of the rater-fit output; with about two ratings per product values below 1 are expected because each score is estimated from the ratings being checked, so flags below 0.7 are read as a property of the design rather than as misfit [ATC-33]**; no further cut-offs.
+- S-X² (orlando2000; kang2008) with 20 imputations of the missing ratings; about 90% of cells imputed, so the test is conservative [ATC-11].
+- Yen's Q3 (yen1984) for pairs with at least three jointly rated products and residual variance in both raters (222 of 276 pairs); negatively biased with few raters per product (christensen2017), so pairs compared by deviation from the mean Q3; flagged if ≥ 30 shared products and |Q3 − mean| > 0.2; no reference distribution. Do not state the number of non-computable pairs.
+- C2 (cai2014) not computable: 30 of 276 pairs share no products (F1.10). `tbl-grm-global-fit` not embedded.
 
-**2.10 Scores and reliability (aim 1).**
-- EAP θ̂ with the posterior SD (PSD).
-- **Empirical marginal reliability** of the scores actually obtained: Var(θ̂) / (Var(θ̂) + mean PSD²).
-- **Model-based marginal reliability** for a hypothetical product rated by all raters (green1984; mirt marginal_rxx), plus a grid check.
-- **95% intervals:** from 200 accepted draws of the parameters from their asymptotic normal distribution (estimates and Oakes covariance). For the empirical reliability, products are also resampled. A draw that was not a valid GRM (some a ≤ 0 or thresholds out of order) was rejected and replaced; 87 draws were rejected. The intervals are therefore conditional on valid parameter sets and approximate, especially for raters with few ratings.
-- **Product-level reliability:**
-  - rel_post = 1 − PSD². It is defined relative to the unit prior variance of θ, so with one or two ratings it partly reflects the prior.
-  - rel_info = I/(I + 1) from the information of the product's own raters at θ̂.
-  - Both are summarised by the number of ratings each product received (column "Ratings per product").
-- **Conventional indices:**
-  - Cronbach's α (cronbach1951) from pairwise covariances over the usable raters, and on the largest fully crossed block [FI-9: why 5 raters were not usable];
-  - Krippendorff's ordinal α (hayes2007);
-  - 95% bootstrap CIs over products (1,000 replications). For the pairwise α, 639 of 1,000 replications could be computed (361 failed); the interval uses the computable ones and is approximate and possibly biased [ATC-11].
-  - **hove2024 (round 5, m-10):** no longer placed after Krippendorff's α. Use it, if at all, in the lead sentence of this paragraph, on reliability indices for incomplete designs: "Conventional reliability indices assume, or must be adapted to, a complete design (ten Hove et al., 2024 [@hove2024]); we therefore report them only for comparison." If the author prefers not to invite an ICC request, drop the citation.
-- **Projection pointer (round 5, m-5; one sentence, last in 2.10):** "As a side note, the reliability expected for 1 to 10 ratings per product was projected from the fitted GRM, with raters drawn at random from this panel (see Supplement, @tbl-grm-reliability-projection)." Description only: no values, no further detail in the Method; the procedure stays in the supplement note.
+**2.10 Scores, reliability and the two simulations (RQ1).**
+- EAP θ̂ with PSD. Empirical marginal reliability Var(θ̂)/(Var(θ̂) + mean PSD²) as the primary index; model-based marginal reliability for a hypothetical product rated by all raters (green1984; mirt marginal_rxx) with a grid check. 95% intervals from 200 accepted draws (asymptotic normal, Oakes covariance), products also resampled for the empirical reliability; **43 draws rejected** (invalid GRM) and replaced; intervals conditional on valid draws (F1.12).
+- Product-level: rel_post = 1 − PSD² (relative to the unit prior variance; partly reflects the prior with one or two ratings); rel_info = I/(I + 1) as a check; both summarised by "Ratings per product" (F1.13–F1.16).
+- Conventional indices, lead sentence optional with hove2024 ("ten Hove et al."): Cronbach's α (cronbach1951) from pairwise covariances over usable raters and on the largest fully crossed block [FI-9: why R26, R19, R14, R02, R12, R27 were not usable; which three raters form the block]; Krippendorff's ordinal α (hayes2007); bootstrap CIs over products (1,000 replications); for the pairwise α **647 of 1,000** replications computable, interval approximate [ATC-11].
+- **Projection (F1.20; `tbl-grm-reliability-projection`, `fig-grm-reliability-projection` [SUPP]):** products with θ ~ N(0, 1) simulated; each receives k ratings (k = 1–10) from k raters of the panel drawn at random, each rater equally likely, so the draws do not reproduce the raters' actual workloads [ATC-35]; ratings generated from the fitted GRM and scored with its parameters, treated as known; 50 replications of 2,000 products per k, seed 20260713; outputs the empirical marginal reliability (mean and 95% range over replications) and mean rel_post; the smallest k reaching .80 is reported.
+- **Top-up to at least four ratings (F1.21; `tbl-grm-reliability-min-ratings` [MAIN]):** for each actual product with fewer than four ratings the missing ratings are generated from the fitted GRM by raters drawn at random with equal probability, real ratings kept, all products rescored with the GRM (parameters treated as known); 50 replications; the same simulation on the unchanged design serves as a check against the observed empirical reliability. State plainly that the ranges reflect simulation variability only and that the observed data remain primary. Do not state what is not stated (whether a rater can rate the same product twice; how θ enters; seed).
+- Observed and simulated values are shown side by side in `fig-grm-reliability-observed-vs-simulated` [MAIN] and `tbl-grm-reliability-observed-vs-simulated` [SUPP]; the two are different quantities (observed mean rel_post vs simulated empirical marginal reliability) — say so here.
 
-**2.11 Rater parameters, information and response styles (aim 2).**
-- GRM a and b_k with Oakes SEs.
-- **Average information:** rater information integrated over N(0, 1), and each rater's share of the full-panel information. 95% intervals come from the same parameter draws, with the same caveat.
-- Descriptive response styles on the raw scale (F0.8; @tbl-overview-rater-response-styles [SUPP], @fig-overview-rater-response-styles [MAIN]): mean, median, SD, IQR, categories used, entropy (natural log), and the shares of ratings in the lowest category (1; floor), the highest category (7; ceiling), the extreme categories (1, 7) and the middle categories (3–5; central). These are not adjusted for which products each rater saw, and have no per-rater uncertainty.
+**2.11 Rater parameters, severity, information and response styles (RQ2).**
+- M1 severity per rater with SE (0 = average rater, higher = stricter) (`fig-m1-rater-severity` [MAIN]; values in `tbl-rater-overview` [MAIN]).
+- GRM a and b_k with Oakes SEs; `fig-grm-rater-discrimination-ci` [MAIN] shows a with ±1.96 SE.
+- Average information and share of the full-panel information, with 95% intervals from the same draws (`tbl-grm-rater-information-ci` [SUPP]; `fig-grm-rater-information-ci` [SUPP]; `tbl-grm-information-summary` [SUPP]).
+- Descriptive response styles on the raw scale (`tbl-overview-rater-response-styles` [SUPP]; `fig-overview-rater-response-styles` [MAIN]; `fig-category-usage-shares` [SUPP]): mean, median, SD, IQR, categories used, entropy (natural log), shares in the lowest, highest, extreme and middle categories; unadjusted, no per-rater uncertainty.
+- `tbl-rater-overview` [MAIN] collects per rater: ratings, raw mean, severity (M1), a (GRM), share of panel information with interval, GRM infit/outfit with ⚑ (outside 0.7–1.3), unused categories.
 
 **2.12 Score agreement and sensitivity (RQ3b).**
-- **Raw mean vs GRM (F2.9):** each product's unweighted mean rating is compared with its GRM EAP, **separately for products with 1, 2 and 3+ ratings**.
-  - The raw mean takes few distinct values (with one rating, only seven), so agreement is measured by:
-    - Kendall's τ-b;
-    - the share of product pairs with different raw means that the GRM orders the other way round ("reversed order");
-    - the mean and maximum range of GRM scores among products with the same raw mean.
-  - No pooled comparison across numbers of ratings.
-- Correlations of EAP scores between all models. Relative to the GRM (F2.7): the absolute shift in percentile rank (0–1 scale) and the share of products changing quintile.
-- Integration-grid check for M1 (F2.6).
-- Rater-exclusion sensitivity: the GRM refitted with all 22 raters (F2.8).
+- Raw mean vs GRM EAP separately for products with 1, 2 and 3+ ratings: Kendall's τ-b; share of pairs with different raw means in reversed order; mean and maximum θ̂ range at equal raw mean (F2.13). No pooled comparison.
+- Correlations of EAP scores between models; relative to the GRM the absolute percentile shift and the share changing quintile (F2.10, F2.11); M1 grid check.
+- Rater-exclusion sensitivity: GRM refitted with all 28 raters (F2.12).
 
-**2.13 Software and availability.** R and package versions; Python for display [FI-6]. Data and code availability with pseudonymised rater IDs [FI-15].
+**2.13 Software and availability.** R with mirt and sirt, psych and a Krippendorff package, Python for display [FI-6]; data and code availability, pseudonymised IDs [FI-15].
 
-### 3 Results
+### 3 Results (1,700–2,000 words; results model: overview → invite to objects and key results → problems → one hedged pointer; descriptive only)
 
-Purpose: describe, not interpret. Moves per writing-models/results.md: aim and overview → objects and key results → problems → at most one hedged pointer. Rules:
-- report key contrasts and point to the tables for the rest;
-- no interpretive sentences;
-- APA numbers.
+**3.0 Overview (1 short paragraph).** Echo RQ1–RQ3; all analyses use @tbl-design-summary; scoring model first.
 
-Order: scoring model (brief) → RQ1 → RQ2 → RQ3 → sensitivity.
+**3.1 Scoring model (brief)** — F1.1, F1.3, F1.7–F1.10; `tbl-model-fit` [MAIN]; cross-ref `tbl-grm-convergence`, `tbl-grm-rater-fit`, `tbl-grm-q3-flagged` [SUPP].
+- **C1 wording:** "The GRM had the lowest AIC (27,258.550) and SABIC (27,737.316) of the four models, whereas BIC was lowest for M1 (rating-scale MFRM; 28,235.202), with the GRM 4.161 above it (28,239.363). The GRM and M3 (GPCM) have the same number of parameters (158), so their comparison reduces to the log-likelihood (−13,471.275 vs −13,495.966), and the GRM is lower by 49.381 on AIC, BIC and SABIC alike." Leave the other Δ values to the table.
+- Converged after 436 EM iterations, information matrix positive definite.
+- Fit: no S-X² significant (*p* from .328 to .665); GRM infit 0.429 (R02) to 0.980 (R18), outfit 0.402 (R02) to 0.971 (R18), all below 1; 15 raters flagged, all for values below 0.7 and none above 1.3 (read off `tbl-rater-overview`; state as a count with the rule); **C11:** mean Q3 −.202 over 222 computable pairs, 28 pairs flagged; of the ten shown, eight deviate negatively and two positively (R09–R23, R10–R11); C2 not computable (Method 2.9).
 
-**3.0 Overview (1 short paragraph).** Echo the aims. All analyses use @tbl-design-summary. One descriptive preview line, with no evaluative words.
+**3.2 Reliability of the scores and number of ratings (RQ1)** — F1.12–F1.23; embed `tbl-reliability-overview` [MAIN], `tbl-grm-reliability-by-n` [MAIN], `fig-grm-reliability-observed-vs-simulated` [MAIN], `tbl-grm-reliability-min-ratings` [MAIN]; cross-ref [SUPP]: `fig-grm-rel-post-by-n`, `tbl-grm-reliability-ci`, `tbl-grm-reliability-summary`, `tbl-naive-indices`, `tbl-grm-reliability-projection`, `fig-grm-reliability-projection`, `tbl-grm-reliability-observed-vs-simulated`, `fig-grm-rel-post-histogram`, `fig-grm-rel-post-by-theta`, `fig-grm-rel-consistency`, `fig-grm-panel-information`.
+- **(1) Obtained scores vs full panel vs conventional indices** (@tbl-reliability-overview; F1.12, F1.18): empirical marginal reliability .689 [.669, .703]; model-based (hypothetical full panel) .969 [.965, .974], grid .969; pairwise Cronbach's α .949 [.926, .958] (18 raters, 1,946 products; 647 of 1,000 replications computable, approximate); crossed block α .750 [.684, .800] (3 raters, 261 products); Krippendorff's ordinal α .391 [.363, .417] (24 raters, 2,837 products). State what each refers to ("Refers to" column). **C4: no closeness claim** (D3). Do not discuss the M1–M3 rows.
+- **(2) Observed product-level reliability by number of ratings** (@tbl-grm-reliability-by-n; @fig-grm-rel-post-by-n [SUPP]; F1.14). **C3 wording:** "Mean rel_post was .522 for the 832 products with one rating, .699 for the 2,107 with two and .756 for the 68 with three; it rose overall with the number of ratings, to .948 at twelve, with two exceptions: .897 at ten ratings after .915 at nine, and .947 at thirteen after .948 at twelve. Mean PSD fell from 0.684 to 0.228, with the same exceptions at ten (0.314) and thirteen (0.230). The rows from ten ratings upward rest on 14, 4, 2 and 1 products. No mean reached the full-panel value of .969." Products with the same number of ratings differ (figure). Move 3: observed, not a design manipulation [FI-4].
+- **(3) Simulated reliability by number of ratings** (@fig-grm-reliability-observed-vs-simulated; values from @tbl-grm-reliability-projection and @tbl-grm-reliability-observed-vs-simulated [SUPP]; F1.20, F1.20a, F1.22): simulated empirical reliability rose at every step from .530 [.513, .544] at one rating to .705 [.696, .713] at two, .787 [.778, .797] at three, .834 [.827, .841] at four and .928 [.925, .931] at ten; **the smallest k with at least .80 was four** (printed). Observed means lie inside the simulated 95% range at one, two and eight ratings and below it at three to seven, nine and ten (read-off; state as a description of the table, no test, no cause) [ATC-32]. Say the two columns are different quantities.
+- **(4) Top-up design** (@tbl-grm-reliability-min-ratings; F1.21): simulated actual design .686 [.675, .695] (mean rel_post .687), against the observed .689; at least four ratings per product: .835 [.829, .840], with 3,007 products topped up and 6,778 ratings added (15,824 in total). No "close" wording unless marked [ATC-32].
+- **(5) Distribution and consistency** (one sentence each; F1.13, F1.16): rel_post median .712, IQR .191 (first and third quartiles .599 and .789), range .068–.954; rel_post and rel_info correlate *r* = .947, 229 products differ by more than .1.
 
-**3.1 Scoring model (supporting; short)**
-- Findings: F1.1, F1.3, F1.7–F1.10.
-- Embed `tbl-model-fit` [MAIN]. Cross-reference `tbl-grm-convergence`, `tbl-grm-rater-fit` and `tbl-grm-q3-flagged` [SUPP].
-- The GRM has the lowest AIC, BIC and SABIC. The GRM and M3 (GPCM) have the same number of parameters (127), so their comparison reduces to the log-likelihood (−11,733.227 vs −11,756.510), "so the GRM is lower by 46.566 on AIC, BIC and SABIC alike". Leave the other Δ values to the table.
-- Converged after 165 EM iterations; information matrix positive definite (F1.3).
-- Fit, one or two sentences:
-  - no S-X² was significant (*p* from .294 to .671);
-  - infit 0.334 (R19) to 0.971 (R18) and outfit 0.322 (R19) to 0.961 (R18), all below 1;
-  - mean Q3 −.238 over the 137 computable pairs (definition in Method 2.9; no marker); 20 pairs flagged. The table shows 10 of them: 9 deviate negatively, and 1 (R10–R11) positively;
-  - C2 was not computable (Method 2.9).
+**3.3 Rater differences (RQ2)** — F0.6–F0.9, F2.1–F2.9; embed `fig-overview-rater-response-styles` [MAIN], `tbl-rater-overview` [MAIN], `fig-m1-rater-severity` [MAIN], `tbl-grm-rater-parameters` [MAIN], `fig-grm-rater-discrimination-ci` [MAIN]; cross-ref [SUPP]: `tbl-overview-rater-response-styles`, `tbl-category-usage`, `fig-category-usage-shares`, `fig-overview-rating-distribution`, `fig-grm-category-response-functions`, `tbl-grm-rater-information-ci`, `fig-grm-rater-information-ci`, `fig-grm-rater-information`, `fig-grm-information-shares`, `tbl-grm-information-summary`, `tbl-discrimination-m3`, `tbl-discrimination-summary`.
+- Rule: ranges over all 24 raters; when an extreme comes from a rater with ≤ 73 ratings, give the number of ratings and the SE; **R16 is never a few-ratings rater (C5)**; no interpretation.
+- **Response styles and category use** (F0.9, F0.6, F0.7): means 1.760 (R06) to 3.836 (R18); SD 1.022 (R01) to 1.953 (R19); share in the lowest category .579 (R06) to .016 (R13); share in the highest category highest for R19 (.080), eight raters gave no 7 (R01, R03, R06, R17, R18, R25, R26, R27); middle categories R13 .799, R18 .764, R12 .735, lowest R06 .192; entropy 1.191 (R06) to 1.903 (R09; mean 3.643). Category 1: 2,179 ratings; 2: 2,355; 7: 128. R27's internal gap (C7). No per-rater uncertainty.
+- **Severity (M1)** (@fig-m1-rater-severity; @tbl-rater-overview; F2.8, F2.8a): from −0.878 (SE 0.066, R24) to 1.369 (SE 0.057, R06), a span of 2.247 logits; 13 raters below and 11 above the average rater; the order of severities does not follow the order of raw means exactly (e.g., R18 has the highest mean, 3.84, but the second-lowest severity, −0.79). Other raters' severities at 2 decimals.
+- **Thresholds** (@tbl-grm-rater-parameters; F2.2): b_1 from −6.25 (R18, 55 ratings, SE 2.86) to 0.25 (R06, SE 0.05); next lowest −3.36 (R13, SE 0.47); R06 the only positive b_1; spacing R02 −0.67 to 1.99 vs R13 −3.36 to 4.31; spacing is partly discrimination (Method 2.7). **C7:** R27's four thresholds are not compared with others'. Threshold counts as in 2.6.
+- **Discrimination** (@fig-grm-rater-discrimination-ci; @tbl-grm-rater-parameters; F2.1). **C5 wording:** "a ranged from 0.66 (R18, 55 ratings, SE 0.27) to 3.19 (R26, 46 ratings, SE 1.72). The next highest values came from raters with many ratings as well as few: R06 3.10 (520 ratings, SE 0.45), R27 3.04 (47, SE 0.91), R25 3.01 (138, SE 0.47) and R24 2.89 (190, SE 0.37); the next lowest was R09 at 0.93 (400 ratings, SE 0.15). R16 had 2.47 (268, SE 0.26); R01 1.82 (SE 0.13), R02 2.71 (SE 0.35), R23 1.75 (SE 0.13)." Largest SEs: R26 1.72, R19 1.01, R27 0.91.
+- **Information** (@tbl-grm-rater-information-ci [SUPP]; @tbl-rater-overview; F2.4, F2.5): average information 0.13 [0.02, 0.39] (R18) to 2.52 [0.11, 6.75] (R26); shares .004 [.000, .011] to .074 [.003, .178]; R09 0.28 [0.13, 0.48], R01 0.86 [0.66, 1.05], R02 1.96 [1.11, 2.97]; widest intervals R26, R19 (2.03 [0.27, 5.31]) and R27 (2.01 [0.50, 4.12]). **C6:** θ at maximum information highest for R01 (2.800), R16 (2.400) and R06 (2.300) — the clause "neither used category 7" applies to R01 and R06 only, or is dropped — lowest for R13 (−0.600); shares at θ = −2: R12 .137, R24 .120; R06 .001 at θ = −2 and .082 at θ = 2.
+- Move 3: intervals from the same 200 accepted draws; conditional on valid draws.
 
-**3.2 Reliability of the creativity scores and number of ratings (RQ1)**
-- Findings: F1.12, F1.14, F1.18, F1.19; F1.13, F1.16, F1.17 in one sentence each.
-- Embed:
-  - `tbl-reliability-overview` [MAIN]
-  - `tbl-grm-reliability-by-n` [MAIN]
-- Cross-reference [SUPP]:
-  - `fig-grm-rel-post-by-n`
-  - `tbl-grm-reliability-ci` (its CIs are quoted)
-  - `tbl-grm-reliability-summary`
-  - `tbl-naive-indices`
-  - `fig-grm-rel-post-histogram`
-  - `fig-grm-rel-post-by-theta`
-  - `fig-grm-rel-consistency`
-  - `fig-grm-panel-information` (caption keeps "hypothetical")
-- **No projection object or value in the Results** (the Method pointer names the supplement table only).
-- Bullets:
-  - **(1) Obtained scores vs full panel vs conventional indices** (@tbl-reliability-overview; F1.12, F1.18):
-    - empirical marginal reliability: .672 [.649, .687];
-    - model-based marginal reliability (hypothetical full panel): .960 [.953, .968]; grid check .960;
-    - Cronbach's α, pairwise covariances: .928 [.891, .943] (14 raters, 1,900 products; CI approximate, from 639 of 1,000 computable bootstrap replications);
-    - Cronbach's α, fully crossed block: .658 [.526, .756] (3 raters, 139 products);
-    - Krippendorff's ordinal α: .392 [.362, .417] (19 raters, 2,771 products).
-    - State what each index refers to, using the table's "Refers to" column. Do not discuss the M1–M3 rows.
-  - **(2) Product-level reliability by number of ratings** (@tbl-grm-reliability-by-n, column "Ratings per product"; @fig-grm-rel-post-by-n [SUPP]; F1.14). Descriptive:
-    - Mean rel_post: .520 with 1 rating (897 products), .698 with 2 (2,080) and .757 with 3 (357). It is higher with each additional rating in the table, up to .919 with 10 ratings (3 products). Quote 1, 2 and 3.
-    - Mean PSD falls from 0.686 to 0.285.
-    - The 9- and 10-rating rows rest on 3 products each. No mean reaches the full-panel value of .960.
-    - Products with the same number of ratings differ in rel_post (@fig-grm-rel-post-by-n).
-    - **Move 3:** "These values are observed: products did not receive their number of ratings through a design manipulation (see Rating design) [FILL IN: FI-4]." Do not add "confounded" and do not cite the notebook.
-  - **(3) Distribution and consistency (one sentence each):**
-    - rel_post median .698, IQR .173 (**first and third quartiles .596 and .769**; round 5, m-3), range .057–.929 (F1.13);
-    - rel_post and rel_info correlate *r* = .935, and 320 products differ by more than .1 (F1.16).
+**3.4 Model constraints and consequences for scores (RQ3)** — F1.1, F1.2, F1.4, F1.4a, F1.5, F1.11, F2.10, F2.11, F2.13, F2.14; embed `tbl-raw-mean-vs-grm` [MAIN], `fig-raw-mean-vs-theta` [MAIN], `tbl-score-agreement` [MAIN]; cross-ref [SUPP]: `tbl-lr-tests`, `tbl-discrimination-m3`, `tbl-discrimination-summary`, `tbl-threshold-order`, `tbl-rater-fit-m1`, `tbl-theta-correlations`.
+- **Paragraph A, ladder tests (RQ3a). C2 wording:** "M1 (rating-scale MFRM) against M2 (partial-credit MFRM): χ²(105) = 840.447, *p* < .001; AIC favoured M2 (27,418.524 vs 28,048.971), whereas BIC favoured M1 (28,235.202 vs 28,256.560). M2 against M3 (GPCM): χ²(23) = 156.593, *p* < .001; AIC favoured M3 (27,307.931 vs 27,418.524), BIC favoured M2 (28,256.560 vs 28,288.744). Both constraints were thus rejected by the LR test and AIC but not by BIC." Caveats are in Method 2.8.
+- **Paragraph B, ladder rater detail:** M3 discriminations 0.305 (R18, SE 0.141) to 2.221 (R27, SE 0.873), median 1.240, ratio of largest to smallest 7.277, SD 0.550 (F1.4, F1.4a); nine raters with unordered steps under M2, eight under M3 (F1.5); **C10:** under M1, R09 (infit 1.083, outfit 1.060), R17 (1.323, 1.167) and R18 (1.170, 1.231) are above 1, R12 lowest (0.260, 0.278) (F1.11).
+- **RQ3(b), raw mean vs GRM** (@tbl-raw-mean-vs-grm, @fig-raw-mean-vs-theta; F2.13), three printed rows only:
 
-**3.3 Rater differences (RQ2)**
-- Findings: F0.6, F0.7, F0.8, F2.1–F2.5.
-- Embed:
-  - `fig-overview-rater-response-styles` [MAIN]
-  - `tbl-grm-rater-parameters` [MAIN]
-  - `tbl-grm-rater-information-ci` [MAIN]
-- Cross-reference [SUPP]:
-  - **`tbl-overview-rater-response-styles` (new, round 5)**: the source of every per-rater response-style value quoted in the text and abstract
-  - `tbl-category-usage`
-  - `fig-overview-rating-distribution`
-  - `fig-grm-category-response-functions`
-  - `fig-grm-rater-information`
-  - `fig-grm-information-shares` (optional MAIN)
-  - `tbl-grm-information-summary`
-- **Rule:**
-  - Ranges are given over **all 19 retained raters**.
-  - When an extreme comes from a rater with few ratings (R15–R19: 50–73 ratings; F0.5), name the rater, give the number of ratings and the SE, and say only that the estimate is imprecise.
-  - No reading of these extremes in the Results.
-- Bullets:
-  - **Response styles** (@fig-overview-rater-response-styles; values in @tbl-overview-rater-response-styles [SUPP]; F0.8; raw scale, 3 decimals):
-    - means from 1.760 (R06) to 3.836 (R18); if R09 is named (e.g., highest entropy, 1.903), its mean is 3.643;
-    - SD from 1.022 (R01) to 1.953 (R19);
-    - share of ratings in the lowest category (1) from .579 (R06) to .016 (R13); share in the highest category (7) highest for R19 (.080), while five raters gave no ratings of 7 (R01, R03, R06, R17, R18; consistent with Method 2.6);
-    - share in the middle categories (3–5) highest for R13 (.799), followed by R18 (.764) and R12 (.735), and lowest for R06 (.192).
-    - Close this paragraph with the sentence that the response styles have no per-rater uncertainty.
-  - **Category use** (F0.6, F0.7): category 1 has 2,029 ratings, category 2 has 2,113, and category 7 is rarest (109). Quote counts only. Five raters left top categories unused.
-  - **Thresholds** (@tbl-grm-rater-parameters; F2.2; 2 decimals):
-    - b1 ranges from −6.56 (R18, 55 ratings, *SE* 3.05) to 0.29 (R06, *SE* 0.06). The next lowest is R13 at −3.38 (*SE* 0.49). R06 is the only rater with a positive b1.
-    - Spacing differs, e.g., R02 from −0.71 (b1) to 2.03 (b6) vs R13 from −3.38 to 4.43. Add one clause: spacing is partly the same fact as discrimination (Method 2.7).
-    - R17 has 4 thresholds; R01, R03, R06 and R18 have 5; the others have 6.
-  - **Discrimination** (F2.1; 2 decimals):
-    - a ranges from 0.63 (R18, 55 ratings, *SE* 0.26) to 3.71 (R19, 50 ratings, *SE* 2.22).
-    - The second highest is R16 at 3.70 (52 ratings, *SE* 1.36). The second lowest is R09 at 0.86 (400 ratings, *SE* 0.15).
-    - Examples from raters with many ratings: R01 1.96 (*SE* 0.16), R02 2.50 (*SE* 0.33), R06 2.81 (*SE* 0.42).
-  - **Average information and share, with 95% intervals** (@tbl-grm-rater-information-ci; F2.4; information at 2 decimals, share at 3):
-    - Information ranges from 0.12 [0.01, 0.35] (R18) to 3.54 [0.41, 11.02] (R19); R16 is 3.30 [0.73, 6.49].
-    - Shares range from .005 [.000, .013] (R18) to .135 [.017, .331] (R19).
-    - Examples from raters with many ratings: R09 0.24 [0.11, 0.42]; R01 0.98 [0.72, 1.22]; R02 1.70 [0.90, 2.56].
-    - The widest information intervals belong to R19 and R16. R18's interval is narrow in absolute terms; do not group R18 with "the widest intervals".
-  - **Where on θ raters inform** (F2.3; [SUPP]):
-    - θ at maximum information is highest for R01 (2.700) and R06 (2.400), neither of whom used category 7 (F0.7; a factual juxtaposition with no causal wording), and lowest for R13 (−0.550).
-    - Shares vary with θ, e.g., R06 .001 at θ = −2 vs .083 at θ = +2, and R12 .221 at θ = −2.
-  - Move 3: the intervals use the same 200 accepted draws (Method 2.10).
-
-**3.4 How much do the scores depend on modelling rater differences? (RQ3)**
-- Findings: F1.1, F1.2, F1.4, F1.5, F1.11, F2.6, F2.7, F2.9, F2.10.
-- Embed:
-  - `tbl-raw-mean-vs-grm` [MAIN]
-  - `fig-raw-mean-vs-theta` [MAIN]
-  - `tbl-score-agreement` [MAIN]
-- Cross-reference [SUPP]:
-  - `tbl-lr-tests`
-  - `tbl-discrimination-m3`
-  - `tbl-threshold-order`
-  - `tbl-rater-fit-m1`
-  - `tbl-theta-correlations`
-- Two ladder paragraphs: "ladder tests" and "ladder rater detail".
-- **Paragraph A, ladder tests (RQ3a):**
-  - **Shared category structure of M1 (rating-scale MFRM)** (F1.2): M1 vs M2, χ² = 737.457, df = 84, *p* < .001. The df and cross-software caveats are in Method 2.8.
-  - **Equal discrimination** (F1.2, F1.1):
-    - M2 vs M3, χ² = 121.958, df = 18, *p* < .001;
-    - AIC favours M3 (23,767.020 vs 23,852.978); BIC ranks M2 (24,529.585) below M3 (24,555.360);
-    - wording: "supported by the LR test and AIC, but not by BIC".
-- **Paragraph B, ladder rater detail** (one sentence each):
-  - M3 a ranges from 0.283 (R09, *SE* 0.055) to 2.606 (R16, *SE* 1.419) (F1.4);
-  - unordered steps for 9 raters under M2 and 9 under M3 (F1.5);
-  - under M1, only R17 (infit 1.328, outfit 1.190) and R18 (1.009, 1.071) are at or above 1, and R12 is lowest (0.238, 0.255) (F1.11).
-- **RQ3(b), raw mean vs GRM** (@tbl-raw-mean-vs-grm, @fig-raw-mean-vs-theta; F2.9, F2.10). Use the three printed rows only, and lead with 1 and 2 ratings:
-
-    | Ratings per product | products | Kendall's τ-b | pairs in reversed order | mean / max θ̂ range at equal raw mean |
+    | Ratings per product | Products | Kendall's τ-b | reversed order | mean / max θ̂ range at equal raw mean |
     |---|---|---|---|---|
-    | 1 | 897 | .832 | .042 | 1.283 / 1.436 |
-    | 2 | 2,080 | .815 | .067 | 1.537 / 2.196 |
-    | 3+ | 691 | .842 | .070 | 0.619 / 1.396 |
+    | 1 | 832 | .833 | .041 | 1.229 / 1.430 |
+    | 2 | 2,107 | .818 | .066 | 1.531 / 2.170 |
+    | 3+ | 730 | .849 | .071 | 0.537 / 1.317 |
 
-  - **1 rating:** τ-b = .832, and .042 of the pairs with different raw means are in reversed order. Products with the same single rating received GRM scores on average 1.283 and at most 1.436 apart. The 1-rating panel of the figure shows this vertical spread; points are jittered horizontally.
-  - **2 ratings:** τ-b = .815; .067 in reversed order; θ̂ range mean 1.537, maximum 2.196.
-  - **3+ ratings:** τ-b = .842; .070 in reversed order; θ̂ range mean 0.619, maximum 1.396.
-  - Always give the mean range next to the maximum.
-  - Descriptive sentence on the θ̂ range: it reflects differences in both the severity and the discrimination of the raters who gave the ratings. With 2 or more ratings, it also reflects the different rating combinations behind the same mean **[ATC-21]**. Do not call it severity evidence.
-  - No pooled value; no trend claim across the groups; no test across groups exists.
-- **RQ3(b), model choice** (@tbl-score-agreement; F2.7). **Separate paragraph.** Relative to the GRM:
+  Descriptive sentence: the range reflects differences in both the threshold location and the discrimination of the raters who gave the ratings and, with two or more ratings, the rating combinations behind the same mean [ATC-21]. No pooled value, no trend claim.
+- **RQ3(b), model choice** (@tbl-score-agreement; F2.11): relative to the GRM, M1 *r* = .977 / ρ = .979, .206 change quintile, mean percentile shift .042; M2 .985 / .984, .155, .032; M3 .996 / .996, .081, .016; ladder Pearson .981–.993, Spearman .984–.996; grid check 1.000 (F2.10). Quote the mean shift in the same sentence as each quintile share.
+- Move 3: no CIs; the M1–GRM contrast mixes constraints and link; all comparisons show that scores differ, not which is more accurate.
 
-    | model (as printed) | Pearson / Spearman | mean percentile shift | share changing quintile |
-    |---|---|---|---|
-    | M1 (rating-scale MFRM) | .975 / .978 | .042 | .202 |
-    | M2 (partial-credit MFRM) | .985 / .983 | .033 | .150 |
-    | M3 (GPCM) | .996 / .996 | .017 | .075 |
+**3.5 Sensitivity to the rater exclusion (2–3 sentences)** — F2.12; `tbl-sensitivity-rater-exclusion` [SUPP]. Refit with all 28 raters (9,077 ratings, 3,670 products): empirical reliability .68896 → .68837; model-based .96893 → .97142; over 3,669 common products *r* = .99994, mean |Δθ̂| 0.00204, **max 0.35026**, .00273 changing quintile; over 24 common raters a *r* = .99802, max |Δa| 0.19349. No evaluative adjective here.
 
-  - **Round 5 (m-9):** quote the mean percentile shift in the same sentence as each quintile-change share ("… .202 of products changed quintile under M1, with a mean percentile shift of .042"). The "≥ 2 quintiles" column (.004 / .003 / .001) may be left to the table. Never quote 0.000545256.
-  - Ladder models among themselves: Pearson .980–.993, Spearman .983–.996; grid check 1.000 (F2.6).
-- Move 3 (problems):
-  - no CIs exist for any agreement statistic;
-  - the M1–GRM contrast mixes the rater constraints with the link function;
-  - all comparisons show that the scores differ, not which is more accurate.
-- No closing interpretive sentence. **No comparison between the raw-mean table and `tbl-score-agreement`.**
+### 4 Discussion (2,000–2,300 words; discussion model: revisit → map → contribution and implications → limitations/future; structured around RQ1–RQ3; every interpretive claim [ATC]; "in these data", "for this rater pool"; never "we have shown")
 
-**3.5 Sensitivity to the rater exclusion (2–3 sentences)**
-- `tbl-sensitivity-rater-exclusion` [SUPP]; F2.8; 5 decimals as printed.
-- Refitting with all 22 raters (7,844 ratings, 3,669 products):
-  - empirical reliability .67199 → .67186;
-  - model-based reliability .95986 → .96186.
-- Over the 3,668 common products: θ̂ Pearson .99997; mean |Δθ̂| 0.00171, **max 0.16246**; share changing quintile .00491. Spearman .99996 may be left to the table.
-- Over the 19 common raters: a Pearson .99880, max |Δa| 0.19820.
-- No evaluative adjective in the Results.
+**4.1 Summary (1 paragraph).** Echo the three RQs descriptively: obtained reliability well below the full panel; one or two ratings insufficient and about four needed in simulation; raters differ in severity, scale use, discrimination and information; constraints rejected by LR/AIC but not BIC; raw means and model-based scores order actions partly differently. **C1:** "These results rest on the GRM, which had the lowest AIC and SABIC, whereas BIC favoured M1 by 4.161" (D1).
 
-### 4 Discussion
+**4.2 RQ1: Reliability and the number of ratings per action [ATC-3, ATC-4, ATC-5, ATC-32, ATC-35, ATC-36]**
+- The conventional figures describe the mean of a large or complete panel (.969; α .949); the scores actually obtained have .689 [.669, .703], and that is the figure that matters for their use [ATC-3]; Spearman–Brown logic (amabile1982). The contrast of Krippendorff's α for single ratings (.391) with the pairwise α (.949) illustrates that a high α can coexist with low single-rater agreement (kaufman2008a) and the consistency–agreement distinction (stefanic2015; cseh2019) [ATC-36; FI-17]. **C4: the crossed-block sentence is deleted (D3).**
+- Observed by-n values: .522 and .699 with one and two ratings; rising overall, with the non-monotonic rows at ten and thirteen ratings resting on 14 and 1 products; observational, not causal (C3). Precision also varies within the same number of ratings and with θ (F1.17) [ATC-4]; rel_post with one or two ratings partly reflects the prior.
+- **The number needed in this panel [ATC-35]:** the projection reaches .80 at four ratings (.834) and the top-up of the actual design to at least four ratings gives .835, which is also what the figure's reference line shows; under the stated assumptions (random raters each equally likely, known parameters, GRM-generated ratings) these describe this rater pool and scale. Observed means at three to seven, nine and ten ratings lie below the simulated range; possible readings (different quantities; products with several ratings were rated by particular raters, FI-4; small n) are offered as possibilities only [ATC-32].
+- **Mapping to the cross-domain evidence, with target and object stated:** about four ratings for .80 in these product-level ratings by this pool sits between the two or three trained raters for short divergent-thinking responses (person-level relative G ≥ .80; silvia2008) and the ten or more lay raters for expert-domain products (α; kaufman2008a; kaufman2013) or 7–15 non-experts for design products (ICC ≥ .70; barth2021; terai2026) [ATC-31]. Three-rater sport panels (kempe2018; roca2018; memmert2010) and the four-coach panel of joode2023 fall at the lower end; whether licensed coaches need fewer ratings than this pool is untested here (expertise not analysed).
 
-Purpose: interpret, map to the literature, and draw the implications for sport science. The section mirrors the three aims (writing-models/discussion-conclusion.md). **Every interpretive claim is [ATC].** Use "in these data" and "for this rater pool"; never "we have shown". The sparse design appears only in the Limitations. Keep the markers lean: one ATC per paragraph where the same claim recurs.
+**4.3 RQ2: Raters differ [ATC-6, ATC-12, ATC-38]**
+- Severity spans 2.247 logits under M1 (R24 to R06), larger than the ranges Primi et al. (2019) report for metaphor and divergent-thinking ratings (−1.18 to .64 logits; about 0.9) [ATC-38; FI-17]; severity differences confound raw means in incomplete designs (primi2019; hass2018).
+- For raters with many ratings, differences in discrimination clearly exceed the SEs (R09 0.93, SE 0.15, vs R06 3.10, SE 0.45) [ATC-6]. **C5 wording:** "The largest standard errors belong to R18 for its thresholds and to R26, R19 and R27 for their discriminations, raters with 46–55 ratings; R26, R19 and R27 also have the widest information intervals. High discrimination is not confined to imprecisely estimated raters (R06, R25, R24), so the spread is not mainly estimation noise." Information shares are not a ranking of rater quality [ATC-12]. "One rating by the most informative rater carries as much information as several by the least informative" is a reading of 2.52 vs 0.13 and gets [ATC-12] if used.
+- Threshold spacing is partly discrimination, so the raw response styles carry the model-independent scale-use evidence (unadjusted). Eight raters never used the top category; R27's internal gap (C7).
+- Literature: long2015; engelhard1994; myford2003; myford2004; myszkowski2021 (central vs extreme responding; e.g., R13 vs R06) [FI-17]; primi2019 left rater-by-scale interactions to future work [FI-17]; hickey2001 (expert status alone does not guarantee consensus); storme2014 and ceh2022 (training and discernment as levers other than headcount); wind2018/wind2019 (linking) and reise1990 (parameter recovery) [FI-17].
 
-**4.1 Summary (1 paragraph).** Echo RQ1–RQ3 descriptively:
-- the reliability of the obtained scores is below the full-panel value, and product-level reliability is lower for products with fewer ratings;
-- raters differ, with imprecise estimates for raters with few ratings;
-- the shared category structure of M1 (rating-scale MFRM) is rejected; equal discrimination is rejected by LR and AIC but not by BIC;
-- within each number of ratings, raw means and GRM scores order products partly differently (quote τ-b; if "non-trivial share" is used, add **[AUTHOR TO CONFIRM; ATC-22]**).
-- Mention the retained GRM in one clause.
+**4.4 RQ3: Constraints and consequences for scoring [ATC-7, ATC-8, ATC-9, ATC-10, ATC-15, ATC-21, ATC-22, ATC-34]**
+- **(i) Constraints.** The shared category structure concerns M1 only; M2 relaxes it (eckes2015). Equal discrimination, the constraint shared by the Rasch family, is rejected by the LR test and AIC but favoured by BIC; **C2 wording:** "both constraints were rejected by the LR test and AIC but not by BIC" — the criteria disagree on both. A possible explanation, for the author to confirm [ATC-34]: BIC's penalty grows with the number of parameters (GRM 158, M3 158, M2 135, M1 30), so it weighs heavily against rater-specific parameters as the panel grows. The M3 discriminations span 0.305 to 2.221 (ratio 7.277). **C10:** the M1 misfit pattern is consistent with discrimination differences surfacing as misfit (myford2004; myszkowski2021): R18 (GRM a 0.66) and R09 (0.93), the two lowest discriminations, are the raters above 1 under M1 together with R17; R12 (a 2.72) is lowest under M1 [ATC-9]. Step order is not evidence for either family (andrich1978; bond2020). GRM preferred by AIC and SABIC; cumulative link plausible for a unipolar scale (pellegrino2025) [ATC-8]. The M1–M2 test is cross-software; caveat stands.
+- **(ii) Raw means.** Unweighted means treat raters as interchangeable (primi2019; myszkowski2019). Products with the same single rating received GRM scores on average 1.229 and up to 1.430 apart; with one rating the spread reflects the rater's modelled parameters only; with two ratings also the rating pattern (.066 reversals vs .041) [ATC-21, ATC-22]. Matters wherever actions are selected or ranked.
+- **(iii) Model choice.** Correlations ≥ .977, yet .206 of products change quintile under M1 (mean shift .042) and .081 under M3 (.016); read together [ATC-10]. Do not rank (ii) against (iii).
+- **Limit (C-M1):** the GRM is not a validated criterion; no accuracy claim [ATC-15, ATC-22].
 
-**4.2 Reliability and the number of ratings per action (aim 1) [ATC-3, ATC-4, ATC-5, ATC-13]**
-- Conventional figures describe the mean of a large or complete panel (.960; pairwise α .928). The scores actually obtained have .672 [.649, .687], and that is the figure that matters for any downstream use [ATC-3].
-- Observed product-level reliability (F1.14): actions with one rating had mean rel_post .520, and actions with two had .698. Where individual action scores are used (e.g., to select creative actions), one or two ratings per action give limited precision in these data [ATC-5].
-  - These are observed values, not a design experiment (Results 3.2). Do not add a rater-composition claim here.
-- Precision also differs among products with the same number of ratings, and with their location on θ (@fig-grm-rel-post-by-n, F1.17, F2.3) [ATC-4]. Do not say "mainly".
-- **Projection, side note only (1–2 sentences; SUPP objects):**
-  - "A simple projection from the fitted GRM, with raters drawn at random from this panel (each rater equally likely) and the parameters treated as known, gives an empirical reliability of .508 for one rating, .688 for two and .925 for ten ratings per product (@tbl-grm-reliability-projection, @fig-grm-reliability-projection in the supplement)."
-  - Optionally add a half-sentence: it gauges the value of adding ratings in this rater pool [ATC-5].
-  - **Nothing more:** no comparison with the observed values, no rater sets, no "needed k", no "who rates" claim. Besides this note, only the one-sentence Method pointer (2.10) mentions the projection.
-- Literature:
-  - Spearman–Brown (amabile1982);
-  - kaufman2008a: a high α can hide low single-rater agreement, illustrated by Krippendorff .392 vs Cronbach .928 [ATC-13; FI-17 "mask"];
-  - cseh2019, **same paraphrase as P4**: "the number of raters needed for adequate reliability has to be established for each domain"; these data give such values for this task and rater pool, hedged with ATC-2.
-- The crossed-block α (.658, 3 raters) lies close to the empirical reliability. Cautious; no claim of equivalence [ATC-13].
-- rel_post with one or two ratings partly reflects the prior (Method 2.10).
-
-**4.3 Raters differ (aim 2) [ATC-6, ATC-12]**
-- The raters span a wide range of category use, threshold location and discrimination. For raters with many ratings, the differences clearly exceed the SEs (e.g., R09 0.86, *SE* 0.15, vs R06 2.81, *SE* 0.42) [ATC-6].
-- **Round 5 (m-8):** "The most extreme estimates (R18, R19, R16) come from raters with about 50 ratings, which also had the largest standard errors (R18 for its thresholds, R19 and R16 for their discriminations); R19 and R16 also have the widest information intervals." Do not say R18 has a large discrimination SE or a wide information interval. Information shares are not a ranking of rater quality [ATC-12].
-- Threshold spacing is partly discrimination, so the raw response styles (F0.8, @tbl-overview-rater-response-styles) carry the model-independent scale-use evidence (unadjusted for which products each rater saw).
-- Literature:
-  - long2015;
-  - engelhard1994; myford2003; myford2004;
-  - myszkowski2021 (central tendency vs extreme responding) [FI-17];
-  - primi2019 left response styles / rater-by-scale interactions to future work [FI-17];
-  - wind2018 and wind2019 (Wind & Jones; rater estimates depend on the linking set) [FI-17]; reise1990 (GRM parameter recovery) [FI-17]; ceh2022.
-- The draw intervals are conditional on valid draws (Method 2.10).
-
-**4.4 Why rater differences matter for scoring (aim 3) [ATC-7, ATC-8, ATC-9, ATC-10, ATC-15, ATC-21, ATC-22]**
-- **(i) Raw means and rater differences** [ATC-7, ATC-21]:
-  - Unweighted means treat raters as interchangeable, and with incomplete designs they are confounded with rater severity (primi2019).
-  - In these data, products with the same single rating received GRM scores on average 1.283 and up to 1.436 apart (F2.9; @fig-raw-mean-vs-theta). With one rating, a product's GRM score depends only on the rating and on that rater's parameters, so the spread reflects differences between raters as modelled, **in both severity and discrimination**.
-  - As a range, it is set by the most extreme raters for each rating, some of whose parameters are imprecise (R18, R19).
-  - Write this as the authors' own claim. Severity on its own was not tested (Method 2.8).
-- **(ii) Category structure and discrimination (N3-M1)** [ATC-7, ATC-8, ATC-9]:
-  - The LR test rejects the shared category structure, but that result concerns M1 (rating-scale MFRM). M2 (partial-credit MFRM) already allows rater-specific category structures (eckes2015).
-  - The Rasch/MFRM family as a whole is questioned only by the discrimination result: rater-specific discriminations are supported by LR and AIC but not by BIC (F1.1, F1.2). Part of the discrimination spread may be estimation noise for raters with few ratings. These results bear on the Rasch/MFRM constraints, not directly on raw means.
-  - The M1 misfit pattern is consistent with discrimination differences surfacing as misfit (myford2004; myszkowski2021): R17 is above 1 under M1 and has GRM a 1.45; R12 has the lowest M1 values and GRM a 2.90 (F1.11, F2.1). Cautious; no cut-offs [ATC-9].
-  - The GRM is preferred by information criteria; a cumulative link is plausible for a unipolar scale (pellegrino2025 [FI-17]) [ATC-8]. Neither the unordered M2/M3 steps nor the ordered GRM thresholds count as evidence for either family.
-- **(iii) Score consequences**, two separate paragraphs [ATC-10, ATC-22]:
-  - **Raw mean vs GRM**, within the same number of ratings: τ-b .832 (1 rating) and .815 (2 ratings), with .042 and .067 of pairs reversed (F2.9). This matters wherever actions are selected or ranked [ATC-22].
-    - With two ratings, the GRM score also depends on the pattern of the ratings, not only their mean, so some of the .067 reversals would occur even among identical raters; the one-rating value (.042) is the one that reflects rater differences alone (as modelled).
-    - "These results agree with primi2019 and myszkowski2019 on the limits of averaging" belongs in this paragraph.
-  - **Model choice (round 5, m-9):** correlations ≥ .975, yet .202 of products change quintile under M1 (rating-scale MFRM; mean percentile shift .042) and .075 under M3 (GPCM; mean percentile shift .017) (F2.7). A quintile change can also be a small move across a boundary, which is why the mean shift is given alongside. The link-function confound stays explicit [ATC-10].
-  - Do not rank the two comparisons against each other.
-  - **Limit (C-M1):** the GRM is not a validated criterion. It adjusts for the modelled rater differences; whether it predicts unseen ratings better was not examined [ATC-15, ATC-22]. All scoring recommendations (4.5 box item 5, Conclusion, abstract) must stay consistent with this sentence.
-
-**4.5 Practical implications for sport science [ATC-5, ATC-14, ATC-15, ATC-16, ATC-23]**
-- Scope sentence first: one pool of student raters, one 7-point scale [FI-21].
-- **Keep this subsection short and let the box carry the list.** The paragraphs add only:
-  - **the calibration set vs rater training distinction (round 5, m-10, unambiguous referent):** "A common calibration set is distinct from rater training; training, unlike a calibration set, conflicts with the CAT rule that raters judge without criteria (hennessey2011; storme2014; dollinger2005)." A calibration set stabilises the parameters of raters with few ratings **only if they rate it and it is large enough** [ATC-14]. No sentence-initial or trailing "which" that could refer to either.
-  - "about 50 ratings per rater still left the parameters imprecise in these data" (F2.1, F2.4). **No "15", and no other number declared sufficient** [ATC-16].
-- **Box "Design recommendations for creativity ratings in sport"** (OD6; every item **[AUTHOR TO CONFIRM; ATC-23]**; all items rest on observed findings; no numbers except "about 50"):
-  1. Report the reliability of the scores actually used (empirical marginal reliability, product SEs), not only α or full-panel values (@tbl-reliability-overview) [ATC-3, ATC-15].
-  2. Plan the number of ratings per action with the precision of individual scores in mind; in these data, product-level reliability was markedly lower for actions with one or two ratings (@tbl-grm-reliability-by-n) [ATC-5].
-  3. Where some raters contribute few ratings, let all raters rate a common calibration set, so that raters are more strongly linked and their parameters more precisely estimated (the design was already connected) [ATC-14].
-  4. Give each rater enough ratings for stable parameters; about 50 ratings still left them imprecise here [ATC-16].
-  5. **(C-M1)** Raters differed in thresholds and discrimination, and raw means ordered actions partly differently from model-based scores (@tbl-raw-mean-vs-grm). Consider scoring actions with a model that adjusts for rater differences (under its assumptions), and report how far its ordering departs from the raw mean. This study does not show that the model-based scores are more accurate [ATC-15, ATC-22].
-  - The projection may be mentioned at most as a parenthetical in item 2 ("a simple projection is given in the supplement"); it is optional.
-  - Whether CRJ accepts boxes is FI-16. If it does not, the five items become one paragraph.
+**4.5 Designing creativity-rating studies for nonverbal, time-pressured products [ATC-30, ATC-31, ATC-5, ATC-14, ATC-15, ATC-16, ATC-23]**
+- Scope sentence first: one pool of student raters, one 7-point scale, one product class [FI-21].
+- Closing argument (the paper's contribution to general creativity assessment): (a) the required number of ratings is domain-specific — this study supplies the first rating-design figures for football actions, and they neither follow from nor transfer to verbal or static domains (cseh2019 open question; vanhooijdonk2022; long2022) [ATC-31]; (b) for products observed under time pressure in competition, single ratings agreed weakly (Krippendorff .391) while raters differed strongly in severity, scale use and discrimination, so panels of three or four without a rater model carry unquantified rater effects [ATC-30]; (c) model-based scoring changes orderings enough to matter for selection; (d) the calibration-set vs training distinction: training conflicts with the CAT rule of judgement without criteria (hennessey2011; storme2014; dollinger2005), a calibration set does not, and it stabilises parameters of raters with few ratings only if they rate it and it is large enough [ATC-14]; (e) about 50 ratings per rater (R17, R18, R19, R26, R27) still left parameters imprecise; no smaller number is recommended [ATC-16].
+- **Box "Design recommendations for creativity ratings of actions in sport"** (every item [ATC-23]; each traceable to a finding; whether CRJ accepts boxes is FI-16):
+  1. Report the reliability of the scores actually used and the agreement of single ratings, not only α or full-panel values (@tbl-reliability-overview: .689 vs .949 and .969; Krippendorff .391) [ATC-3, ATC-36].
+  2. Plan the number of ratings per action with the precision of individual scores in mind: one or two ratings gave .522 and .699 here; in simulation from this panel at least four ratings per action were needed for .80 (@tbl-grm-reliability-by-n; @fig-grm-reliability-observed-vs-simulated; @tbl-grm-reliability-min-ratings) [ATC-5, ATC-35].
+  3. Let all raters rate a sufficiently large common calibration set so that raters are linked and parameters of raters with few ratings are estimated more precisely (the present design was connected but used no such set) [ATC-14].
+  4. Give each rater enough ratings for stable parameters; about 50 still left them imprecise here (@tbl-grm-rater-parameters; @tbl-rater-overview) [ATC-16].
+  5. Raters differed in severity, thresholds and discrimination, and raw means ordered actions partly differently from model-based scores (@fig-m1-rater-severity; @tbl-raw-mean-vs-grm); consider a scoring model that adjusts for rater differences under its assumptions and report how far its ordering departs from the raw mean; this study does not show that model-based scores are more accurate [ATC-15, ATC-22].
+  6. Treat these figures as specific to this product class, rater pool and scale; establish rating-design evidence anew for other nonverbal, time-pressured products [ATC-31].
 
 **4.6 Limitations and future research**
-- L1. **Design and missingness.**
-  - The design is incomplete, and allocation is described in Method 2.5 [FI-4]. Missingness is assumed ignorable.
-  - "Not recognised" ratings were removed; if non-recognition depended on the action or the rater, the missingness is not ignorable [FI-22].
-  - The by-n reliabilities are observational.
-- L2. **Fit evidence is limited** [ATC-11]: S-X² power, C2 not computable, Q3 bias and no reference distribution, infit/outfit below 1 by construction. Absence of detected misfit is not evidence of fit. The GRM is the best-fitting of the compared models, not a validated reference.
-- L3. **Uncertainty and assumptions.**
-  - Parameters of raters with few ratings are imprecise, and the draw intervals are conditional on valid draws.
-  - θ ~ N(0, 1) is assumed, while ratings concentrate at the low end (F0.6).
-  - The raw response styles have no uncertainty.
-  - No CIs exist for the score-agreement and raw-mean statistics.
-- L4. **Rater pool.** One pool of student raters [FI-1, FI-21]. Whether they meet the CAT's domain-familiarity requirement is not established here. Expertise is not analysed (kaufman2009; kaufman2013; ceh2022).
-- L5. **Rater exclusion.** The 15-rating criterion is technical [FI-23]. The largest change in a product score was 0.16246 [ATC-26].
-- L6. **Model comparison.** The M1–M2 LR test (rating-scale vs partial-credit MFRM) is cross-software, with df below the formula value; BIC disagrees with LR/AIC on discrimination, which is the only constraint common to the Rasch family; the M1–GRM agreement mixes constraints and link function.
-- L7. **Two facets, one dimension.** No time or session facet (barth2021; leckie2011; myford2009; forthmann2017; timespan in Method 2.4 [FI-3]). No differential rater functioning (wind2019a, Wind & Sebok-Syer). Extensions: patz2002; uto2020.
-- **Future research: one short list**, introduced as analyses "beyond the scope of this descriptive study":
-  - a formal test of rater severity on its own (a model without rater effects vs the MFRM);
-  - the M1–M2 comparison within one software package;
-  - a held-out predictive check of model-based vs raw-mean scores;
-  - projections that include parameter uncertainty or use selected rater sets;
-  - the number of ratings needed for a target reliability.
-  - Plus substantive directions: a prospective anchor-set design, rater covariates including football expertise, other sports.
-  - Keep the list to one sentence or a compact list; do not elaborate.
+- L1 Design and missingness: incomplete design, allocation [FI-4, FI-31]; ignorable missingness assumed; "not recognised" ratings removed [FI-22]; by-n reliabilities observational.
+- L2 Simulation assumptions: random raters each equally likely (not the real workloads) [ATC-35]; parameters treated as known, so the ranges omit parameter uncertainty; GRM-generated ratings presuppose the model; the projection uses θ ~ N(0, 1); only k ≤ 10; no selected rater sets. The number needed is a figure for this panel.
+- L3 Fit evidence limited [ATC-11]: S-X² conservative, C2 not computable, Q3 biased with no reference distribution, flags below 0.7 expected by design [ATC-33]; absence of detected misfit is not evidence of fit; **C1:** "the GRM had the lowest AIC and SABIC of the compared models, whereas BIC favoured M1; it is not a validated reference."
+- L4 Model comparison: BIC disagrees with LR/AIC on both constraints [ATC-34]; M1–M2 cross-software with df 105 vs 115, reduced by categories never used incl. R27's internal gap (C7); M1–GRM mixes constraints and link.
+- L5 Uncertainty and assumptions: raters with about 50 ratings imprecise; draw intervals conditional on valid draws; a normal latent distribution (standard normal in M3 and the GRM; estimated variance in M1 and M2) assumed although ratings concentrate at the low end (review N6-1 fix); response styles without uncertainty; no CIs for the agreement statistics; R27's thresholds not comparable.
+- L6 Rater pool: one pool of students [FI-1, FI-21, FI-31]; domain familiarity not established; expertise not analysed (kaufman2009; kaufman2013; ceh2022; hickey2001).
+- L7 Rater exclusion: technical criterion [FI-23]; largest change in a product score 0.35026 with *r* = .99994 (C12, D4) [ATC-26].
+- L8 Two facets, one dimension: no time or session facet (barth2021; terai2026; leckie2011; myford2009; forthmann2017) [FI-3, FI-32]; no differential rater functioning (wind2019a); extensions patz2002; uto2020.
+- Future research (compact list): a severity test on its own (model without rater effects vs MFRM); M1–M2 within one package; held-out predictive check of model-based vs raw-mean scores; projections with parameter uncertainty and selected or workload-weighted rater sets; a prospective calibration-set design; rater covariates incl. football expertise and coach panels; other sports and other nonverbal, time-pressured products; G- and D-study of the same data.
 
-### 5 Conclusion (1 paragraph) [ATC-1]
-
-- In these data:
-  1. the reliability of the obtained scores is far below conventional panel figures, and product-level reliability is lower for actions with fewer ratings;
-  2. raters differ in category use, threshold location, discrimination and information;
-  3. the shared category structure of M1 (rating-scale MFRM) is rejected, equal discrimination is rejected by LR and AIC but not by BIC, and both raw means and constrained models order actions differently from the GRM.
-- End with the design and scoring message, scoped to this kind of rater pool (C-M1):
-  - report the reliability of the scores used;
-  - plan ratings per action;
-  - where rater parameters are imprecise, consider linking raters through a calibration set;
-  - because raters differ and the ordering depends on whether their differences are modelled, consider model-based scoring such as JRT and report how far it departs from raw means [ATC-5, ATC-14, ATC-15].
-- No projection. Do not write "We have shown". No accuracy claim for the GRM.
+### 5 Conclusion (150–200 words; 1 paragraph) [ATC-1]
+- In these data: obtained reliability .689 far below panel figures; one or two ratings insufficient, about four needed in simulation for this panel; raters differ in severity, scale use, discrimination and information; **C2:** "the shared category structure of M1 and equal discrimination were rejected by the LR test and AIC but not by BIC"; raw means and constrained models order actions partly differently from the GRM.
+- Close with the design message for nonverbal, time-pressured products and the domain-specificity point: rating-design evidence has to be established per product class and rater pool; report the reliability of the scores used; plan ratings per action; link raters; consider rater-adjusting models and report their departure from raw means; accuracy remains to be examined [ATC-5, ATC-14, ATC-15, ATC-30, ATC-31].
 
 ### References
+APA 7th via CSL; `phd_library.bib` only; not edited by the pipeline. Hand-typed names keep particles.
 
-APA 7th via CSL; citekeys only; **`phd_library.bib` only** (author-maintained; not edited by the pipeline).
+### Supplementary Material
+Sections: Data and rater exclusion; Estimation and fit of the GRM; Reliability (observed); **Simulated reliability by number of ratings** (rename from "Projected reliability (side note)"; carries the assumption note with the projection table/figure, the observed-vs-simulated table); Rater parameters, information and category use; Adjacent-category ladder. Numbering S1, S2, … via crossref prefix (paper-config).
 
 ---
 
-## Bibliography check (round 5)
+## Map of C1–C13 (new wording direction → where it lands)
 
-- **Keys unchanged.** All outline keys were checked against `phd_library.bib` in round 4 and resolve; the author has since fixed the entries. No key is added, removed or swapped in round 5. The writer does not edit the bib.
-- **Hand-written names keep particles with the surname:** ayala2022 "de Ayala"; hove2024 "ten Hove, Jorgensen, and van der Ark"; joode2023 "de Joode, van der Kamp, and Savelsbergh"; safardilha2019 "de Sa Fardilha". This applies only to names typed in the prose (e.g., "ten Hove et al. (2024) …" written by hand); citations generated from keys are left to the CSL.
-- **linacre1989** = the MESA Press book *Many-facet Rasch measurement*. Any prose that says "Many-faceted" becomes "many-facet".
-
-| Key | Entry | Use in outline |
+| # | New wording direction (numbers from 03_findings) | Lands in |
 |---|---|---|
-| kaufman2008 | Kaufman, Plucker & Baer (2008), *Essentials of Creativity Assessment* (book) | "five to ten raters" (P4) |
-| kaufman2008a | Kaufman, Baer, Cole & Sexton (2008), CRJ | α > .70 (P3); high α can mask low agreement (P4, 4.2) [FI-17] |
-| wind2019 / wind2019a | Wind & Jones (2019) / Wind & Sebok-Syer (2019) | linking set (4.3) / DRF (L7) |
-| forthmann2025 | Forthmann, Goecke & Beaty (2025) | product-level precision (P4) |
-| ayala2022 | de Ayala (2022) | IRT basics (P6) |
-| joode2023 | de Joode, van der Kamp & Savelsbergh (2023) | sport product ratings (P7) |
-| hove2024 | ten Hove, Jorgensen & van der Ark (2024) | optional: indices in incomplete designs (2.10 lead sentence) |
-| linacre1989 | Linacre (1989), *Many-facet Rasch measurement* (MESA Press) | MFRM severity facet (P6, 2.7) |
+| C1 | GRM lowest AIC and SABIC; BIC lowest for M1 (28,235.202), GRM 4.161 above; GRM and M3 same parameters (158), GRM lower by 49.381 on all three; "not a validated reference" | 3.1; 4.1; 4.4(i); 4.6 L3; D1 |
+| C2 | "rejected by the LR test and AIC but not by BIC" for both constraints; add M1 vs M2 BIC 28,235.202 vs 28,256.560 and AIC 28,048.971 vs 27,418.524; abstract "BIC favoured the constrained models in both cases"; BIC-penalty explanation [ATC-34] | Abstract; 3.4 A; 4.4(i); 4.6 L4; Conclusion; D2 |
+| C3 | overall rise with named exceptions (.897 at 10 after .915 at 9; .947 at 13 after .948 at 12); rows 10–13 on 14, 4, 2, 1 products; 3-rating row 68 products; no mean reached .969; observational | 3.2(2); 4.2 |
+| C4 | crossed-block "lay close" sentence deleted (D3); α .750 [.684, .800] (3 raters, 261 products) reported in 3.2(1) with "refers to" only; ATC-13 retired | 3.2(1); 4.2 |
+| C5 | extremes: a 3.19 R26 (46, SE 1.72), then R06 3.10 (520, SE 0.45), R27 3.04, R25 3.01, R24 2.89; lowest R18 0.66, R09 0.93; R16 2.47 (268, SE 0.26) never "few ratings"; largest SEs R18 (thresholds) and R26, R19, R27 (discrimination); widest intervals R26, R19, R27; spread not mainly noise; "for example R18" for the score range | 3.3; 4.3; 4.4(ii) |
+| C6 | θ at maximum R01 2.800, R16 2.400, R06 2.300; "never used category 7" only for R01 and R06 or dropped; lowest R13 −0.600; R06 .001 at θ = −2, .082 at 2; R12 .137 at θ = −2, R24 .120 | 3.3 |
+| C7 | R27 internal gap (categories 5 and 7); eight raters with unused categories; thresholds 4 (R17, R27), 5 (R01, R03, R06, R18, R25, R26), 6 (others); df 105 vs 115 reduced by "categories raters never used (unused end categories and any internal gap)"; R27's thresholds not compared | 2.6; 2.8; 3.3; 4.3; 4.6 L4/L5 |
+| C8 | raters R01–R19 and R23–R27; excluded R20, R21, R22, R28; IDs not in workload order; "student raters" reconfirmed [FI-1, FI-31] | Abstract; 2.2; 2.6; every rater list |
+| C9 | "the entry with the latest timestamp was kept"; 21 pairs, 1 conflicting, 22 rows removed | 2.6 |
+| C10 | M1 above 1: R09 (1.083/1.060), R17 (1.323/1.167), R18 (1.170/1.231); R12 lowest (0.260/0.278); account with R18 (a 0.66) and R09 (0.93), illustrative | 3.4 B; 4.4(i) |
+| C11 | mean Q3 −.202 over 222 pairs; 28 flagged; of ten shown, 8 negative, 2 positive (R09–R23, R10–R11) | 3.1 |
+| C12 | *r* = .99994; mean 0.00204; max 0.35026; .00273 quintile; "nearly unchanged on average, with a largest change of 0.35026" (D4) | 2.6; 3.5; 4.6 L7 |
+| C13 | collection facts → FI-3 (no timing claims for R03, R06, R13), FI-4, FI-31, FI-32; no unconfirmed allocation rule | 2.4; 2.5; 4.6 L1 |
+
+Stale strings to search after writing (§8): `7,820`, `3,668`, `9,148`, `1,290`, `7,844`, `.672`, `.960`, `.928`, `.658`, `.392`, `.520`, `.698`, `.815`, `.842`, `0.16246`, `R20 to R22`, `R01 to R19`, `last entry`, `No rater had`, `lowest AIC, BIC`, `all information criteria`, `each further rating`, `lay close`, `side note`, `by convention`, `has to be established for each domain`, `no evidence`.
 
 ---
 
-## Figure/table plan (round 5)
+## Figure/table plan (53 labels)
 
-**10 main-text objects (8 tables, 2 figures)**, plus 1 optional main figure (counted in the supplement). **28 supplement objects (17 tables, 11 figures).** **5 not embedded.** Total 43.
+**MAIN 14 (9 tables, 5 figures) · SUPP 34 (20 tables, 14 figures) · not embedded 5.**
 
-Supplement numbering S1, S2, …: crossref prefix setting (paper-config, not a writer edit).
-
-### Main text (10)
+### Main text (14)
 
 | # | Label | Section | Role |
 |---|---|---|---|
-| 1 | `tbl-design-summary` | 2.6 | Final data; single place for the design numbers (Table 1) |
-| 2 | `tbl-model-fit` | 3.1 | Model choice (Table 2) |
-| 3 | `tbl-reliability-overview` | 3.2 | RQ1: obtained scores vs full panel vs conventional indices (Table 3) |
-| 4 | `tbl-grm-reliability-by-n` | 3.2 | RQ1: observed product-level reliability by number of ratings (Table 4) |
-| 5 | `fig-overview-rater-response-styles` | 3.3 | RQ2: raw response styles (Figure 1) |
-| 6 | `tbl-grm-rater-parameters` | 3.3 | RQ2: a and b_k as "estimate (SE)" (Table 5) |
-| 7 | `tbl-grm-rater-information-ci` | 3.3 | RQ2: average information and share with 95% intervals (Table 6) |
-| 8 | `tbl-raw-mean-vs-grm` | 3.4 | RQ3(b): raw mean vs GRM, rows 1 / 2 / 3+ (Table 7) |
-| 9 | `fig-raw-mean-vs-theta` | 3.4 | RQ3(b): spread of GRM scores at equal raw mean (Figure 2) |
-| 10 | `tbl-score-agreement` | 3.4 | RQ3(b): ranking change by model choice (Table 8) |
+| 1 | `tbl-design-summary` | 2.6 | final data, single place for the design numbers |
+| 2 | `tbl-model-fit` | 3.1 | model choice (C1) |
+| 3 | `tbl-reliability-overview` | 3.2 | RQ1: all indices incl. the min-4 row |
+| 4 | `tbl-grm-reliability-by-n` | 3.2 | RQ1: observed by number of ratings, with n and PSD (C3) |
+| 5 | `fig-grm-reliability-observed-vs-simulated` **(new)** | 3.2 | RQ1: observed dots, simulated line/band, min-4 and full-panel lines |
+| 6 | `tbl-grm-reliability-min-ratings` **(new)** | 3.2 | RQ1: top-up design; quotable source of .835 and the check row |
+| 7 | `fig-overview-rater-response-styles` | 3.3 | RQ2: raw response styles |
+| 8 | `tbl-rater-overview` **(new)** | 3.3 | RQ2: one row per rater (severity, a, share CI, fit flags, gaps) |
+| 9 | `fig-m1-rater-severity` **(new)** | 3.3 | RQ2: severity with intervals next to raw means |
+| 10 | `tbl-grm-rater-parameters` | 3.3 | RQ2: a and b_k with SEs |
+| 11 | `fig-grm-rater-discrimination-ci` **(new)** | 3.3 | RQ2/RQ3a: a with intervals; one value under M1/M2 |
+| 12 | `tbl-raw-mean-vs-grm` | 3.4 | RQ3b |
+| 13 | `fig-raw-mean-vs-theta` | 3.4 | RQ3b |
+| 14 | `tbl-score-agreement` | 3.4 | RQ3b |
 
-Optional MAIN (author's choice): `fig-grm-information-shares`; also `fig-grm-rel-post-by-n` if the author prefers a figure alongside, or instead of, the by-n table. If a figure is promoted, MAIN becomes 11 and SUPP 27.
+### Placement decisions (reasons)
+- **Added to MAIN per brief §F:** `fig-grm-reliability-observed-vs-simulated`, `tbl-grm-reliability-min-ratings`, `fig-m1-rater-severity`, `fig-grm-rater-discrimination-ci`, `tbl-rater-overview`.
+- **Retired from MAIN → SUPP: `tbl-grm-rater-information-ci`.** Reason: `tbl-rater-overview` now shows each rater's share of panel information with its interval in the main text; the information-per-rating values quoted in 3.3 are traceable to the SUPP table; this keeps the main text at 14 objects after five additions (D8).
+- `fig-design-ratings-per-product` → **SUPP**: the per-k counts are needed to read RQ1 but `tbl-design-summary` already carries the design in the main text; `fig-overview-degree-distributions` stays (panel B, ratings per rater, is not shown elsewhere).
+- `fig-category-usage-shares` → **SUPP**: the main text already has `fig-overview-rater-response-styles` for raw scale use; author option: swap the two (the shares figure is more legible for 24 raters and marks unused categories) (D8).
+- `fig-grm-rater-information-ci` → **SUPP**: plots the table's column.
+- `tbl-grm-reliability-observed-vs-simulated` → **SUPP**: the figure is in the main text; the table is the quotable source of the per-k values shown in it (figure-annotation rule).
+- `tbl-discrimination-summary` → **SUPP**, directly after `tbl-discrimination-m3`: source of the 7.277 ratio and median 1.240 quoted in 3.4.
+- Unchanged: `tbl-grm-reliability-projection` and `fig-grm-reliability-projection` SUPP (quoted in 3.2(3)); `tbl-lr-tests` SUPP (values quoted); `tbl-theta-correlations`, `tbl-sensitivity-rater-exclusion` SUPP.
+- Space-saving fallbacks if CRJ limits bite (FI-16): move `tbl-grm-reliability-by-n` to SUPP (the figure and the SUPP observed-vs-simulated table carry the per-k values) and `fig-raw-mean-vs-theta` to SUPP.
 
-### Placement decisions
-
-- **`tbl-overview-rater-response-styles` → SUPP (new, round 5; F0.8).** Justification:
-  - its job is traceability (review m-6): every per-rater response-style value quoted in Method 2.11, Results 3.3 and the abstract (.579/.016, .080, .799/.764/.735/.192, the means and SDs) now points to an embedded object;
-  - the main-text figure `fig-overview-rater-response-styles` already shows the pattern (means, SDs, categories used, extreme vs middle shares), so the table would duplicate it in the main text;
-  - it is a 19 × 12 table of unadjusted descriptives without uncertainty; the main text already carries 8 tables, and the model-based rater evidence (Tables 5 and 6) is the paper's focus;
-  - Results 3.3 cites it at the first quoted lowest/highest/middle share ("values in @tbl-overview-rater-response-styles"); the abstract value is traceable through it (no cross-reference in the abstract itself).
-  - If the author prefers it in the main text, swap it for the figure rather than adding it (MAIN stays 10).
-- `tbl-grm-reliability-by-n` → MAIN (RQ1 evidence, with product counts per row).
-- `fig-grm-rel-post-by-n` → SUPP; cited in 3.2 for the spread within the same number of ratings.
-- `fig-grm-reliability-projection` and `tbl-grm-reliability-projection` → SUPP, cited in the one-sentence Method 2.10 pointer and the Discussion side note. The supplement note under the table carries the procedure:
-  - θ ~ N(0, 1) simulated products;
-  - k raters drawn at random from the panel, each rater equally likely (also in the table caption);
-  - ratings generated from the fitted GRM;
-  - parameters treated as known;
-  - 50 replications of 2,000 products per k; seed 20260713.
-- Unchanged:
-  - `tbl-score-agreement` MAIN; `tbl-theta-correlations` SUPP;
-  - `tbl-raw-mean-vs-grm` and `fig-raw-mean-vs-theta` MAIN (the figure moves to SUPP first if space is tight);
-  - `tbl-grm-rater-information-ci` MAIN; `tbl-grm-information-summary` SUPP;
-  - `tbl-lr-tests` SUPP (values quoted);
-  - `tbl-sensitivity-rater-exclusion` SUPP.
-
-### Supplement (28)
-
-- **Tables (17):**
-  - `tbl-overview-rater-response-styles` (**new**; place first among the rater tables, before `tbl-category-usage`)
-  - `tbl-excluded-raters`
-  - `tbl-sensitivity-rater-exclusion`
-  - `tbl-category-usage`
-  - `tbl-grm-convergence`
-  - `tbl-grm-rater-fit`
-  - `tbl-grm-q3-flagged`
-  - `tbl-grm-reliability-ci`
-  - `tbl-grm-reliability-summary`
-  - `tbl-naive-indices`
-  - `tbl-grm-reliability-projection`
-  - `tbl-grm-information-summary`
-  - `tbl-lr-tests`
-  - `tbl-discrimination-m3`
-  - `tbl-threshold-order`
-  - `tbl-rater-fit-m1`
-  - `tbl-theta-correlations`
-- **Figures (11):**
-  - `fig-grm-rel-post-by-n`
-  - `fig-grm-reliability-projection`
-  - `fig-overview-rating-distribution`
-  - `fig-overview-degree-distributions`
-  - `fig-grm-category-response-functions`
-  - `fig-grm-rater-information`
-  - `fig-grm-information-shares` (optional MAIN)
-  - `fig-grm-panel-information`
-  - `fig-grm-rel-post-histogram`
-  - `fig-grm-rel-post-by-theta`
-  - `fig-grm-rel-consistency`
+### Supplement (34)
+- Tables (20): `tbl-excluded-raters`, `tbl-sensitivity-rater-exclusion`, `tbl-overview-rater-response-styles`, `tbl-category-usage`, `tbl-grm-convergence`, `tbl-grm-rater-fit`, `tbl-grm-q3-flagged`, `tbl-grm-reliability-ci`, `tbl-grm-reliability-summary`, `tbl-naive-indices`, `tbl-grm-reliability-projection`, **`tbl-grm-reliability-observed-vs-simulated`**, **`tbl-grm-rater-information-ci`** (from MAIN), `tbl-grm-information-summary`, `tbl-lr-tests`, `tbl-discrimination-m3`, **`tbl-discrimination-summary`**, `tbl-threshold-order`, `tbl-rater-fit-m1`, `tbl-theta-correlations`.
+- Figures (14): **`fig-design-ratings-per-product`**, `fig-overview-rating-distribution`, `fig-overview-degree-distributions`, **`fig-category-usage-shares`**, `fig-grm-rel-post-by-n`, `fig-grm-reliability-projection`, `fig-grm-rel-post-histogram`, `fig-grm-rel-post-by-theta`, `fig-grm-rel-consistency`, `fig-grm-panel-information`, `fig-grm-category-response-functions`, `fig-grm-rater-information`, `fig-grm-information-shares`, **`fig-grm-rater-information-ci`**.
 
 ### Not embedded (5)
+`tbl-cleaning-log` (cleaning in text); `tbl-marginal-reliability-models` (author decision of round 6; the M1–M3 marginal reliabilities .957/.957/.965 appear in `tbl-reliability-overview`); `tbl-grm-global-fit` (Method 2.9 says the same); `tbl-overview-ratings-per-action` (duplicates `tbl-design-summary` and the new figure); `fig-overview-rater-overlap` (design display).
 
-- `tbl-cleaning-log`: the cleaning steps are in the Method text.
-- `tbl-marginal-reliability-models`: open author option (review m19; the reviewer still recommends the supplement plus one sentence).
-- `tbl-grm-global-fit`: Method 2.9 says the same.
-- `tbl-overview-ratings-per-action`: duplicates `tbl-design-summary`.
-- `fig-overview-rater-overlap`: a design display, not needed for the aims.
-
-### Notes for the writer (round 5)
-
-- Embeds and captions come from the notebooks at 04aefc5. One new embed: `{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/01_data_overview.ipynb#tbl-overview-rater-response-styles >}}` in the supplement.
-- Model names in prose follow the table cells (Terminology). Column names in prose follow the printed headers ("Ratings by rater", "Ratings per product", "Ratings (total)").
-- Q3: state the computable-pair definition in Method 2.9; remove the FI-30 marker.
-- R09's mean, if quoted: 3.643.
-- **YAML (m-11):** set `number-sections: false` for the pdf format (APA headings are unnumbered). The section numbers in this outline are for orientation only.
-- Abstract: no rendered markers; ≤ 250 words; conditional calibration wording.
-- Bibliography: do not edit the bib; check hand-typed name particles and "many-facet".
+### Notes for the writer
+- Embeds by label; NB02 cell ids changed but labels did not. One new embed each for the ten new labels per the lists above; `tbl-grm-rater-information-ci` moves from Results to the Supplement.
+- Supplement section "Projected reliability (side note)" becomes "Simulated reliability by number of ratings"; its note states the assumptions (Method 2.10 wording) and names the top-up design too.
+- `number-sections: false` stays; section numbers here are for orientation.
+- Abstract: no rendered markers; ≤ 250 words.
+- Display items for the analyst (FI-18): "Q1 0.596, Q3 0.769" note in `tbl-reliability-overview` must read "first and third quartiles 0.599, 0.789" (values from the new run); code-name labels; `tbl-discrimination-summary` row labels ("q1", "ratio max min"); glyphs ⚑ and ✕ in PDF font; `fig-m1-rater-severity` colours not in caption; `tbl-rater-overview` "Ratings" without separator and "%" only on the estimate; `tbl-lr-tests` caption says only "end categories" (note is correct).
 
 ---
 
-## Effect sizes and uncertainty: inventory (04aefc5)
+## Effect sizes and uncertainty: inventory
 
 | Quantity | Uncertainty | Where |
 |---|---|---|
-| Empirical / model-based marginal reliability | 95% intervals from 200 accepted parameter draws (87 rejected); conditional on valid draws | F1.12 |
-| Observed rel_post by n | Means and medians only; no CIs | F1.14 |
-| Cronbach's α (pairwise; crossed block), Krippendorff's α | Bootstrap CIs; pairwise CI approximate (639 of 1,000 replications computable; 361 failed) | F1.18 |
-| GRM a, b_k | Oakes SEs (2 decimals) | F2.1, F2.2 |
-| Rater average information and share | 95% intervals (same draws) | F2.4 |
-| M3 discriminations | SEs | F1.4 |
-| Model comparison | Δ information criteria; LR χ², df, *p* < .001 | F1.1, F1.2 |
-| θ correlations; score agreement | Point values; no CIs | F2.6, F2.7 |
-| Raw mean vs GRM (1 / 2 / 3+) | Point values; no CIs | F2.9 |
-| Exclusion sensitivity | Point differences; no CIs | F2.8 |
-| Raw response styles | None | F0.8 (`tbl-overview-rater-response-styles`) |
-| Projection (side note, SUPP) | 95% range over 50 simulation replications only; parameters treated as known | F1.20 |
+| Empirical / model-based marginal reliability | 95% intervals, 200 accepted draws (43 rejected) | F1.12 |
+| Observed rel_post by n | means/medians only, no CIs | F1.14 |
+| Projection by k; top-up | 95% range over 50 replications; parameters treated as known | F1.20, F1.21 |
+| Cronbach's α (pairwise; block), Krippendorff's α | bootstrap CIs; pairwise approximate (647 of 1,000) | F1.18 |
+| M1 severity | SEs drawn; printed only for R24 and R06 | F2.8, F2.8a |
+| GRM a, b_k | Oakes SEs | F2.1, F2.2 |
+| Average information, share | 95% intervals (same draws) | F2.5 |
+| M3 discriminations | SEs; summary without SEs | F1.4, F1.4a |
+| Model comparison | Δ criteria; LR χ², df, *p* < .001 | F1.1, F1.2 |
+| θ correlations; score agreement; raw mean vs GRM; sensitivity | point values, no CIs | F2.10–F2.13 |
+| Response styles | none | F0.9 |
 
 ---
 
-## FILL IN items (14 open)
+## FILL IN items (15 open)
 
-These are for the author. Any number must first pass through the notebook and results-interpreter.
+- **FI-1** Raters and ethics: recruitment, number at start, consent, ethics approval; confirms "student raters" in the abstract.
+- **FI-2** Products: competitions, matches, selection rule, clip length, source, number of matches.
+- **FI-3** Procedure: software; verbatim instruction and definition; anchors; "not recognised" wording; randomisation, sessions and breaks (no timing claims for R03, R06, R13); other dimensions.
+- **FI-4** Allocation of products to raters; how products came to have 1, 2 or 3+ ratings, including the latest collection; whether products with different numbers of ratings were rated by different raters; bears on ATC-32 and L1.
+- **FI-6** Software versions.
+- **FI-9** Why R26, R19, R14, R02, R12 and R27 were not usable for the pairwise α; which three raters form the crossed block (not printed; not quotable without the author).
+- **FI-15** Preregistration; data and code availability.
+- **FI-16** CRJ requirements: abstract limit, word count (the Introduction grew), figure/table limits (14 main objects), supplement policy, boxes, heading format, APA manuscript format.
+- **FI-17** Citation checks against the PDFs (new items in bold): wef2025; safardilha2019 (key quality; "thinking expressed verbally or through drawing"; process-over-action); batey2012; barbot2019b; kaufman2008 "five to ten"; **kaufman2008a: "mask" point, α .83/.94, Spearman–Brown .575 for ten novices, r .22, list of typical CAT tasks**; **cseh2019: number of judges as an open question (no "must be established per domain"); 2–134 judges; consistency vs agreement**; **silvia2008, kaufman2007, barth2021 (excerpts), terai2026 (abstract), long2015, long2022, hass2018, vanhooijdonk2022, kaufman2013 values as used**; **saidmetwaly2017b, reiterpalmon2019, paca2019 (= Snyder et al. 2019) characterisation**; **orth2017, hristovski2011, hristovski2012 (author field), vaughan2019, rasmussen2019, raab2007, memmert2011b, cotter2019 (author field Cotter & Silvia) characterisation**; **kempe2018 (scale 0–10 vs 1–10, reliability index, training), roca2018, memmert2010, joode2023 (3–4 coaches, ICC, averaging), zahno2023/zahno2024 (panel sizes)**; primi2019 (severity ranges −1.18 to .64 and 0.9; workload cut by a third; rater-by-scale interactions left open); myszkowski2021 (central vs extreme); pellegrino2025 (GRM retained); barbot2023 (model); forthmann2025 and goecke2024 (planned-missing designs); **stefanic2015; hickey2001; storme2014; ceh2022**; eckes2015 (partial-credit MFRM); wind2018/wind2019; reise1990; looney2004/anderlucci2021/heiniger2021 only if kept (now optional).
+- **FI-18** Display fixes before render (see "Notes for the writer").
+- **FI-21** Rater-pool description (also for the raters who joined later).
+- **FI-22** Non-recognition rate by rater (and product).
+- **FI-23** Source/rationale for the 15-rating exclusion criterion.
+- **FI-31 (new; D5)** Raters R23–R27: same student pool? how were actions allocated to them? (feeds 2.2, 2.5, L6).
+- **FI-32 (new; C13)** Data-collection period as a sentence in 2.4 (not printed in the notebooks; author-supplied).
 
-- **FI-1** Raters and ethics: recruitment, number at start, consent, ethics approval. Also confirms "student raters" in the abstract (no rendered marker there).
-- **FI-2** Products: competitions and matches, selection rule (event data), clip length and source, number of matches.
-- **FI-3** Procedure: software; verbatim instruction and creativity definition; scale anchors; wording of the "not recognised" option; randomisation, sessions and breaks; data-collection timespan; other dimensions rated.
-- **FI-4** Allocation of products to raters: planned overlap, benchmark/common set, randomisation, thesis subsets, dropout; how products came to have 1, 2 or 3+ ratings; whether products with different numbers of ratings were rated by different raters.
-- **FI-6** Software versions (R, mirt, sirt, psych, Krippendorff package).
-- **FI-9** Why R19, R14, R02, R16 and R12 were not usable for the pairwise Cronbach's α (and, optionally, the 3 raters in the crossed block).
-- **FI-15** Preregistration status; data and code availability statement.
-- **FI-16** CRJ requirements: abstract limit, keywords, word count, figure/table limits, supplement policy, boxes, heading format.
-- **FI-17** Citation checks against the PDFs:
-  - wef2025; safardilha2019; memmert2011; batey2012; barbot2019b;
-  - kaufman2008 ("five to ten");
-  - the α > .70 claim (baer2004; kaufman2008a; hennessey2011);
-  - **new (round 5, m-2): kaufman2008a for "a high α from a large panel can mask low agreement among individual raters"** (P4, 4.2); if the CRJ article does not make the point, cite the source that does;
-  - **new (round 5, m-7): cseh2019 for the single paraphrase "the number of raters needed for adequate reliability has to be established for each domain"**;
-  - the kempe2018 / zahno2023 / joode2023 characterisation;
-  - primi2019 and forthmann2025 as support for product-level precision (P4);
-  - pellegrino2025 "retained a GRM";
-  - primi2019 "left rater-by-scale interactions / response styles to future research"; myszkowski2021 on central vs extreme responding; the looney2004 / anderlucci2021 / heiniger2021 characterisation; wind2018 / wind2019 "rater estimates depend on the linking set"; reise1990 on GRM parameter recovery;
-  - eckes2015 as the source for the partial-credit MFRM.
-- **FI-18** Notebook display fixes before render (analyst; display only, no new analyses). **Fixed at 04aefc5:** model labels in table cells ("M1 (rating-scale MFRM)", "M2 (partial-credit MFRM)", "M3 (GPCM)"); "Ratings (n)" headers replaced; Q3 computable-pair note; per-rater response-style table labelled. **Still open:**
-  - old model names outside the cells: `tbl-reliability-overview` row labels "M1 (RSM)" / "M2 (PCM)"; `tbl-threshold-order` caption "M2 (PCM) and M3 (GPCM)"; `tbl-model-fit` and `tbl-rater-fit-m1` captions "rating scale model / MFRM";
-  - Quantity labels that still show code names ("min_ratings_per_rater (exclusion cut-off)", "empirical_marginal_reliability (primary; actual scores)", "model_based_marginal_reliability_mirt (hypothetical full panel)", "marginal_rxx (mirt)");
-  - the "Overlap" column of `tbl-grm-q3-flagged` is "–" in every row (drop or fill);
-  - integer display: the diagonal "1" vs "1.000" in `tbl-theta-correlations`; R08's mean "3" and the "0" shares in `tbl-overview-rater-response-styles`;
-  - *p* values in scientific notation in tables (APA: *p* < .001);
-  - separators missing in N2 text notes ("639 of 1000", "3668 common products");
-  - figure fixes from round 2, to be verified: `fig-grm-panel-information`, `fig-grm-rel-consistency`, `fig-grm-rel-post-by-theta`;
-  - optional: APA leading zeros in `tidy()`, so that tables match the text.
-- **FI-19** Data status (internal; **never mentioned in the prose**). If more ratings are added before submission, re-run N0–N2, the embedder and the interpreter, and recopy every Results number. Otherwise the current data are final for this paper.
-- **FI-21** Rater-pool description: number at start, football playing/coaching experience, instruction or practice, sessions per rater, demographics; if not recorded, say so.
-- **FI-22** Rate of "action not recognised" ratings by rater, and if possible by product. Descriptive only.
-- **FI-23** Source or rationale for the 15-rating exclusion criterion.
+**Closed or retired:** **FI-19 retired** (data freeze confirmed, brief §C). FI-30 closed (round 5). FI-11, FI-12 retired. FI-20, FI-24–FI-29, FI-5, FI-7, FI-8, FI-10, FI-13, FI-14 closed earlier.
 
-**Closed or retired:**
-- **FI-30 closed (round 5):** the notebook now defines a computable Q3 pair (F1.9); the definition is stated in Method 2.9.
-- **FI-11 and FI-12** (optional CIs for agreement statistics and per-n means) stay retired under the author priority. The absence of CIs is stated in L3.
-- **FI-20** resolved in round 3; **FI-24 to FI-29** dropped in round 3.
-- **Closed earlier:** FI-5, FI-7, FI-8, FI-10, FI-13, FI-14.
+## AUTHOR TO CONFIRM claims (32 open)
 
-## AUTHOR TO CONFIRM claims (23 open)
+Reworded items are marked (rw); new items are ATC-28 onward.
+- **ATC-1** Central contribution in three parts incl. the number needed (rw).
+- **ATC-2** (rw) Gap and novelty: rating-design evidence for sport actions is lacking; no JRT/IRT application to ratings of sport actions was located (web and vault search, not a database search); abstract "little rating-design evidence".
+- **ATC-3** Conventional indices describe a panel mean; the empirical marginal reliability is the relevant figure.
+- **ATC-4** Precision depends on the number of ratings, the raters and θ; no "mainly".
+- **ATC-5** (rw) Practical reading: one or two ratings give limited precision; plan several ratings per action; "about four" from the simulations under their assumptions.
+- **ATC-6** (rw) Raters differ substantially; differences exceed SEs for well-estimated raters; spacing is partly discrimination; "higher b = stricter" gloss for GRM thresholds.
+- **ATC-7** Raw means confounded with severity in incomplete designs; shared category structure concerns M1 only; equal discrimination rejected by LR/AIC not BIC; severity not tested on its own.
+- **ATC-8** GRM preferred by AIC/SABIC; cumulative link suits a unipolar scale.
+- **ATC-9** (rw) M1 misfit pattern (R18, R09, R17 above 1; R12 lowest) consistent with discrimination surfacing as misfit; illustrative.
+- **ATC-10** Model choice: high correlations yet ranking shifts that matter; mean shift read with quintile share; M1–GRM mixes constraints and link.
+- **ATC-11** Fit evidence limited; pairwise α CI possibly biased; absence of misfit is not fit.
+- **ATC-12** (rw) Information shares are not a ranking of rater quality; largest SEs R18 (thresholds), R26/R19/R27 (discriminations); "one rating by the most informative rater equals several by the least informative" if used.
+- **ATC-14** Calibration set, conditional, distinct from training.
+- **ATC-15** Scoring recommendation "consider"; no accuracy claim.
+- **ATC-16** (rw) Enough ratings per rater; about 50 (R17, R18, R19, R26, R27) not enough; 15 never recommended.
+- **ATC-18** Realised design vs planned benchmark set (if any).
+- **ATC-19** Showing a definition departs from the CAT rule.
+- **ATC-20** Exploratory framing; RQ wording incl. the new RQ1 and the severity promise in RQ2.
+- **ATC-21** θ̂ range at equal raw mean reflects threshold location and discrimination of the raters; with 2+ ratings also rating patterns; set by extreme raters.
+- **ATC-22** Within-n reversals matter for selection; part of the 2-rating reversals is rating pattern.
+- **ATC-23** (rw) Box: selection and wording of all six items.
+- **ATC-26** (rw) Exclusion sensitivity wording "nearly unchanged on average … largest change 0.35026" (D4).
+- **ATC-28 (new)** C-A: "rating-design evidence comes largely from verbal material and static products inspected at leisure" — qualitative, no percentage; anchors as in P6.
+- **ATC-29 (new)** Which key carries "divergent thinking in sport": memmert2011 (JSS), memmert2013, or memmert2011b (Encyclopedia chapter, states the DT equation).
+- **ATC-30 (new)** The closing argument: what these results say about designing creativity-rating studies for nonverbal, time-pressured products (4.5, Conclusion, abstract implication).
+- **ATC-31 (new)** The domain-specificity conclusion: required rater numbers are conditional and do not transfer across product classes; this study provides the figures for football actions; mapping of "about four" against silvia2008 / kaufman2013 / barth2021 / terai2026 with targets and objects stated.
+- **ATC-32 (new)** Any reading of observed vs simulated values (observed below the simulated range at k = 3–7, 9, 10; "close" for .686 vs .689): the notebook makes no comparison; offered readings are possibilities.
+- **ATC-33 (new)** Flags below 0.7 read as "expected rather than misfit" given about two ratings per product.
+- **ATC-34 (new)** BIC explanation: penalty grows with the number of parameters (158/158/135/30), so BIC weighs against rater-specific parameters as the panel grows.
+- **ATC-35 (new)** Use of the simulations as RQ1 evidence: "smallest k reaching .80 = 4", min-4 .835, and the assumption statement incl. "each rater equally likely, so the draws do not reproduce actual workloads" as the authors' Method description.
+- **ATC-36 (new; from retired ATC-13)** Krippendorff .391 vs Cronbach .949 illustrates kaufman2008a's point and the consistency–agreement distinction (stefanic2015; cseh2019).
+- **ATC-38 (new)** Severity span 2.247 logits as substantial, compared with primi2019's ranges; "lenient–strict" reading of M1 severity.
 
-Markers render in the body text only; the abstract carries none (its claims are covered by ATC-2, -5, -14, -15 and listed in the hidden comment block).
+**Closed:** **ATC-13 retired** (crossed-block closeness; C4). ATC-17, ATC-24, ATC-25, ATC-27 closed earlier.
 
-- **ATC-1** The central contribution: three empirical parts (obtained reliability and by-n; rater differences with uncertainty; score dependence on modelling rater differences).
-- **ATC-2** The novelty claim: "to our knowledge, rater differences have not been modelled with IRT/JRT for creativity ratings in sport". It also covers the abstract's "little is known" sentence (no rendered marker there). The search was not systematic.
-- **ATC-3** Conventional indices describe a panel mean, not the precision of the scores used. The empirical marginal reliability is the relevant figure.
-- **ATC-4** Product precision depends on the number of ratings, on which raters gave them, and on the product's location on θ, all read from the observed spread. No "mainly".
-- **ATC-5** Practical reading of the observed by-n values: one or two ratings per action give limited precision for individual action scores in these data, so plan ratings per action accordingly. It also covers the optional half-sentence on the projection side note.
-- **ATC-6** Raters differ substantially; for raters with many ratings the differences exceed the SEs; spacing is partly discrimination. Also covers "higher thresholds indicate a stricter rater" and "threshold location (severity)" in RQ2, used only if the author confirms.
-- **ATC-7** Raw means are confounded with severity in incomplete designs (primi2019). The shared category structure is rejected only for M1 (rating-scale MFRM); M2 (partial-credit MFRM) relaxes it. Equal discrimination, the constraint common to the Rasch family, is rejected by LR/AIC but not by BIC, and the spread is partly uncertain. Severity on its own is not tested.
-- **ATC-8** The GRM is preferred by information criteria; a cumulative link suits the unipolar scale.
-- **ATC-9** The M1 misfit pattern (R17, R12) is consistent with discrimination differences surfacing as misfit. Step order is not evidence for either family.
-- **ATC-10** (round 5 wording) Model choice: high correlations, yet ranking shifts that matter for selection, read together with the mean percentile shifts (.042 for M1, .017 for M3). The M1–GRM contrast mixes constraints and link.
-- **ATC-11** Fit evidence is limited by the design. The pairwise α CI may be biased. Absence of misfit is not evidence of fit.
-- **ATC-12** (round 5 wording) Information shares are not a ranking of rater quality. The largest standard errors belong to R18 (thresholds) and to R19 and R16 (discriminations); the widest information intervals belong to R19 and R16, not R18.
-- **ATC-13** The Krippendorff vs Cronbach contrast illustrates kaufman2008a (pending the FI-17 "mask" check). The crossed-block α lies near the empirical reliability.
-- **ATC-14** (round 5 wording) Recommendation, conditional: because parameters of raters with few ratings were imprecise, consider a calibration set rated by all raters, distinct from training. It links raters more strongly and estimates parameters more precisely only if the raters with few ratings rate it and it is large enough. The study did not use such a set. Applies to the abstract, contribution implication, box item 3 and Conclusion.
-- **ATC-15** (C-M1) Scoring recommendation: because raters differed in thresholds and discrimination and raw means ordered actions partly differently from model-based scores, *consider* a model that adjusts for rater differences (under its assumptions) and report how far its ordering departs from raw means. No claim that model-based scores are more accurate. Also covers: report the empirical reliability and product SEs.
-- **ATC-16** Recommendation: enough ratings per rater for stable parameters (about 50 were not enough here); no claim that 15 suffices.
-- **ATC-18** The realised design departs from the planned benchmark-set design (if so).
-- **ATC-19** Showing raters a creativity definition departs from the CAT "no criteria" rule.
-- **ATC-20** The exploratory framing and the RQ wording.
-- **ATC-21** The θ̂ range at equal raw mean reflects differences in both severity and discrimination between raters. With 1 rating, it reflects only the rater's parameters; with 2+ ratings, it also reflects the rating combinations. As a range, it is set by the most extreme raters, some imprecisely estimated.
-- **ATC-22** The interpretation of F2.9: within each number of ratings, raw means order products partly differently from GRM scores, which matters for selecting actions. With 2 ratings, part of the reversals reflects the rating pattern, not rater differences. Only within-n values are used; no comparison with F2.7. "Non-trivial share" is used only with this marker.
-- **ATC-23** The boxed recommendations: selection and wording of all five items (item 3 made conditional in round 5).
-- **ATC-26** Sensitivity claim: "excluding them changed the product scores only slightly", with a visible [AUTHOR TO CONFIRM] at the claim and the largest change (0.16246) in the same sentence.
+---
 
-**Closed:** ATC-24, ATC-25, ATC-27 (round 3); ATC-17 (earlier).
+## Decisions for checkpoint 1
+
+Proposed answers from the brief (§D) and this outline:
+- **D1** Keep the GRM as the scoring model: **yes**; state that BIC favours M1 by 4.161; rely on the M1–GRM comparison (*r* = .977; .206 changing quintile).
+- **D2** Wording "rejected by the LR test and AIC but not by BIC" for both constraints, abstract "BIC favoured the constrained models in both cases": **acceptable**.
+- **D3** Crossed-block "lay close" sentence: **delete**; ATC-13 retired.
+- **D4** Exclusion sensitivity: **rephrase** to "nearly unchanged on average (*r* = .99994, mean absolute change 0.00204), with a largest change in one product score of 0.35026"; ATC-26 remains at the sentence.
+- **D5** New raters R23–R27: pool and allocation → **FI-31** (with FI-1, FI-4); the abstract keeps "student raters" only if confirmed.
+- **D6** `preliminary_draft/manuscript.qmd` and `submission/3_PACA.md`: **not touched**; listed in author_todo with the stale values (19 raters, 7,820 ratings, 3,668 products at 3_PACA line 18; draft lines 8, 69, 85, 87, 89, 115, 121, 125, 131).
+
+New decisions raised by this outline:
+- **D7 Title:** keep the current title (recommended); alternative offered above.
+- **D8 Main-text objects:** add the five objects of §F; **retire `tbl-grm-rater-information-ci` to SUPP** (reason stated); `fig-category-usage-shares`, `fig-design-ratings-per-product`, `fig-grm-rater-information-ci`, `tbl-grm-reliability-observed-vs-simulated`, `tbl-discrimination-summary` to SUPP; MAIN 14 / SUPP 34 / not embedded 5. Option: swap `fig-category-usage-shares` for `fig-overview-rater-response-styles` in the main text. Fallbacks for space: `tbl-grm-reliability-by-n`, `fig-raw-mean-vs-theta` to SUPP.
+- **D9 RQ1 headline:** use "smallest k with simulated empirical reliability ≥ .80 = 4" (printed) and the top-up value .835 as the headline of RQ1 in the abstract, 3.2, 4.2 and box item 2, with the assumptions stated in Method 2.10 and L2 (recommended: yes) [ATC-35].
+- **D10 Cite myszkowski2025** in the JRT applications list (one clause; rubric-coded PISA responses, generalized IRTree): recommended yes; myszkowski2026 and beaty2026 are not imported and not cited.
+- **D11 NEEDS IMPORT:** none essential. fardilha2020 exists as `safardilha2019` (year 2020); memmert2015/memmert2017 are cited only through safardilha2019; brown1967/harrison2016 are second-hand and not needed; johnson2003 not needed (raab2007 carries the time-pressure point).
+- **D12 Abstract content:** the numbers listed in the Abstract plan (.689/.969; .522/.699; "at least four"; 2.247 logits; .579–.016; τ-b .833/.818) within 250 words; drop order if over the limit: τ-b clause, severity span.
+- **D13 Design wording:** the sparse design is named once in Introduction Move 5 and described in Method 2.5 (brief §B5); the old rule "never foreground the sparse design" is relaxed to this extent; no "most products were rated only once or twice" framing outside the Table.
+- **D14 Cross-domain detail in the Introduction:** state the per-domain figures from 07 in prose with targets and objects (recommended) rather than only in summary form; about 200 words of Move 2.
+- **D15 Box item 6** (domain-specificity recommendation) added to the box: keep or merge into item 2.
+- **D16 `tbl-marginal-reliability-models`:** stays unembedded (round-6 author decision); confirm.
 
 ---
 
 ## Evidence gaps
 
-- **Aim 1.**
-  - Supported by the empirical reliability with CIs (F1.12), the observed by-n values (F1.14) and the conventional indices (F1.18).
-  - Gaps:
-    - the by-n values are observational, without CIs;
-    - they do not separate the number of ratings from which raters gave the ratings; whether rater composition differs by number of ratings is not printed and depends on FI-4;
-    - no "ratings needed" figure exists, so none is stated;
-    - the projection is a side note with parameters treated as known.
-- **Aim 2.**
-  - Well supported for raters with many ratings (SEs, information intervals, response styles, now all in embedded objects).
-  - Gaps:
-    - there is no single comparable severity metric (thresholds only), so RQ2 does not promise "severity";
-    - raters with about 50 ratings have imprecise parameters;
-    - the draw intervals are conditional on valid draws;
-    - the response styles are unadjusted and have no uncertainty.
-- **Aim 3.**
-  - Supported by the LR tests (F1.2), the score agreement (F2.7) and the within-n raw-mean comparison (F2.9, F2.10).
-  - Gaps:
-    - the shared-category-structure result concerns only M1 (rating-scale MFRM); the case against the Rasch family rests on equal discrimination, where BIC disagrees with LR/AIC;
-    - severity is not tested on its own;
-    - the M1–M2 LR test is cross-software;
-    - there is no accuracy criterion for GRM vs raw means, so the scoring recommendation is worded as "consider";
-    - no CIs exist;
-    - the number of equal-raw-mean groups and pairs is not printed.
-- **Calibration-set recommendation.** Not tested in these data (no such set was used); it rests on the imprecision of raters with few ratings and is therefore worded conditionally (ATC-14).
-- **Absolute fit.** Not established: C2 is not computable, and S-X², Q3 and infit/outfit are limited by the design. The Q3 computable-pair definition is now in the notebook (FI-30 closed); the number of non-computable pairs is not printed.
-- **Methods.** FI-1–FI-4, FI-6, FI-15, FI-21, FI-22 and FI-23 remain open. The paper cannot be submitted until they are filled.
-- **Out of scope.** Rater expertise and the rating scale; MFRM fair averages (EAP only).
+- **RQ1.** Supported by F1.12, F1.14, F1.18, F1.20, F1.20a, F1.21, F1.22. Gaps: by-n values observational, without CIs, and not separating the number of ratings from which raters gave them (FI-4); the simulations treat parameters as known, draw raters with equal probability and cover k ≤ 10 only; the notebook prints no comparison between observed and simulated values (ATC-32); .70 and .90 thresholds are not printed; the three crossed-block raters are not named (FI-9).
+- **RQ2.** Well supported for well-estimated raters (SEs, intervals, printed severity range). Gaps: M1 severity SEs printed only for R24 and R06 and no severity test; raters with ≤ 55 ratings imprecise; response styles unadjusted and without uncertainty; R27's thresholds not comparable; the "x-fold" reading of 7.277 is a rounding.
+- **RQ3.** Supported by F1.1, F1.2, F1.4a, F2.11, F2.13. Gaps: BIC disagrees with LR/AIC on both constraints; M1–M2 cross-software with reduced df; no accuracy criterion (hence "consider"); no CIs for agreement statistics; the BIC-penalty explanation is a hypothesis (ATC-34).
+- **Introduction claims.** C-A has no quantitative review behind it (qualitative wording, ATC-28). C-C's second half rests on four studies (three or four coaches); zahno2023/2024 panel sizes unverified (FI-17). Several 07 values are at verification level "excerpts" or "abstract" (silvia2008, kaufman2007, barth2021, terai2026, kaufman2008a's "mask" wording, long2015) → FI-17. The "no rater-number study for sport" statement is a search result with a scope note, not a proven absence.
+- **Methods.** FI-1–4, 6, 9, 15, 21–23, 31, 32 open; the paper cannot be submitted before they are filled.
+- **Out of scope.** Rater expertise and training; scale design; MFRM fair averages (EAP only); G- and D-study of these data.
 
 ---
 
-## Revision plan vs 05_review.md (round 4)
+## Conflicts found and how this outline resolves them
 
-The round-3 plan was applied; the round-4 review rated it 17 resolved, 3 partial, 0 not resolved, 8 deferred, 5 declined, with 0 critical, 0 major and 11 minor new points. "Text" = the writer fixes it as planned above. "Author" = cannot be fixed in the text. "Analyst" = display only in the notebook.
-
-| Point | Round-5 action | Where | Type |
-|---|---|---|---|
-| m-1 Abstract (length, calibration, markers, "student raters") | ≤ 250 words; calibration set conditional ("because … imprecise, consider"); no rendered markers (claims tracked as ATC-2/5/14/15, FI-1 in the hidden comment block) | Abstract; ATC-14; FI-1 | Text + author |
-| m-2 kaufman2008a "mask" not on FI-17 | Added to FI-17 | P4, 4.2; FI-17 | Author |
-| m-3 "Q3" as quartile | "first and third quartiles .596 and .769" | 3.2 (3); Terminology | Text |
-| m-4 Table labels vs MFRM framing | Cells now print "M1 (rating-scale MFRM)", "M2 (partial-credit MFRM)", "M3 (GPCM)"; prose aligned; remaining captions/rows on FI-18 | Terminology; 2.7; 3.4; FI-18 | Text + analyst |
-| m-5 Projection pointer in Methods | One description-only sentence at the end of 2.10 | 2.10 | Text |
-| m-6 Response-style values not shown | `tbl-overview-rater-response-styles` embedded in SUPP and cited in 2.11 and 3.3 | 2.11; 3.3; object plan | Text |
-| m-7 cseh2019 paraphrase | One wording in P4, P7 and 4.2; added to FI-17 | P4; P7; 4.2 | Text + author |
-| m-8 R18 "largest SEs" | "R18 for its thresholds, R19 and R16 for their discriminations" | 4.3; ATC-12 | Text |
-| m-9 Quintile shares without shift size | Mean percentile shifts (.042 / .017) in the same sentence | 3.4; 4.4 (iii); contribution 3; ATC-10 | Text |
-| m-10 "which" referent; hove2024 placement | "training, unlike a calibration set, conflicts with …"; hove2024 moved to the lead sentence of the conventional-indices paragraph, or dropped | 4.5; 2.10 | Text |
-| m-11 Heading numbering; "equivalent to" | `number-sections: false`; M1 "corresponds to" the rating-scale MFRM, estimated by MML | YAML; 2.7 | Text |
-| m19 `tbl-marginal-reliability-models` | Still an open author option | — | Author |
-| M12 Display problems | FI-18 updated to the remaining items | FI-18 | Analyst |
-| C2, M7, M8, m10, m18, m20, m22 | Deferred to author (FI-1–4, 6, 15, 16, 18, 21, 22) | — | Author |
-| N-M2, M3, M5, M6, held-out check | Declined under author priority; one future-research list | 4.6 | Declined |
+1. Brief §D1 "BIC favours M1 by 4.16" → the printed value is 4.161 (F1.1); quote 4.161.
+2. Brief §B3 "about three raters by convention" → coordinator correction wins: "three or four licensed coaches, ratings averaged, agreement reported as ICC" (kempe2018, memmert2010, roca2018, joode2023); no "by convention".
+3. Brief §B2 "random panels of 10 novices average α ≈ .53–.66" → 07's resolution: .58 (.575) is Kaufman et al.'s (2008) Spearman–Brown projection for poetry, .53 the ten-novice mean for stories and .66 for engineering designs in Kaufman et al. (2013); attribute accordingly, and say "projection" for kaufman2008a.
+4. Concept note, old outline and old manuscript attribute "the number of raters has to be established for each domain" to cseh2019 → 07's binding caveat wins: Cseh and Jeffries list it as an open question; domain-specificity is argued via vanhooijdonk2022 and the cross-domain evidence. FI-17 item changed accordingly; the stale paraphrase is on the stale-string list.
+5. Brief §C "raters drawn at random with equal probability regardless of their real workload" vs 03_findings (the notebook says only "each equally likely"; the "regardless of workload" wording is the report's) → stated as the authors' own methodological description (it follows from equal drawing probability), not as a notebook quotation, with ATC-35.
+6. Revision instructions C4 name the crossed-block raters (R07, R11, R23) and C13 the collection span (2025-10-09 to 2026-11-02) → neither is printed in a notebook; both become author items (FI-9, FI-32), not quoted from §5/§3.
+7. Brief §B5 names a "sparse design" in the present-study move vs the old rule "the sparse design is not foregrounded" → relaxed to one mention (D13).
+8. Old outline: RQ2 did not promise severity because no severity measure was printed → the new `fig-m1-rater-severity`, `tbl-rater-overview` and the printed range make severity reportable; RQ2 now includes it (ATC-6, ATC-38).
+9. Brief §A1 "pull every result shown in `jrt_results_summary.qmd`" vs 03_findings' never-quote list → everything is now available except the md5, the report's "Assumes/Answers" texts, its roundings and the interpretive "one rating by the top rater carries as much as several" (which becomes an ATC-12 reading of printed values, not a quoted result).
+10. `02_artifacts.md` lists the old NB02 cell ids and 52 labels in its main table; its Delta section adds `tbl-discrimination-summary` (53) → embeds use labels, so nothing breaks; the writer must take the embed line for the new table from the Delta.
+11. Review N6-1 ("standard normal" in Limitations) → L5 wording fixed in this outline so the writer does not regress.
 
 ---
 
-## Changes in this update (round 5; notebooks at 04aefc5)
+## Changes in this revision (summary)
 
-- **Inputs:** 43 labels (new `tbl-overview-rater-response-styles`); values unchanged; R09 mean 3.643 in the new table; model labels and Ratings headers changed in the tables; Q3 computable pair defined in the notebook.
-- **New table:** `tbl-overview-rater-response-styles` → SUPP, mapped to F0.8, cited in 2.11, 3.3 and 4.3 and wherever lowest/highest/middle shares are quoted.
-- **Q3:** definition stated in Method 2.9; FI-30 closed; markers removed in 2.9 and 3.1.
-- **Naming:** prose model names follow the table cells; column references follow the new Ratings headers; "first and third quartiles"; response-style shares named as in the table.
-- **Wording pass:** abstract (conditional calibration, no rendered markers, ≤ 250 words); Methods projection pointer; one cseh2019 paraphrase; R18 threshold SEs; mean percentile shifts next to quintile shares; "which" fixed and hove2024 moved; M1 "corresponds to" (MML); `number-sections: false`; name particles; "many-facet".
-- **Bibliography:** not edited; keys unchanged.
-- **Object plan:** MAIN 10, SUPP 27 → **28**, not embedded 5; total 43.
-- **FILL IN:** 15 → **14 open** (FI-30 closed; FI-17 extended by kaufman2008a "mask" and cseh2019; FI-18 updated). **ATC:** **23 open** (unchanged count; ATC-2, -10, -12, -13, -14, -23 reworded).
-
-## Decisions (applied; condensed record)
-
-- **Checkpoint 1:** OD1 title kept; OD2 main-text objects; OD3 raw-mean comparison integrated; OD4 exclusion wording; OD5 3-decimal response styles; OD6 boxed recommendations; OD7 draft now. Exploratory framing; no sparse-design framing; "product" as the analytic term.
-- **Checkpoint 2 (2026-10-26):** revision against the round-1 review; compact 2-decimal rater-parameter table; no "15 is enough"; Methods FILL INs kept; APA number format; ATC-26 with 0.16246.
-- **Checkpoint 2, round 3 (2026-10-27):** empirical findings first; projection as a side note; no analyses added only to project or extrapolate; within-n raw-mean statistics; all-rater parameter ranges; the cause of the unrecognised ratings is author-supplied, with no marker.
-- **Checkpoint 2, round 4 (2026-10-27, relayed):** apply the round-3 review fixes; re-ground "model rather than average"; rating-scale MFRM wording and BIC in the abstract; neutral Q3 wording; FI-11 and FI-12 retired; phd_library.bib as the single bibliography.
-- **Checkpoint 2, round 5 (2026-10-27, relayed):** final wording pass; embed the response-style table; Q3 definition; model labels and Ratings headers aligned; writer wording items m-1 to m-11; bib not edited, name particles and "many-facet" in prose.
-
-**Open for the author:**
-- whether to promote `fig-grm-rel-post-by-n` or `fig-grm-information-shares` to MAIN, or swap `tbl-overview-rater-response-styles` for its figure in the main text;
-- whether to embed `tbl-marginal-reliability-models` in the supplement (m19);
-- whether to keep the box (FI-16);
-- whether to use "stricter rater" / "threshold location (severity)" (ATC-6);
-- whether to keep the abstract's mean-range clause (m21) and the hove2024 citation (m-10).
+- New five-move Introduction architecture (1,500–1,800 words) with the cross-domain rater-number evidence, the verbal-bias and sport-case moves, the methods ladder and the present study; IRT tutorial moved to Method 2.7.
+- RQ1 reworded to include the number of ratings needed (observed and simulated); RQ2 includes severity; RQ3 split (a)/(b).
+- Results in RQ order with the two simulations and five new main-text objects; Discussion restructured around RQ1–RQ3 and closing with the nonverbal/time-pressure and domain-specificity arguments; box updated (six items).
+- C1–C13 mapped; stale-string list extended.
+- Objects: MAIN 14, SUPP 34, not embedded 5 (total 53); `tbl-grm-rater-information-ci` retired to SUPP with reason.
+- FI: 15 open (FI-19 retired; FI-31, FI-32 new; FI-17 extended). ATC: 32 open (ATC-13 retired; ATC-28–36 and ATC-38 new; ten reworded).
+- Decisions D1–D6 with proposed answers; new D7–D16.
