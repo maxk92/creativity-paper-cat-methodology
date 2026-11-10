@@ -1,2 +1,2 @@
 statistic,computable,rater_pairs,rater_pairs_without_overlap,note
-C2,FALSE,276,30,"Not computable: 30 of 276 rater pairs share no products, so their bivariate moments and hence C2 are undefined."
+C2,FALSE,276,23,"Not computable: 23 of 276 rater pairs share no products, so their bivariate moments and hence C2 are undefined."

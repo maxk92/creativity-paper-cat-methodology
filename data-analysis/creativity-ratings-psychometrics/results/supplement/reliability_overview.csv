@@ -1,11 +1,11 @@
 index,refers_to,value,ci_or_note
-Krippendorff's alpha (ordinal),consensus of single ratings,0.3914043339354839,"95% bootstrap CI [0.363, 0.417], 1,000 replications"
-Cronbach's alpha (pairwise covariances),consistency of the unweighted rater mean,0.9488372221764142,"95% CI [0.926, 0.958] (bootstrap, 647 of 1,000 replications computable, approximate); 18 raters; removed: R26;R19;R14;R02;R12;R27"
-Cronbach's alpha (fully crossed block),consistency of the unweighted rater mean (crossed subset),0.750386699321276,"95% CI [0.684, 0.800] (bootstrap, 1,000 replications); 3 raters, 261 products"
-GRM: empirical marginal reliability,actual theta_hat (primary),0.6889644068250255,"95% CI [0.669, 0.703] (200 parameter draws); Var(theta)/(Var(theta)+mean(PSD^2))"
-GRM: model-based marginal reliability,hypothetical full panel,0.9689277620533384,"95% CI [0.965, 0.974] (200 parameter draws); mirt::marginal_rxx, all raters"
-GRM: median rel_post,precision per product,0.7120942327349202,"first quartile 0.599, third quartile 0.789"
-GRM: IQR rel_post,precision per product,0.19051678975366584,
-M1 (rating-scale MFRM): marginal reliability,comparison,0.9571078523872688,
-M2 (partial-credit MFRM): marginal reliability,comparison,0.9568550707434809,
-M3 (GPCM): marginal reliability,comparison,0.9648133292436528,
+Krippendorff's alpha (ordinal),consensus of single ratings,0.3948827881827712,no bootstrap in this run
+Cronbach's alpha (pairwise covariances),consistency of the unweighted rater mean,0.9485780560786717,"95% CI [0.928, 0.959] (bootstrap, 625 of 1,000 replications computable, approximate); 18 raters; removed: R26;R12;R14;R19;R02;R27"
+Cronbach's alpha (fully crossed block),consistency of the unweighted rater mean (crossed subset),0.750386699321276,"95% CI [0.686, 0.799] (bootstrap, 1,000 replications); 3 raters, 261 products"
+GRM: empirical marginal reliability,actual theta_hat (primary),0.6843866333066324,"95% CI [0.665, 0.698] (200 parameter draws); Var(theta)/(Var(theta)+mean(PSD^2))"
+GRM: model-based marginal reliability,hypothetical full panel,0.9679947111856072,"95% CI [0.964, 0.972] (200 parameter draws); mirt::marginal_rxx, all raters"
+GRM: median rel_post,precision per product,0.705520054190041,"first quartile 0.592, third quartile 0.786"
+GRM: IQR rel_post,precision per product,0.19375834311459303,
+M1 (rating-scale MFRM): marginal reliability,comparison,0.9575046085152502,
+M2 (partial-credit MFRM): marginal reliability,comparison,0.9568766964863872,
+M3 (GPCM): marginal reliability,comparison,0.9635376076864023,

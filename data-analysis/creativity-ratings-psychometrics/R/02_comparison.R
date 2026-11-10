@@ -246,6 +246,9 @@ save_csv(sensitivity, "sensitivity_rater_exclusion", "supplement")
 # C. Naive indices (reference values for common practice; not used downstream)
 # ==============================================================================
 N_BOOT <- if (QUICK) 20L else 1000L
+# JRT_SKIP_KRIPP_BOOT=1 skips the Krippendorff bootstrap (the slowest step, ~15 min):
+# the alpha is still computed, its CI is left empty.
+KRIPP_BOOT <- !nzchar(Sys.getenv("JRT_SKIP_KRIPP_BOOT"))
 MIN_PAIR_OVERLAP <- 3L  # a covariance needs at least this many shared products
 wide17 <- wide + SCALE_MIN  # back to 1-7
 overlap <- crossprod(rated * 1L)
@@ -319,18 +322,20 @@ cronbach$seed <- SEED
 save_csv(cronbach, "cronbach_alpha", "supplement")
 
 # Krippendorff's alpha (ordinal): agreement of single ratings, raters interchangeable.
-message("02: Krippendorff's alpha with bootstrap (", N_BOOT, " replications, slow)")
+message("02: Krippendorff's alpha", if (KRIPP_BOOT) paste0(" with bootstrap (", N_BOOT, " replications, slow)") else " (bootstrap skipped)")
 rel_data <- t(wide17)  # raters x units; NA handled natively
 ka <- irr::kripp.alpha(rel_data, method = "ordinal")$value
 set.seed(SEED)
-boot <- vapply(seq_len(N_BOOT), function(b) {
+boot <- if (KRIPP_BOOT) vapply(seq_len(N_BOOT), function(b) {
   idx <- sample.int(ncol(rel_data), replace = TRUE)
   tryCatch(irr::kripp.alpha(rel_data[, idx], method = "ordinal")$value, error = function(e) NA_real_)
-}, numeric(1))
+}, numeric(1)) else numeric(0)
 krippendorff <- tibble(
   method = "ordinal", alpha = ka,
-  ci_low = quantile(boot, 0.025, na.rm = TRUE), ci_high = quantile(boot, 0.975, na.rm = TRUE),
-  ci_type = "percentile bootstrap, resampling products", n_boot = N_BOOT, n_boot_failed = sum(is.na(boot)), seed = SEED,
+  ci_low = if (KRIPP_BOOT) quantile(boot, 0.025, na.rm = TRUE) else NA_real_,
+  ci_high = if (KRIPP_BOOT) quantile(boot, 0.975, na.rm = TRUE) else NA_real_,
+  ci_type = if (KRIPP_BOOT) "percentile bootstrap, resampling products" else "no bootstrap in this run (JRT_SKIP_KRIPP_BOOT)",
+  n_boot = if (KRIPP_BOOT) N_BOOT else 0L, n_boot_failed = sum(is.na(boot)), seed = SEED,
   n_units = ncol(rel_data), n_pairable_units = sum(colSums(!is.na(rel_data)) >= 2), n_raters = nrow(rel_data),
   package = paste0("irr ", packageVersion("irr")),
   interpretation = "Agreement (consensus) of single ratings; raters treated as interchangeable.")
@@ -364,7 +369,7 @@ overview <- tibble(
             get_q("empirical_marginal_reliability"), get_q("model_based_marginal_reliability_mirt"),
             get_q("rel_post_median"), get_q("rel_post_iqr"), marg_of("M1_RSM"), marg_of("M2_PCM"), marg_of("M3_GPCM")),
   ci_or_note = c(
-    sprintf("95%% bootstrap CI [%s, %s], %s replications", fmt(krippendorff$ci_low), fmt(krippendorff$ci_high), big(krippendorff$n_boot)),
+    if (KRIPP_BOOT) sprintf("95%% bootstrap CI [%s, %s], %s replications", fmt(krippendorff$ci_low), fmt(krippendorff$ci_high), big(krippendorff$n_boot)) else "no bootstrap in this run",
     sprintf("%s; %d raters; removed: %s", cron_ci_of(1), cronbach$n_raters[1],
             ifelse(cronbach$raters_removed[1] == "", "none", cronbach$raters_removed[1])),
     sprintf("%s; %s raters, %s products", cron_ci_of(2), cronbach$n_raters[2], cronbach$n_products_contributing[2]),

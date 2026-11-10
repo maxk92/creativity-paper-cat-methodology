@@ -44,7 +44,13 @@ from IPython.display import Markdown
 R = Path("../results")
 
 def csv(p, **kw):
-    return pd.read_csv(R / p, **kw)
+    # Result files are found by name in results/main, supplement, data and tables
+    # (the R pipeline's folder split; the old grm/comparison/... prefixes are ignored).
+    name = Path(p).name
+    for d in ["main", "supplement", "data", "tables"]:
+        if (R / d / name).exists():
+            return pd.read_csv(R / d / name, **kw)
+    raise FileNotFoundError(f"{name} not found under {R}")
 
 # Okabe-Ito, colour-blind safe
 C = dict(blue="#0072B2", orange="#E69F00", green="#009E73", red="#D55E00",
@@ -87,7 +93,9 @@ def md(df, colalign=None, widths=None, **kw):
 # ---- data used throughout ----
 design = csv("data/design_summary.csv").set_index("quantity")["value"]
 dnum = lambda k: float(design[k])
-fingerprint = design["data_fingerprint"]
+fingerprint = (f"{int(dnum('n_products')):,} products × {int(dnum('n_raters'))} raters, "
+               f"{int(dnum('n_ratings')):,} ratings after excluding raters with fewer than "
+               f"{int(dnum('min_ratings_per_rater (exclusion cut-off)'))} ratings")
 
 fit = csv("comparison/model_fit.csv")
 fit = fit[fit["model"].isin(["M1_RSM", "M2_PCM", "M3_GPCM", "GRM"])].copy()
