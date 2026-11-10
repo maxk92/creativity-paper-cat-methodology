@@ -9,8 +9,9 @@ abstract: |
   Creative products are assessed by the consensus of independent raters, and how many raters are needed and how raters differ have been studied mostly with verbal and static material. Football actions are nonverbal behaviour produced under time pressure and observed in competition, and rating-design evidence for such products is lacking. In this exploratory study, 24 raters gave 9,046 ratings of 3,669 football actions on a 7-point creativity scale in an incomplete, connected design. We fitted a graded response model (GRM) and a judge response theory ladder from the rating-scale many-facet Rasch model to the generalized partial credit model, and examined reliability by the number of ratings per action, observed and simulated. The empirical reliability of the obtained scores was .689, against .969 for a hypothetical full panel; mean product-level reliability was .522 for actions with one rating and .699 with two. In this rater pool, the smallest number of ratings at which simulated reliability reached .80 was four. Raters differed in severity, category use (share of lowest-category ratings .579 to .016), thresholds, discrimination and information; parameters of raters with about 50 ratings were imprecise. Likelihood-ratio tests rejected a shared category structure and equal discrimination (both *p* < .001), although the Bayesian information criterion favoured the constrained models in both cases. For such products, studies should report the reliability of the scores actually used, plan several ratings per action from domain-specific evidence, link raters through a common calibration set, and consider rater-adjusting scoring models, reporting their departure from raw means.
 keywords: [consensual assessment technique, judge response theory, graded response model, rater effects, reliability, number of raters, creativity, football]
 format:
-  docx:
-    number-sections: false
+  #wordcount-pdf: default
+  #docx:
+  #  number-sections: false
   pdf:
     documentclass: article
     number-sections: false

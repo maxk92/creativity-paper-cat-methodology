@@ -27,3 +27,6 @@ data-analysis/creativity-ratings-psychometrics/results/models/
 data-analysis/creativity-ratings-psychometrics/results/data/ratings_wide.csv
 data-analysis/creativity-ratings-psychometrics/notebooks/local_rater_lookup.ipynb
 data-analysis/creativity-ratings-psychometrics/notebooks/*.out.ipynb
+
+# Raw offline rating exports (original rater IDs, user agents): never committed
+z-add-offline-ratings-DONE/

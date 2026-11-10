@@ -1,0 +1,184 @@
+---
+title: "Number of ratings, rater differences, and score reliability in creativity ratings of football actions: A judge response theory analysis"
+shorttitle: "Rater differences and reliability in creativity ratings of football actions"
+author:
+  - name: "Maximilian Klemp"
+  - name: "Daniel Memmert"  
+abstract: |
+  [\[TO DO: final abstract once the analyses are complete\]]{.mark} The consensual assessment technique (CAT) is the established method for rating creative products, and similar ratings are used for actions in sport. However, little is known about how reliable such scores are when each action receives only some ratings, or how much raters differ in judging creativity in sport. In this exploratory study, raters rated the creativity of football actions on a 7-point scale; the current data comprise 7,820 ratings of 3,668 actions by 19 raters. The study will describe the reliability of the creativity scores by the number of ratings per action, the differences between raters, and the dependence of the scores on modelling rater differences with judge response theory (JRT).
+keywords: [consensual assessment technique, judge response theory, graded response model, rater effects, reliability, creativity, football]
+format:
+  #docx:
+  #  number-sections: false
+  pdf:
+    documentclass: article
+    number-sections: false
+    mainfont: "Linux Libertine O"
+    include-in-header:
+      text: |
+        \usepackage{xcolor}
+        \usepackage{soul}
+        \sethlcolor{yellow}
+filters:
+  - mark-highlight.lua
+  - quarto
+  - narrative-and.lua
+citeproc: false
+bibliography:
+  - /home/max/drive/phd_library.bib
+csl: /home/max/drive/utils/csl/apa-7th-edition.csl
+---
+
+
+# Introduction
+
+Creativity is widely regarded as a core competence. Employers rank creative thinking among the core skills of the workforce [@wef2025], the Programme for International Student Assessment assessed creative thinking in its 2022 cycle [@oecd2024], and in sport, creativity is considered a key quality to be developed and evaluated in players [@safardilha2019; @santos2016]. [\[TO DO: verify these framing claims and those attributed to memmert2011, batey2012 and barbot2019b against the PDFs\]]{.mark}
+
+Creativity research distinguishes four facets: the creative person, the creative process, the creative product and the press, that is, the environment in which creativity occurs [@batey2012]. Each facet requires its own measurement approach [@barbot2019; @barbot2019b]. The present paper is concerned with the product facet, namely actions performed in football matches, as judged by others.
+
+The consensual assessment technique (CAT) is the established method for evaluating creative products [@amabile1982; @hennessey2011; @kaufman2024]. In the CAT and judge response theory literature, raters are called judges; we use "raters" throughout. In the CAT, raters who are familiar with the domain rate products independently and relative to one another [@amabile1982; @hennessey2011]. Independent raters usually reach coefficient alphas above .70 [@baer2004; @kaufman2008a; @hennessey2011] [\[TO DO: verify the ".70" claim against the PDFs\]]{.mark}, but considerably lower agreement has also been reported and attributed to differences between raters in procedure, scale use and beliefs about creativity [@long2015; @cseh2019].
+
+The reliability of CAT scores rests on the number of raters. As @amabile1982 noted, the Spearman–Brown reliability of an aggregated rating depends on the mean inter-rater correlation and on the number of raters, so that a larger panel compensates for lower agreement between individual raters. Conversely, a high alpha from a large panel can mask low agreement among individual raters [@kaufman2008a]. A rule of thumb of five to ten raters is often cited [@kaufman2008], but @cseh2019 argue that the number of raters needed for adequate reliability has to be established for each domain. A further distinction matters when many products are rated. A panel coefficient refers to the reliability of the mean over all raters of a panel; when each product receives only some of the possible ratings, what matters for the use of a score is the precision of that product's score, given the ratings it actually received [@primi2019; @forthmann2025]. [\[TO DO: verify kaufman2008 ("five to ten"), kaufman2008a ("a high alpha can mask low agreement"), the cseh2019 paraphrase, and that primi2019 and forthmann2025 support the point on product-level precision\]]{.mark}
+
+Raters also differ systematically, in severity, in their use of the rating scale and in their beliefs about creativity [@long2015], and their tendencies can drift over time [@barth2021]. Research on rater-mediated assessment describes such differences as rater effects, including severity, central tendency, restriction of range and halo [@engelhard1994; @myford2003; @myford2004]. In judged sports, the accuracy and bias of judges have been monitored with Rasch-family or other statistical models, although for performance quality rather than creativity [@looney2004; @anderlucci2021; @heiniger2021]. [\[TO DO: verify this characterisation of looney2004, anderlucci2021 and heiniger2021\]]{.mark}
+
+How rater differences are handled depends on the scoring model. Unweighted mean ratings treat raters as interchangeable. Whenever different raters rate different products, mean scores are therefore confounded with the severity of the raters who happened to rate each product [@primi2019]. Coefficient alpha requires only essential $\tau$-equivalence, which allows raters to differ in their intercepts, that is, in severity [@myszkowski2019]; a raw mean in an incomplete design, however, does not adjust for these intercepts. The many-facet Rasch model (MFRM) adds rater severity as a facet and thereby adjusts for it [@linacre1989; @eckes2015; @primi2019].
+
+Severity is not the only way in which raters differ. Item response theory (IRT) models the probability of each response as a function of a latent attribute and of item parameters [@lord1980; @embretson2013; @ayala2022]. Rasch models constrain all items to discriminate equally [@rasch1960; @bond2020], and their polytomous extensions, the rating scale model [RSM, @andrich1978] and the partial credit model [PCM, @masters1982], differ in whether all items share one category structure. Accordingly, the rating-scale form of the MFRM assumes that all raters share one category structure, whereas a partial-credit MFRM gives each rater their own thresholds [@eckes2015]. [\[TO DO: verify eckes2015 as the source for the partial-credit (rater-related scale structure) MFRM\]]{.mark} Every Rasch-family model, including the partial-credit form, assumes equal discrimination, so that differences in discrimination have no parameter and surface only as misfit [@myford2004; @myszkowski2021]. Judge response theory (JRT) treats raters as items with their own discrimination and thresholds, for instance in the generalized partial credit model [GPCM, @muraki1992] or the graded response model [GRM, @samejima1969], and yields scores with product-specific standard errors as well as an explicit description of rater behaviour [@myszkowski2019; @myszkowski2021]. JRT has been applied in recent creativity research [@barbot2023; @pellegrino2025], and @pellegrino2025 retained a GRM. [\[TO DO: verify that pellegrino2025 retained a GRM\]]{.mark} The RSM, PCM and GPCM are nested adjacent-category models whose constraints can be tested by likelihood-ratio tests. The GRM is a cumulative model, which arguably matches a scale on which raters express an increasing amount of creativity; it can be compared with the adjacent-category models by information criteria.
+
+Creativity research in sport has focused mainly on the creative process, for example on divergent thinking [@memmert2011]. Ratings of creative actions exist as well. @kempe2018 obtained ratings of actions in competition from trained experts, using a scale that originated in expert ratings of tactical creativity [@memmert2007], and further studies have rated football actions [@zahno2023; @joode2023]. These studies average the ratings and report intraclass correlations or agreement [\[TO DO: verify this characterisation of kempe2018, zahno2023 and joode2023 against the PDFs\]]{.mark}; we found a Rasch analysis only for a coach-completed questionnaire that rates players rather than actions [@shin2025]. However, three gaps remain. First, little is known about how the reliability of creativity scores of sport actions depends on the number of ratings each action receives, although the number of raters needed for adequate reliability has to be established for each domain [@cseh2019]. Second, we are not aware of evidence on how raters differ when they judge the creativity of sport actions. Third, to our knowledge, rater differences have not been modelled with IRT or JRT for creativity ratings in sport.
+
+## The present study
+
+The present study analyses CAT-style creativity ratings of football actions given by multiple raters. It is exploratory and has three aims: to describe the reliability of the creativity scores, overall and by the number of ratings per action; to describe how raters differ; and to describe how much the scores depend on whether rater differences are modelled. No confirmatory hypotheses are formulated.
+
+- **RQ1.** How reliable are the creativity scores obtained in this study, and how does the reliability of an action's score vary with the number of ratings it received? How does the reliability of the obtained scores compare with that of a hypothetical full panel and with conventional agreement and consistency indices?
+- **RQ2.** How do raters differ in threshold location, scale use, discrimination and information, and how precisely are these differences estimated?
+- **RQ3.** (a) Are the constraints of a shared category structure (rating-scale MFRM) and of equal discrimination (all Rasch-family models, including the partial-credit MFRM) tenable for these ratings? (b) How far do scores and rankings change when rater differences are ignored (raw mean ratings) or constrained (rating-scale MFRM, partial-credit MFRM, GPCM)?
+
+To answer these questions, we will model the ratings with judge response theory, describe the reliability of the obtained scores overall and by number of ratings, describe how raters differ, and compare model-based scores with raw mean ratings. Rater expertise and the design of the rating scale are not analysed.
+
+# Method
+
+## Overview
+
+This was a CAT-style rating study in which raters independently rated the creativity of football actions in a randomised order [@amabile1982; @hennessey2011]. The ratings were collected as part of a larger project. [\[TO DO: context and purpose of the larger project\]]{.mark} [\[TO DO: ethics approval (committee, reference number) and informed-consent procedure\]]{.mark} The analyses are exploratory. [\[TO DO: preregistration status\]]{.mark}
+
+## Raters
+
+[\[TO DO: description of the raters; recruitment and number of raters at the start\]]{.mark}[\[TO DO: rater-pool description - football playing or coaching experience, any instruction or practice before rating, number of sessions per rater, demographics and compensation, or a statement that these were not recorded\]]{.mark} The current data comprise 19 raters, pseudonymised as R01 to R19, who gave between 50 and 1,174 ratings each (@fig-overview-degree-distributions); the three excluded raters are R20 to R22.
+
+## Products and stimulus material
+
+Each rated product was a single football action; we use "product" for the analyses and "action" when referring to the football content. Actions were shown as video clips from recorded football matches and were identified with event data. [\[TO DO: competitions and matches, action-selection rule, clip length, video source and number of matches\]]{.mark}
+
+## Rating procedure
+
+[\[TO DO: rating software\]]{.mark} Raters were shown an instruction that defined creativity as the combination of originality and functionality of an action in its game context [@runco2012]. [\[TO DO: verbatim instruction and creativity definition, original language and English translation\]]{.mark} Showing a definition departs to a minor degree from the CAT rule that raters receive no criteria [@hennessey2011] and resembles the procedure of trained-rater studies in sport [@kempe2018; @memmert2007]. Creativity was rated on a unipolar 7-point scale with verbal anchors at 1, 4 and 7. [\[TO DO: verify the anchors and give their wording\]]{.mark} Raters could also mark a clip as "action not recognised". [\[TO DO: exact wording of this option\]]{.mark} [\[TO DO: randomisation procedure, session length and breaks, and the data-collection period\]]{.mark} Raters also rated technical correctness and aesthetic appeal, which are not analysed here. [\[TO DO: wording and scales of these dimensions\]]{.mark}
+
+## Rating design
+
+[\[TO DO: allocation of products to raters - planned overlap, any common or benchmark set, randomisation, subsets or rater dropout; how products came to have 1, 2 or 3+ ratings; whether products with different numbers of ratings were rated by different raters or differ systematically (match, action type)\]]{.mark} Not every rater rated every product. The design was incomplete but connected: all raters and products formed a single connected component, so that all rater parameters and product scores lie on one scale [@eckes2015]. Marginal maximum likelihood estimation assumes that the missing ratings are ignorable given the design.
+
+## Data preparation and final data
+
+The raw export contained 9,148 rows. The 1,290 ratings marked "action not recognised" were removed; such ratings result from video cutting and imperfect material, where close-ups or other TV artefacts render the action non-visible. [\[TO DO: rate of "action not recognised" ratings by rater and, if available, by product\]]{.mark} One out-of-range value (0.0, given by R04) was removed. Twelve rater–product pairs had been entered more than once, one of them with conflicting values; the last entry was kept, which removed 13 rows. This left 7,844 ratings by 22 raters.
+
+Raters with fewer than 15 ratings were excluded because their up to seven rater-specific parameters cannot be estimated reliably: R20 (13 ratings), R21 (9) and R22 (2), together 24 ratings (@tbl-excluded-raters). [\[TO DO: source or rationale for the exclusion criterion of 15 ratings\]]{.mark} One product rated only by these raters was dropped.
+
+The current data are described in @tbl-design-summary: 7,820 ratings of 3,668 products by 19 raters, given on the scale 1–7.
+
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-design-summary >}}
+
+## Agreement and consistency indices
+
+Conventional reliability indices assume a complete design or must be adapted to an incomplete one [@hove2024], so we report them as reference values for common practice. Krippendorff's ordinal alpha [@hayes2007] measured the agreement of single ratings, and Cronbach's alpha [@cronbach1951] was computed on the largest fully crossed block of raters and products [\[TO DO: which three raters form the crossed block\]]{.mark}. Ninety-five percent confidence intervals came from bootstrapping products (1,000 replications).
+
+## Planned analyses
+
+[\[TO DO: finalise the analysis plan after further data collection and reading (model choice, fit assessment, reliability indices, rater-level analyses)\]]{.mark}
+
+The model-based analyses will follow the JRT frame [@myszkowski2019; @myszkowski2021], in which raters take the role of items and products the role of persons. We plan to compare models that differ in how far they allow raters to differ, from Rasch-family models with a shared category structure [@eckes2015] to models with rater-specific thresholds and discriminations [@muraki1992; @samejima1969]. [\[TO DO: select the models, the estimation approach and the model comparison and fit criteria\]]{.mark}
+
+The reliability of the scores will be described overall and by the number of ratings each action received, rater differences will be described from the rater parameters and from response styles on the raw scale, and model-based scores will be compared with raw mean ratings. [\[TO DO: specify the reliability indices and score comparisons\]]{.mark}
+
+## Software and availability
+
+The models will be estimated in R [\[TO DO: packages\]]{.mark}; psych and a Krippendorff package were used for the conventional indices, and Python for display. [\[TO DO: versions of R, mirt, sirt, psych and the Krippendorff package\]]{.mark} [\[TO DO: data and code availability statement; only pseudonymised rater IDs are shared\]]{.mark}
+
+# Results
+
+The results reported here are preliminary and descriptive. They cover the rating design, the distribution of the ratings and the raw agreement between raters. [\[TO DO: the model-based analyses for RQ1–RQ3 are planned, but more data and further reading are needed before they are carried out\]]{.mark}
+
+## Rating design
+
+Raters contributed very different numbers of ratings, from 50 to 1,174 (median 383; @fig-overview-degree-distributions); four raters (R16 to R19) gave between 50 and 55 ratings each (@tbl-category-usage). Actions received a mean of 2.132 ratings (median 2, harmonic mean 1.726, maximum 10): 897 actions (.245) had a single rating, 2,080 (.567) had two and 691 (.188) had three or more. The product-by-rater matrix had a fill of .112. All raters and actions formed one connected component, but 17 of the 171 rater pairs had no action in common, and the median overlap of rater pairs was 13 actions (@fig-overview-rater-overlap).
+
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/01_data_overview.ipynb#fig-overview-degree-distributions >}}
+
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/01_data_overview.ipynb#fig-overview-rater-overlap >}}
+
+The current design is therefore sparse and unbalanced. A quarter of the actions carry a single rating, which contributes nothing to the agreement between raters and limits the precision of these actions' scores. The number of ratings per rater varies widely, and several rater pairs share few or no actions, which weakens the linking of raters on a common scale and leaves the parameters of raters with few ratings poorly determined. [\[TO DO: collect additional ratings before the model-based analyses: more ratings per action, a common set of actions rated by all raters, and more ratings from raters who have so far contributed few; set target numbers\]]{.mark}
+
+## Distribution of the ratings
+
+The ratings concentrated at the low end of the scale: category 1 received 2,029 ratings and category 2 received 2,113, whereas category 7 was the rarest, with 109 (@fig-overview-rating-distribution). Five raters left categories at the top of the scale unused: category 7 was never used by R01, R03, R06 and R18, and categories 6 and 7 were never used by R17 (@tbl-category-usage). No rater had an unused category inside their observed range. Unused categories reduce the number of thresholds that can be estimated for these raters.
+
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/01_data_overview.ipynb#fig-overview-rating-distribution >}}
+
+## Raw agreement
+
+Krippendorff's ordinal alpha, which refers to the agreement of single ratings, was .392 [.362, .417] (19 raters, 2,771 products). Cronbach's alpha, which refers to the consistency of the unweighted mean over raters, was .658 [.526, .756] on the fully crossed block (3 raters, 139 products).
+
+## Planned analyses
+
+- [\[TO DO: reliability of the creativity scores overall and by number of ratings per action (RQ1); planned once more data are in\]]{.mark}
+- [\[TO DO: rater differences, i.e. response styles and JRT rater parameters with their uncertainty (RQ2); planned once more data are in\]]{.mark}
+- [\[TO DO: model comparison and dependence of the scores on modelling rater differences (RQ3); planned once more data are in and the model choice is settled after further reading\]]{.mark}
+
+# Discussion
+
+[\[TO DO: the Discussion will be written once the results are in\]]{.mark}
+
+The preliminary data mainly show what is still needed. Most actions received one or two ratings, raters contributed very different numbers of ratings, and several rater pairs share few or no actions. Agreement between single ratings was low. Following the Spearman–Brown logic described by @amabile1982, the reliability of an aggregated rating depends on the number of ratings it is based on, and most actions received only one or two. Neither agreement coefficient therefore describes the precision of the scores that would actually be used; this is the question the planned model-based analyses address, once the design has been strengthened with additional ratings.
+
+## Reliability and the number of ratings per action
+
+[\[TO DO: this topic will be discussed once the results are in\]]{.mark}
+
+## Rater differences
+
+[\[TO DO: this topic will be discussed once the results are in\]]{.mark}
+
+## Implications for scoring
+
+[\[TO DO: this topic will be discussed once the results are in\]]{.mark}
+
+## Practical implications for creativity research in sport
+
+[\[TO DO: this topic will be discussed once the results are in\]]{.mark}
+
+## Limitations and future research
+
+[\[TO DO: complete the limitations once the analyses are done\]]{.mark}
+
+First, the rating design is incomplete, and the planned analyses assume that the missing ratings are ignorable given the allocation of products to raters. [\[TO DO: allocation procedure\]]{.mark} Ratings marked "action not recognised" were removed; if non-recognition depended on the action or the rater, the missingness is not ignorable. [\[TO DO: non-recognition rate by rater\]]{.mark}
+
+Second, whether the raters meet the CAT's requirement of domain familiarity is not established here. [\[TO DO: rater-pool characteristics\]]{.mark} Expertise is not analysed [@kaufman2009; @kaufman2013; @ceh2022]. Third, the exclusion of raters with fewer than 15 ratings is a technical estimation criterion.
+
+# Conclusion
+
+[\[TO DO: write the conclusion once the results are in\]]{.mark}
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
+
+# Supplementary Material {.appendix .unnumbered}
+
+The following objects are referenced in the main text.
+
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-excluded-raters >}}
+
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-category-usage >}}

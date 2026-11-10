@@ -1,0 +1,253 @@
+{
+  "meta": {
+    "title": "Judge Response Theory (JRT) reference: model, estimation, scoring, reliability, information",
+    "purpose": "Reference for verifying that a manuscript describes and interprets a JRT analysis (graded response model fitted by marginal maximum likelihood) soundly and correctly.",
+    "source": "Condensed from the worked tutorial 'Judge Response Theory, step by step: a worked toy example' (2026-11-10). All toy numbers were computed with a numpy/scipy implementation (jrt_toy.py); the EM solution was verified against direct maximisation of the marginal likelihood.",
+    "provenance_notes": [
+      "Formulas for the GRM, EM, EAP and information are standard and were checked numerically on the toy data.",
+      "R function names for mirt and jrt were NOT executed in the session that produced this file. Treat them as pointers and confirm against the package documentation.",
+      "Literature references under 'references_to_verify' were written from memory and must be checked before citing.",
+      "Section 'additions_beyond_tutorial' contains points that are not in the tutorial but are common sources of error when reporting; they are standard IRT results, stated from general knowledge."
+    ],
+    "notation": {
+      "i": "product (the rated object; plays the role of the 'person' in IRT), i = 1..N",
+      "j": "judge (plays the role of the 'item'), j = 1..J",
+      "k": "rating category, k = 1..K (K = 5 in the toy example)",
+      "theta_i": "latent creativity of product i",
+      "a_j": "discrimination of judge j",
+      "b_jk": "threshold of judge j for the boundary 'at least k', k = 2..K, ordered b_j2 < ... < b_jK",
+      "x_ij": "observed rating of product i by judge j"
+    }
+  },
+
+  "core_idea": {
+    "statement": "JRT applies polytomous IRT to rating data: judges are treated as ordinal items and products as the units with a latent trait. One model yields (1) parameters describing each judge's rating behaviour, (2) a score per product that accounts for that behaviour, with a product-specific standard error, and (3) reliability and information as measures of precision.",
+    "contrast_with_mean_rating": "A mean rating treats every judge's rating as the same evidence. JRT lets judges differ in severity, in how they space the categories, and in how consistently their ratings track the latent trait, and weights each rating accordingly.",
+    "analogy_to_mixed_models": {
+      "random_effect": "theta_i, assumed N(0,1) across products",
+      "fixed_effects": "judge parameters (a_j, b_jk)",
+      "marginal_likelihood": "theta integrated out, as random effects are in a mixed model",
+      "difference": "The response is ordinal, so the integral has no closed form and is evaluated numerically (quadrature).",
+      "blup_equivalent": "EAP score: posterior mean, shrunken toward the prior mean 0",
+      "conditional_variance_equivalent": "posterior variance of theta = squared standard error of the score"
+    }
+  },
+
+  "model": {
+    "name": "Graded response model (GRM, Samejima), unidimensional",
+    "cumulative_probability": "P*(X_ij >= k | theta_i) = 1 / (1 + exp(-a_j * (theta_i - b_jk))), for k = 2..K; by convention P*(>= 1) = 1 and P*(>= K+1) = 0",
+    "category_probability": "P(X_ij = k | theta_i) = P*(>= k) - P*(>= k+1)",
+    "parameters_per_judge": "1 discrimination + (K-1) thresholds; 5 parameters per judge for a 5-point scale",
+    "parameter_interpretation": {
+      "a_j": "Common slope of the judge's cumulative curves. High a: ratings change sharply with theta, i.e. the judge's ratings are consistent with the latent trait. Low a: ratings are noisy with respect to theta. It is not a 'quality' label on its own; see information for where on the scale a judge is actually useful.",
+      "b_jk": "The theta at which the probability of a rating of k or higher is exactly 0.5 for judge j. It is a boundary of a cumulative probability, NOT the point where category k becomes the most likely rating.",
+      "severity": "Location of the judge's threshold set, e.g. the mean of the b_jk. Higher = more severe: more latent creativity is needed for the same rating. In the GRM severity is a derived summary, not a separate parameter.",
+      "scale_use": "Spacing of the thresholds. Widely spaced inner thresholds mean a middle category covers a wide theta range (central tendency). Two thresholds close together mean the category between them is rarely the most probable one."
+    },
+    "identification": "The theta scale has no natural origin or unit. It is fixed by assuming theta ~ N(0,1) in the product population. All a and b values are expressed on that scale. Thetas are therefore relative to the analysed set of products.",
+    "assumptions": [
+      "Unidimensionality: one latent dimension underlies all judges' ratings.",
+      "Local independence: given theta, judges' ratings are independent. The likelihood multiplies judges' category probabilities.",
+      "Functional form: logistic cumulative curves with one slope per judge.",
+      "Normal latent distribution, used both for estimation (marginal likelihood) and for EAP scoring.",
+      "Missing ratings are ignorable: which judge rates which product does not depend on the product's latent quality beyond what is observed."
+    ],
+    "software_parameterisation": "mirt estimates slope-intercept form internally: logit P(X >= k) = a * theta + d_k, with d_k = -a * b_k. Thresholds b are obtained with coef(fit, IRTpars = TRUE). mirt labels the thresholds b1..b(K-1); these correspond to b_2..b_K in the notation here."
+  },
+
+  "likelihood": {
+    "pattern_likelihood": "L_i(theta) = product over the judges j who rated product i of P(X_ij = x_ij | theta)",
+    "marginal_likelihood_of_pattern": "integral of L_i(theta) * phi(theta) d theta, approximated by sum over quadrature nodes q of L_i(theta_q) * w_q, where w_q are normalised N(0,1) weights",
+    "posterior_of_theta": "p_i(theta_q) = L_i(theta_q) * w_q / sum over q' of L_i(theta_q') * w_q'",
+    "key_point": "The same per-product table of L(theta) x prior weight yields both quantities: its sum is the product's contribution to the marginal likelihood (used for estimating judge parameters), and its normalised version is the posterior of theta (used for scoring).",
+    "quadrature": "Fixed rectangular quadrature, 61 equally spaced nodes from -6 to 6 with normalised normal-density weights, was used in the tutorial; this is, to my knowledge, also mirt's default for unidimensional models."
+  },
+
+  "estimation": {
+    "method": "Marginal maximum likelihood (MML), computed with the EM algorithm (Bock & Aitkin, 1981)",
+    "objective": "log-likelihood = sum over products i of log( sum over q of L_i(theta_q) * w_q ), maximised over all judge parameters",
+    "what_is_estimated": "Only judge parameters (J * K parameters for the GRM with K categories: J discriminations and J*(K-1) thresholds). Product thetas are NOT parameters; they are integrated out and obtained afterwards by scoring. The number of estimated parameters does not grow with the number of products.",
+    "em_algorithm": {
+      "start": "Initial judge parameters (in the tutorial: a = 1, b = (-1.5, -0.5, 0.5, 1.5) for every judge).",
+      "e_step": "With current judge parameters, compute each product's posterior over the quadrature nodes. Then, for each judge, accumulate expected counts r_jk(theta_q) = sum over products i rated k by judge j of p_i(theta_q). This is a table of how many products 'located at node q' received rating k; counts are fractional because each product is spread over the theta axis according to its posterior. Column totals equal the judge's observed category frequencies.",
+      "m_step": "Treat the expected counts as data with known theta. For each judge separately, maximise Q_j = sum over q and k of r_jk(theta_q) * log P_jk(theta_q) over (a_j, b_j). This is a weighted ordinal (cumulative logit) regression of rating on theta, solved numerically. Judges separate in the M-step because of local independence.",
+      "iteration": "Repeat E and M steps until convergence. Each EM cycle cannot decrease the marginal log-likelihood.",
+      "convergence_behaviour": "Most of the improvement occurs in the first iterations. Convergence is slow in directions the data determine weakly (in the toy example, the discrimination of a judge who almost always used the middle category). A loose tolerance can therefore stop early with visibly different discrimination estimates; the software's convergence criterion and tolerance should be reported or at least checked."
+    },
+    "verification_in_tutorial": "Direct quasi-Newton maximisation of the marginal log-likelihood over all parameters reached the same log-likelihood and the same parameters (to 3 decimals) as EM.",
+    "standard_errors_of_judge_parameters": "Obtained from the curvature (inverse of the observed information / Hessian) of the marginal log-likelihood at the maximum; software offers several computation methods. Large SEs signal weakly identified parameters. A very large discrimination with a large SE is a warning sign, not a finding.",
+    "correct_wording_examples": [
+      "Judge parameters were estimated by marginal maximum likelihood using the EM algorithm, integrating over a standard normal latent distribution by numerical quadrature.",
+      "Product scores were subsequently computed as expected a posteriori (EAP) estimates given the estimated judge parameters."
+    ],
+    "incorrect_wording_to_flag": [
+      "Saying that product abilities and judge parameters were estimated 'jointly' or 'simultaneously' (that would be joint maximum likelihood, not MML).",
+      "Describing the EAP scores as maximum likelihood estimates.",
+      "Describing the thetas as model parameters counted in the number of parameters / AIC / BIC."
+    ]
+  },
+
+  "scoring": {
+    "eap": "theta_hat_i = sum over q of theta_q * p_i(theta_q), the mean of the product's posterior distribution of theta given its ratings, the estimated judge parameters, and the N(0,1) prior",
+    "standard_error": "PSD_i = sqrt( sum over q of theta_q^2 * p_i(theta_q) - theta_hat_i^2 ), the posterior standard deviation. It is specific to each product and depends on which judges rated it and where on the scale it lies.",
+    "properties": [
+      "Scores are on the standardised latent scale (population mean 0, SD 1), not the rating scale.",
+      "EAP scores are shrunken toward 0. Shrinkage is stronger when the ratings carry less information (fewer or less informative judges). Consequently the variance of EAP scores is below 1.",
+      "Extreme patterns (all judges give the minimum or maximum) receive finite scores because of the prior; a pure ML score would be infinite.",
+      "The same mean rating can map to different EAP scores, because each rating is weighted by how much it says about theta for that judge at that scale position. A rare category from a highly discriminating judge moves the score a lot; a rating from a low-discrimination judge moves it little.",
+      "Judge parameters are treated as known when scoring. The PSD therefore does not include uncertainty about the judge parameters and is somewhat optimistic when those are poorly estimated."
+    ],
+    "score_on_rating_metric": {
+      "definition": "Expected rating at theta_hat_i under the model, averaged over a fixed set of judges: (1/J) * sum over j of sum over k of k * P(X_ij = k | theta_hat_i). This is the test characteristic curve divided by the number of judges.",
+      "terminology_caution": "The tutorial calls this a 'fair rating' for convenience. That label is not established JRT terminology ('fair average' comes from many-facet Rasch software). In a manuscript it should be defined explicitly as a model-expected mean rating.",
+      "sparse_design_caution": "For comparability it must be computed over the same reference set of judges for every product, not only the judges who rated that product.",
+      "nonlinearity": "The mapping from theta to expected rating is monotone but nonlinear and compressed at the ends."
+    },
+    "relation_to_mean_rating": "With complete data, EAP scores and mean ratings typically correlate very highly (0.955 in the toy data). JRT's advantages are product-specific standard errors, appropriate weighting of judges, and above all comparability when products are rated by different subsets of judges. With a tiny sample the weights rest on noisy judge parameters, and EAP need not outperform the mean (in the toy data it did not: correlation with the simulated true theta was 0.870 for EAP vs 0.876 for the mean)."
+  },
+
+  "reliability": {
+    "concept": "Share of score variance that reflects true differences between products. In IRT the error variance differs between products, so it is averaged.",
+    "empirical_reliability": {
+      "formula": "Var(theta_hat) / ( Var(theta_hat) + mean(PSD_i^2) )",
+      "ingredients": "Variance of the EAP scores across products, and the mean of the squared posterior SDs.",
+      "interpretation": "Reliability of the EAP scores for the products actually analysed, under the fitted model. Works unchanged with missing ratings, since each product contributes its own PSD.",
+      "sanity_check": "Var(theta_hat) + mean(PSD^2) should be close to 1 (the prior variance) by the law of total variance; a large deviation suggests misfit of the normal latent distribution or of the model.",
+      "validity_note": "This formula is the one appropriate for EAP scores with posterior SDs. See additions_beyond_tutorial for other score types."
+    },
+    "expected_or_marginal_reliability": {
+      "formula": "integral over theta of [ I(theta) / (I(theta) + 1) ] * phi(theta) d theta, where I(theta) is the panel (test) information and phi the N(0,1) density",
+      "interpretation": "Model-based reliability for an idealised normal population of products rated by the given set of judges. Needs no scores. It refers to a specific judge set (in a sparse design: a stated number and mix of judges)."
+    },
+    "conditional_reliability": "I(theta) / (I(theta) + 1) at a given theta, for latent variance 1. Shows where on the scale the panel measures well or poorly.",
+    "comparison_with_cronbach_alpha": [
+      "Alpha concerns the unweighted sum or mean rating and assumes essentially interchangeable (tau-equivalent) judges with a single error variance; it is a lower bound to the reliability of the mean when judges are unequal.",
+      "JRT reliability concerns the model-based score, which weights ratings by judge and scale position.",
+      "The two are coefficients for different scores; a higher JRT reliability is not by itself proof that the JRT scores are closer to the truth.",
+      "JRT reliability takes the fitted model at face value: overestimated discriminations or violated local independence inflate it."
+    ],
+    "interpretation_aid": "A PSD of about 0.5 on a scale with SD 1 corresponds to reliability of about 0.75 and a 95% interval of roughly plus/minus 1.0 around a score: enough to separate strong from weak products, not neighbours in a ranking."
+  },
+
+  "information": {
+    "concept": "Precision as a function of theta. Higher information at a theta means a smaller standard error for products located there. Information is additive across judges (under local independence).",
+    "judge_information_grm": "I_j(theta) = sum over k of [P'_jk(theta)]^2 / P_jk(theta), where P'_jk = P*'_jk - P*'_j,k+1 and P*'_jk = a_j * P*_jk * (1 - P*_jk) (with slope 0 for the conventions P*(>=1) and P*(>=K+1))",
+    "panel_information": "I(theta) = sum over judges of I_j(theta); with missing ratings, the sum runs over the judges who rated the product",
+    "drivers": [
+      "Scales with a_j squared: discriminating judges can be far more informative.",
+      "Located near the judge's thresholds: a rating is informative where a small change in theta changes the category probabilities. Between widely spaced thresholds, where one category is almost certain, information is close to zero.",
+      "Consequence: a highly discriminating judge who rarely leaves the middle category is informative only toward the extremes. A single discrimination value does not summarise a judge's usefulness; the information function does.",
+      "A severe judge's information sits at higher theta (useful for distinguishing among good products); a lenient judge's at lower theta."
+    ],
+    "judge_informativeness_summaries": "Average information over the N(0,1) product distribution (one number per judge, and a share of the panel total), peak information, and the theta at which it peaks.",
+    "standard_error_from_information": {
+      "ml_based": "1 / sqrt(I(theta)): asymptotic SE of a maximum-likelihood score.",
+      "eap_based": "approximately 1 / sqrt(I(theta) + 1): the N(0,1) prior contributes precision 1. This is a normal approximation to the posterior SD; actual PSDs of individual products vary around it.",
+      "caution": "Software 'test information' usually excludes the prior. State which SE is reported."
+    },
+    "link_to_reliability": "Conditional reliability I/(I+1) and expected reliability (its average over N(0,1)) are transformations of the information function. Empirical and expected reliability agree closely when the model and the normal latent distribution fit."
+  },
+
+  "sparse_or_incomplete_designs": {
+    "mechanics": "Unchanged. The likelihood for a product multiplies only over judges who rated it; missing ratings are skipped in both estimation and scoring. No imputation is needed for estimation or EAP scoring.",
+    "consequences": [
+      "Precision depends on which judges rated a product, not only on how many. Two ratings from informative judges can beat three from uninformative ones.",
+      "Fewer or less informative ratings give more shrinkage toward 0 and a larger PSD.",
+      "The PSD honestly reflects this; a raw mean from two judges looks as solid as one from four.",
+      "Raw means are not comparable across products rated by different judges (severity differences are confounded with product quality). Placing all products on one theta scale is the main benefit of JRT in sparse designs.",
+      "Reliability is no longer a single property of 'the panel'. Empirical reliability still applies (it averages product-specific PSDs). Conditional and expected reliability must be stated for a specific judge set."
+    ],
+    "requirements": [
+      "Connectedness: judges must be linked through commonly rated products, directly or via chains of other judges; otherwise their parameters cannot be placed on a common scale.",
+      "Ignorable assignment of judges to products.",
+      "Enough ratings per judge in every category to estimate that judge's thresholds."
+    ],
+    "software_note": "The jrt package vignette indicates that its output data appends imputed values and that person-fit statistics are then based on imputed data. Check what the package does with missing data for the specific quantities reported."
+  },
+
+  "checks_and_caveats_for_real_data": [
+    "Category use per judge: rarely used categories give thresholds with very large SEs; consider collapsing.",
+    "Connectedness of the judge-by-product design.",
+    "Standard errors of judge parameters before interpreting individual judges.",
+    "Model comparison (free vs constrained discriminations and threshold structures; other polytomous models) by information criteria, to justify the chosen model.",
+    "Sensitivity to the N(0,1) latent distribution, e.g. by comparing EAP with ML or WLE scores, if product quality is clearly non-normal.",
+    "Local independence: residual correlations between judges (e.g. Yen's Q3). Dependence inflates information and reliability.",
+    "Report precision as a function of theta (information or conditional reliability), not only one coefficient.",
+    "Thetas are relative to the analysed product set and the N(0,1) convention; they are not comparable across separately fitted datasets without linking."
+  ],
+
+  "common_misstatements_to_check_in_a_manuscript": [
+    {"wrong": "Threshold b_k is the point where rating k becomes the most likely category.", "right": "In the GRM, b_k is where P(rating >= k) = 0.5."},
+    {"wrong": "Judge severity is a model parameter of the GRM.", "right": "Severity is a summary of the judge's thresholds (e.g. their mean), unless a model with an explicit severity facet is fitted."},
+    {"wrong": "A higher discrimination means a better judge across the board.", "right": "It means ratings track theta more sharply; usefulness depends on where the thresholds lie, as shown by the information function."},
+    {"wrong": "The scores are corrected ratings on the original 1-5 scale.", "right": "EAP scores are on a standardised latent scale; a rating-metric score requires the expected-score transformation and should be defined."},
+    {"wrong": "JRT reliability exceeds alpha, therefore JRT scores are more accurate.", "right": "The coefficients refer to different scores and rest on different assumptions; the JRT value is conditional on the model fitting."},
+    {"wrong": "Reliability of the panel is X (in a sparse design).", "right": "State empirical reliability of the obtained scores, or expected reliability for a specified judge set."},
+    {"wrong": "Standard errors of scores include all uncertainty.", "right": "PSDs condition on the estimated judge parameters."},
+    {"wrong": "Products and judges were estimated jointly by maximum likelihood.", "right": "Judge parameters by MML/EM with theta integrated out; product scores by EAP afterwards."},
+    {"wrong": "Information is a single number per judge.", "right": "It is a function of theta; single numbers are summaries (average over a stated distribution, or peak)."}
+  ],
+
+  "additions_beyond_tutorial": {
+    "note": "Not covered in the tutorial; standard IRT points relevant when comparing models or score types.",
+    "reliability_for_non_eap_scores": "The formula Var(score) / (Var(score) + mean SE^2) suits shrunken EAP scores, whose variance is approximately the true-score variance captured. For ML or WLE scores, whose variance includes error, the usual form is (Var(score) - mean SE^2) / Var(score). Mixing score type and formula is an error.",
+    "grm_vs_rasch_family_thresholds": "The GRM is a cumulative-logit ('difference') model. Partial credit, generalised partial credit, rating scale and many-facet Rasch models are adjacent-category ('divide-by-total') models, in which step parameters are the points where two adjacent categories are equally likely. Threshold values from the two families are therefore not directly comparable, and adjacent-category steps need not be ordered, whereas GRM thresholds are ordered by construction.",
+    "discrimination_in_rasch_family": "Rasch-family models (PCM, RSM, MFRM) constrain all judges to equal discrimination; the GPCM and GRM free it. Comparing them tests whether judges differ in discrimination."
+  },
+
+  "software_reference_untested": {
+    "warning": "Not executed when this file was written. Verify names and defaults in the package documentation.",
+    "mirt": {
+      "fit": "mirt(X, model = 1, itemtype = 'graded', SE = TRUE, TOL = <small value>)",
+      "judge_parameters": "coef(fit, IRTpars = TRUE, simplify = TRUE)$items",
+      "scores": "fscores(fit, method = 'EAP', full.scores.SE = TRUE)",
+      "empirical_reliability": "empirical_rxx(scores)",
+      "expected_reliability": "marginal_rxx(fit)",
+      "information": "iteminfo(extract.item(fit, j), Theta); testinfo(fit, Theta)",
+      "plots": "plot(fit, type = 'trace' | 'infotrace' | 'info' | 'rxx')",
+      "local_dependence": "residuals(fit, type = 'Q3')",
+      "missing_data": "NA cells are handled directly by mirt() and fscores()"
+    },
+    "jrt": {
+      "from_vignette": "jrt(data, irt.model = 'GRM') fits via mirt with EM; without a named model it compares several polytomous models and selects by corrected AIC; scoring is EAP; the summary prints empirical and expected reliability (expected assumes a N(0,1) density).",
+      "slots": "@factor.scores (factor score, standard error, mean score), @output.data, @mirt.object",
+      "plots": "jcc.plot(fit, judge = j) for judge category curves; info.plot(fit, j, type = ...) for information, reliability or standard error",
+      "vignette_url": "https://nilsmy.r-universe.dev/jrt/doc/my-vignette.html"
+    }
+  },
+
+  "toy_example_for_sanity_checks": {
+    "design": "24 products x 4 judges, ratings 1-5, complete; simulated from a GRM with theta standardised. Far too small for dependable estimation; used for illustration only.",
+    "simulated_judges": {
+      "A": "reference: a = 1.6, thresholds (-1.5, -0.5, 0.5, 1.5)",
+      "B": "severe: a = 1.6, thresholds (-0.7, 0.3, 1.2, 2.2)",
+      "C": "noisy: a = 0.8, thresholds as A",
+      "D": "sharp but avoids extremes: a = 2.6, thresholds (-2.2, -0.8, 0.8, 2.2)"
+    },
+    "estimates": {
+      "A": {"a": 1.56, "b": [-1.39, -0.95, 0.57, 1.36], "se_a": 1.00},
+      "B": {"a": 1.44, "b": [-0.69, 0.94, 1.17, 2.25], "se_a": 0.92},
+      "C": {"a": 1.02, "b": [-1.50, -0.36, 0.55, 1.79], "se_a": 0.67},
+      "D": {"a": 3.36, "b": [-1.77, -1.21, 1.28, 2.17], "se_a": 3.66}
+    },
+    "estimation_trace": "log-likelihood -150.31 at start, -120.98 after 1 EM iteration, -119.81 at convergence after 113 iterations (tolerance 1e-10 on the log-likelihood)",
+    "worked_check_category_probabilities": "Judge A at theta = 0.5: P*(>=2..5) = 0.950, 0.906, 0.473, 0.207; category probabilities = 0.050, 0.045, 0.433, 0.265, 0.207; information = 0.72",
+    "worked_check_scoring": "Pattern (A=5, B=2, C=2, D=3): EAP = 0.32, PSD = 0.54. All-5 pattern: EAP = 2.45, PSD = 0.53.",
+    "reliability": {"cronbach_alpha_raw_ratings": 0.648, "empirical": 0.747, "expected_marginal": 0.738, "var_eap": 0.771, "mean_psd_squared": 0.261},
+    "information": {
+      "panel_at_theta_-2_-1_0_1_2": [3.49, 4.11, 1.93, 3.99, 4.31],
+      "average_per_judge_over_N01": {"A": 0.68, "B": 0.55, "C": 0.32, "D": 1.52},
+      "observation": "Judge D supplies about half of the panel information but almost none near theta = 0, where D gives a 3 with probability 0.97."
+    },
+    "missing_data_illustration": "Product rated (3, 5, 5, 4): all four judges EAP 1.43 / PSD 0.45; without judge D 1.00 / 0.69; judges C and D only 1.44 / 0.49; judges A and B only 0.63 / 0.73.",
+    "instability_note": "Among 46 simulated candidate datasets in which every judge used all five categories, 16 gave degenerate fits (discrimination above 10 or near 0). The displayed dataset was selected for being well behaved."
+  },
+
+  "references_to_verify": [
+    "Samejima, F. (1969). Estimation of latent ability using a response pattern of graded scores. Psychometrika Monograph Supplement.",
+    "Bock, R. D., & Aitkin, M. (1981). Marginal maximum likelihood estimation of item parameters: Application of an EM algorithm. Psychometrika.",
+    "Myszkowski, N., & Storme, M. (2019). Judge response theory? A call to upgrade our psychometrical account of creativity judgments. Psychology of Aesthetics, Creativity, and the Arts.",
+    "Myszkowski, N. (2021). Development of the R library 'jrt': Automated item response theory procedures for judgment data and their application with the consensual assessment technique. Psychology of Aesthetics, Creativity, and the Arts.",
+    "Chalmers, R. P. (2012). mirt: A multidimensional item response theory package for the R environment. Journal of Statistical Software."
+  ]
+}
