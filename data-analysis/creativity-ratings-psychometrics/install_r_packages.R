@@ -1,48 +1,10 @@
-# ============================================================
-# R package installation for the JRT pipeline in R/ (01_data_design.R ... 06_summary.R)
-# ============================================================
-# Usage (from this folder):
-#   Rscript install_r_packages.R
-#
-# Installs only Depends/Imports/LinkingTo (no Suggests): installing with
-# dependencies = TRUE pulls in a huge, irrelevant Suggests tree.
-# Packages are taken from a date-pinned Posit Package Manager snapshot
-# for reproducibility; anything missing there (e.g. mirt for very
-# new R versions) is retried from the regular CRAN mirror.
-# ============================================================
-
-snapshot_repo <- "https://packagemanager.posit.co/cran/2026-07-01"
-fallback_repo <- "https://cloud.r-project.org"
-
-pkgs <- c(
-  # data handling and plots
-  "dplyr", "tidyr", "readr", "ggplot2", "svglite",
-  # design checks
-  "igraph",
-  # IRT / facet models
-  "mirt", "sirt",
-  # naive indices
-  "psych", "irr"
-)
-
-install_safely <- function(p, repo) {
-  tryCatch(
-    install.packages(p, repos = repo,
-                     dependencies = c("Depends", "Imports", "LinkingTo")),
-    error = function(e) message(sprintf("ERROR installing %s: %s", p, conditionMessage(e)))
-  )
-}
-
-for (p in pkgs) {
-  if (requireNamespace(p, quietly = TRUE)) {
-    message(sprintf("%s already installed.", p))
-    next
-  }
-  message(sprintf("---- installing %s ----", p))
-  install_safely(p, snapshot_repo)
-  if (!requireNamespace(p, quietly = TRUE)) install_safely(p, fallback_repo)
-}
-
-status <- data.frame(package = pkgs,
-                     installed = vapply(pkgs, requireNamespace, logical(1), quietly = TRUE))
-print(status, row.names = FALSE)
+# R packages for the JRT pipeline in R/. Usage (from this folder): Rscript install_r_packages.R
+# Installs Depends/Imports only (dependencies = TRUE would pull in a huge Suggests tree).
+pkgs <- c("dplyr", "tidyr", "readr", "ggplot2", "svglite",  # data handling, figures
+          "igraph",                                         # design connectivity
+          "mirt", "sirt",                                   # IRT / facet models
+          "psych", "irr")                                   # Cronbach's and Krippendorff's alpha
+missing <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
+if (length(missing)) install.packages(missing, repos = "https://cloud.r-project.org",
+                                      dependencies = c("Depends", "Imports", "LinkingTo"))
+print(data.frame(package = pkgs, installed = vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)), row.names = FALSE)

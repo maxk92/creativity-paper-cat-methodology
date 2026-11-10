@@ -7,5 +7,5 @@ GRM: model-based marginal reliability,hypothetical full panel,0.9689277620533384
 GRM: median rel_post,precision per product,0.7120942327349202,"first quartile 0.599, third quartile 0.789"
 GRM: IQR rel_post,precision per product,0.19051678975366584,
 M1 (rating-scale MFRM): marginal reliability,comparison,0.9571078523872688,
-M2 (partial-credit MFRM): marginal reliability,comparison,0.9568550707434808,
+M2 (partial-credit MFRM): marginal reliability,comparison,0.9568550707434809,
 M3 (GPCM): marginal reliability,comparison,0.9648133292436528,

@@ -1,2 +1,0 @@
-context,warning
-psych::alpha (pairwise covariance matrix),"Matrix was not positive definite, smoothing was done"

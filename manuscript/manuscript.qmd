@@ -154,7 +154,7 @@ As shown in @tbl-model-fit, the GRM had the lowest AIC (27,258.550) and SABIC (2
 
 @tbl-reliability-overview sets the reliability of the obtained scores against the other indices and states what each refers to. The empirical marginal reliability of the obtained scores was .689 [.669, .703]. The model-based marginal reliability for a hypothetical product rated by all raters was .969 [.965, .974], with a grid check of .969 (@tbl-grm-reliability-ci; @fig-grm-panel-information). Cronbach's alpha from pairwise covariances, which refers to the consistency of the unweighted rater mean, was .949 [.926, .958] (18 raters, 1,946 products); its interval is approximate, because it rests on the 647 of 1,000 bootstrap replications that could be computed (@tbl-naive-indices). On the fully crossed block, Cronbach's alpha was .750 [.684, .800] (3 raters, 261 products). Krippendorff's ordinal alpha, which refers to the agreement of single ratings, was .391 [.363, .417] (24 raters, 2,837 products).
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-reliability-overview >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-reliability-overview >}}
 
 @tbl-grm-reliability-by-n summarises the observed product-level reliability by the number of ratings each product received. Mean rel~post~ was .522 for the 832 products with one rating, .699 for the 2,107 with two and .756 for the 68 with three; it rose overall with the number of ratings, to .948 at 12, with two exceptions: .897 at 10 ratings after .915 at nine, and .947 at 13 after .948 at 12. Mean PSD fell from 0.684 to 0.228, with the same exceptions at 10 (0.314) and 13 (0.230). The rows from 10 ratings upward rest on 14, 4, 2 and 1 products. No mean reached the full-panel value of .969. Products with the same number of ratings differed in rel~post~ (@fig-grm-rel-post-by-n). These values are observed: products did not receive their number of ratings through a design manipulation (see Rating design). [\[FILL IN: how products came to have their number of ratings (FI-4)\]]{.mark}
 
@@ -166,7 +166,7 @@ As shown in @tbl-model-fit, the GRM had the lowest AIC (27,258.550) and SABIC (2
 
 @tbl-grm-reliability-min-ratings gives the top-up simulation. The simulated actual design, in which each product kept the raters who had rated it, gave an empirical reliability of .686 [.675, .695] (mean rel~post~ .687), against the observed .689 of the real scores. The design in which every product had at least four ratings, with simulated ratings for 6,778 added rater–product pairs in 3,007 products (15,824 simulated ratings in total), gave .835 [.829, .840].
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-grm-reliability-min-ratings >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-grm-reliability-min-ratings >}}
 
 Across all products, rel~post~ had a median of .712 and an interquartile range of .191 (first and third quartiles .599 and .789), with values from .068 to .954 (@tbl-grm-reliability-summary; @fig-grm-rel-post-histogram); its relation to $\hat\theta$ is shown in @fig-grm-rel-post-by-theta. rel~post~ and rel~info~ correlated at *r* = .947, and 229 products differed by more than .1 (@fig-grm-rel-consistency).
 
@@ -178,7 +178,7 @@ Across all products, rel~post~ had a median of .712 and an interquartile range o
 
 @tbl-rater-overview collects the rater-level results, and @fig-m1-rater-severity shows the severity of each rater under M1 (rating-scale MFRM) with its 95% interval next to the rater's raw mean. Severity ranged from −0.878 (*SE* 0.066, R24) to 1.369 (*SE* 0.057, R06), a span of 2.247 logits; 13 raters lay below and 11 above the average rater. The order of the severities did not follow the order of the raw means exactly: R18 had the highest mean rating (3.84) but the second-lowest severity (−0.79).
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-rater-overview >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-rater-overview >}}
 
 {{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#fig-m1-rater-severity >}}
 
@@ -288,11 +288,11 @@ The following objects are referenced in the main text.
 
 ## Data and rater exclusion {.unnumbered}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-excluded-raters >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-excluded-raters >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-sensitivity-rater-exclusion >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-sensitivity-rater-exclusion >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#fig-design-ratings-per-product >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#fig-design-ratings-per-product >}}
 
 {{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/01_data_overview.ipynb#fig-overview-degree-distributions >}}
 
@@ -300,70 +300,70 @@ The following objects are referenced in the main text.
 
 {{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/01_data_overview.ipynb#fig-overview-rater-response-styles >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-category-usage >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-category-usage >}}
 
 {{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/01_data_overview.ipynb#fig-overview-rating-distribution >}}
 
 ## Estimation and fit of the graded response model {.unnumbered}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-grm-convergence >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-grm-convergence >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-grm-rater-fit >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-grm-rater-fit >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-grm-q3-flagged >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-grm-q3-flagged >}}
 
 ## Reliability (observed) {.unnumbered}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#fig-grm-rel-post-by-n >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#fig-grm-rel-post-by-n >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-grm-reliability-ci >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-grm-reliability-ci >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-grm-reliability-summary >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-grm-reliability-summary >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-naive-indices >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-naive-indices >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#fig-grm-rel-post-histogram >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#fig-grm-rel-post-histogram >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#fig-grm-rel-post-by-theta >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#fig-grm-rel-post-by-theta >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#fig-grm-rel-consistency >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#fig-grm-rel-consistency >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#fig-grm-panel-information >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#fig-grm-panel-information >}}
 
 ## Simulated reliability by number of ratings {.unnumbered}
 
 Two simulations from the fitted GRM complement the observed values. In the projection, products with $\theta \sim N(0, 1)$ were simulated; each received $k$ ratings ($k$ = 1 to 10) from $k$ distinct raters of the panel drawn at random, each rater equally likely to be drawn, so that the draws do not reproduce the raters' actual workloads. Ratings were generated from the fitted GRM and scored with its parameters, which were treated as known, in 50 replications of 2,000 simulated products per $k$ (seed 20260713). The table gives the empirical marginal reliability (mean and 95% range over replications) and the mean product-level reliability rel~post~. The top-up simulation (@tbl-grm-reliability-min-ratings in the main text) was built on the actual design and kept the actual assignment of raters to products, not the ratings. In the design labelled actual, each product kept exactly the raters who had rated it; in the design with at least four ratings per product, every product with fewer than four ratings was assigned additional raters, drawn at random with equal probability and without replacement from the panel raters who had not rated it, until it had four, and products with four or more ratings were unchanged. In each of 50 replications, every real product received $\theta \sim N(0, 1)$, all ratings for the kept and the added rater–product pairs were generated from the fitted GRM, and the products were scored by EAP with the parameters treated as known; the real ratings were not reused, and the actual-design row is a validation against the observed empirical reliability. Because the parameters are treated as known, the ranges reflect simulation variability only, not parameter uncertainty; the observed data remain primary. The last table places the observed mean rel~post~ of the actual products next to the simulated empirical marginal reliability; the two are different quantities.
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-grm-reliability-projection >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-grm-reliability-projection >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#fig-grm-reliability-projection >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#fig-grm-reliability-projection >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-grm-reliability-observed-vs-simulated >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-grm-reliability-observed-vs-simulated >}}
 
 ## Rater parameters, information and category use {.unnumbered}
 
 {{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#fig-grm-category-response-functions >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-grm-rater-information-ci >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-grm-rater-information-ci >}}
 
 {{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#fig-grm-rater-information-ci >}}
 
 {{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#fig-grm-rater-information >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#fig-grm-information-shares >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#fig-grm-information-shares >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-grm-information-summary >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-grm-information-summary >}}
 
 ## Adjacent-category ladder {.unnumbered}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-lr-tests >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-lr-tests >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-discrimination-m3 >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-discrimination-m3 >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-discrimination-summary >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-discrimination-summary >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-threshold-order >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-threshold-order >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-rater-fit-m1 >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-rater-fit-m1 >}}
 
-{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/02_jrt_results.ipynb#tbl-theta-correlations >}}
+{{< embed ../data-analysis/creativity-ratings-psychometrics/notebooks/03_jrt_supplement.ipynb#tbl-theta-correlations >}}

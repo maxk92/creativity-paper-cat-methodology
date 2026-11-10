@@ -1,13 +1,9 @@
 # ============================================================
-# Shared helpers for the JRT audit pipeline (R/01_*.R ... R/06_*.R)
-# ============================================================
-# Spec: ../../ANLEITUNG_JRT_Audit.md. Audit log: ../AUDIT.md.
-# Every script sources this file first, so paths, seed, data loading and the
-# information/reliability definitions are defined exactly once.
+# Shared settings and helpers for the JRT pipeline (R/01_grm.R, 02_comparison.R,
+# 03_simulations.R). Every script sources this file first.
 #
-# Reliability convention (used everywhere, posterior-based, theta ~ N(0, 1)):
+# Reliability convention (posterior-based, theta ~ N(0, 1)):
 #   rel(theta) = I(theta) / (I(theta) + 1),   SE(theta) = 1 / sqrt(I(theta) + 1)
-# The ML version 1 - 1/I(theta) is NOT used anywhere in this pipeline.
 # ============================================================
 
 suppressPackageStartupMessages({
@@ -17,144 +13,73 @@ suppressPackageStartupMessages({
   library(readr)
   library(ggplot2)
 })
+options(warn = 1)  # print warnings where they occur (they end up in the run log)
 
 SEED <- 20260713
 set.seed(SEED)
 
-# Smoke mode (server/run_jrt_audit_server.sh --smoke): small imputation and
-# bootstrap counts. Outputs of a smoke run are NOT for the paper.
-SMOKE <- identical(Sys.getenv("JRT_SMOKE"), "1")
+# JRT_QUICK=1 lowers the number of draws, imputations, bootstraps and
+# replications for a quick check. Outputs of a quick run are NOT for the paper.
+QUICK <- nzchar(Sys.getenv("JRT_QUICK"))
 
-# --- paths ------------------------------------------------------------------
-script_dir <- function() {
-  arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-  if (length(arg) == 1) return(dirname(normalizePath(sub("^--file=", "", arg))))
-  normalizePath("R")  # interactive use from the analysis folder
-}
-# JRT_ROOT overrides the analysis folder (used to test the pipeline on a toy copy).
-ROOT <- normalizePath(Sys.getenv("JRT_ROOT", file.path(script_dir(), "..")))
-INPUT_CSV <- file.path(ROOT, "data", "processed", "ratings_long_clean.csv")
+# --- paths (ROOT = the analysis folder, parent of R/) -------------------------
+this_file <- grep("^--file=", commandArgs(FALSE), value = TRUE)
+ROOT <- if (length(this_file)) {
+  normalizePath(file.path(dirname(sub("^--file=", "", this_file[1])), ".."))
+} else normalizePath(".")  # interactive use from the analysis folder
+# JRT_INPUT=<path> overrides the input file (e.g. to re-run on an archived data freeze).
+INPUT_CSV <- Sys.getenv("JRT_INPUT", file.path(ROOT, "data", "processed", "ratings_long_clean.csv"))
+# JRT_DUPLICATES=<path> overrides the duplicate log written by notebook 00 (only counted in the design summary).
+DUPLICATES_CSV <- Sys.getenv("JRT_DUPLICATES", file.path(ROOT, "results", "tables", "flagged_duplicate_rater_action_pairs.csv"))
 RES <- file.path(ROOT, "results")
-DIR_DATA <- file.path(RES, "data")
-DIR_GRM <- file.path(RES, "grm")
-DIR_GRM_FIG <- file.path(DIR_GRM, "figures")
-DIR_CMP <- file.path(RES, "comparison")
-DIR_NAIVE <- file.path(RES, "naive")
-DIR_SUM <- file.path(RES, "summary")
-DIR_LOGS <- file.path(RES, "logs")
-DIR_MODELS <- file.path(RES, "models")  # gitignored
-for (d in c(DIR_DATA, DIR_GRM, DIR_GRM_FIG, DIR_CMP, DIR_NAIVE, DIR_SUM, DIR_LOGS, DIR_MODELS)) {
-  dir.create(d, recursive = TRUE, showWarnings = FALSE)
-}
+DIRS <- list(main = file.path(RES, "main"), supplement = file.path(RES, "supplement"),
+             data = file.path(RES, "data"), models = file.path(RES, "models"),
+             logs = file.path(RES, "logs"))
+for (d in DIRS) dir.create(d, recursive = TRUE, showWarnings = FALSE)
+for (d in c("main", "supplement")) dir.create(file.path(DIRS[[d]], "figures"), showWarnings = FALSE)
 
-# Raters with fewer ratings than this are excluded from the whole pipeline
-# (decision 2026-10-22): with up to 7 parameters per rater in the GRM, their
-# parameters are not identified (all-raters run: R21 a = -0.09, R22 a = -3.86
-# with huge SEs). Applied once, in 01_data_design.R; listed in
-# results/data/excluded_raters.csv.
+# --- constants ----------------------------------------------------------------
+# Raters with fewer ratings than this are excluded (decision 2026-10-22): with up
+# to 7 parameters per rater, their parameters are not identified.
 MIN_RATINGS_PER_RATER <- 15L
-
-# Category coding: the 1-7 rating scale is coded 0-6 internally (rating - 1).
-SCALE_MIN <- 1L
+SCALE_MIN <- 1L  # the 1-7 rating scale is coded 0-6 internally (rating - 1)
 SCALE_MAX <- 7L
 K_CATEGORIES <- SCALE_MAX - SCALE_MIN + 1L
-
-# Fixed theta grid for all information computations (spec 4a).
-THETA_GRID <- seq(-4, 4, by = 0.05)
+THETA_GRID <- seq(-4, 4, by = 0.05)  # grid for all information computations
 THETA_POINTS <- c(-2, -1, 0, 1, 2)
 
-# Estimation settings for every mirt model (spec 3 and 5): MML via EM with
-# fixed-quadrature integration. 61 points is mirt's own default for a
-# unidimensional model; it is set explicitly here so it is documented.
+# mirt estimation settings: MML via EM with fixed quadrature (61 points is
+# mirt's default for a unidimensional model, written out so it is documented).
 MIRT_METHOD <- "EM"
 MIRT_QUADPTS <- 61L
 MIRT_SE_TYPE <- "Oakes"
-MIRT_TOL <- 1e-4  # mirt default for EM, written out
+MIRT_TOL <- 1e-4
 MIRT_NCYCLES <- 2000L
 
-# --- output helpers ---------------------------------------------------------
-save_csv <- function(x, dir, name) {
-  path <- file.path(dir, paste0(name, ".csv"))
+# --- output -------------------------------------------------------------------
+# where = "main" (objects in the main text), "supplement", "data" or "models".
+save_csv <- function(x, name, where = "main") {
+  path <- file.path(DIRS[[where]], paste0(name, ".csv"))
   readr::write_csv(as.data.frame(x), path, na = "NA")
   message("  wrote ", sub(paste0(ROOT, "/"), "", path))
   invisible(path)
 }
 
-save_fig <- function(plot, name, width = 8, height = 5, dir = DIR_GRM_FIG) {
-  # No plot title: the manuscript caption carries it.
-  if (inherits(plot, "ggplot")) plot <- plot + labs(title = NULL)
+save_fig <- function(plot, name, where = "main", width = 8, height = 5) {
+  if (inherits(plot, "ggplot")) plot <- plot + labs(title = NULL)  # the caption carries the title
   for (ext in c("png", "svg")) {
-    ggsave(file.path(dir, paste0(name, ".", ext)), plot, width = width, height = height,
-           dpi = 300, bg = "white")
+    ggsave(file.path(DIRS[[where]], "figures", paste0(name, ".", ext)), plot,
+           width = width, height = height, dpi = 300, bg = "white")
   }
-  message("  wrote ", name, ".{png,svg}")
+  message("  wrote ", where, "/figures/", name, ".{png,svg}")
 }
 
-# Captures every warning of an expression into a log instead of letting it
-# scroll past (spec 3: "no warnings ignored").
-WARNINGS <- list()
-with_warnings <- function(expr, context) {
-  withCallingHandlers(expr, warning = function(w) {
-    WARNINGS[[length(WARNINGS) + 1]] <<- data.frame(
-      context = context, warning = conditionMessage(w), stringsAsFactors = FALSE)
-    invokeRestart("muffleWarning")
-  })
-}
-write_warnings <- function(stage) {
-  df <- if (length(WARNINGS)) do.call(rbind, WARNINGS) else
-    data.frame(context = character(), warning = character())
-  save_csv(df, DIR_LOGS, paste0("warnings_jrt_audit_", stage))
-}
-
-write_session_info <- function(stage) {
-  path <- file.path(DIR_LOGS, paste0("session_info_jrt_audit_", stage, ".txt"))
-  sink(path)
-  cat("Stage:", stage, "\nTimestamp:", format(Sys.time()), "\nSeed:", SEED,
-      "\nSmoke run:", SMOKE, "\n\n")
-  print(sessionInfo())
-  sink()
-}
-
-# --- data -------------------------------------------------------------------
-# The single data source of all models (written by 01_data_design.R).
-load_design <- function() {
-  long <- readr::read_csv(file.path(DIR_DATA, "ratings_long.csv"), show_col_types = FALSE,
-                          col_types = cols(product_id = "c", rater_id = "c", .default = "d"))
-  wide_df <- readr::read_csv(file.path(DIR_DATA, "ratings_wide.csv"), show_col_types = FALSE,
-                             col_types = cols(product_id = "c", .default = "i"))
-  wide <- as.matrix(wide_df[, -1])
-  rownames(wide) <- wide_df$product_id
-  fp <- readLines(file.path(DIR_DATA, "data_fingerprint.txt"))
-  stopifnot(identical(data_fingerprint(wide), fp))
-  list(long = long, wide = wide)
-}
-
-data_fingerprint <- function(wide) {
-  tmp <- tempfile()
-  writeLines(c(colnames(wide), rownames(wide),
-               apply(wide, 1, paste, collapse = ",")), tmp)
-  sprintf("%d products x %d raters | %d ratings | md5 %s",
-          nrow(wide), ncol(wide), sum(!is.na(wide)), unname(tools::md5sum(tmp)))
-}
-
-# Spec 5: identical data basis in all models (asserted, not assumed).
-assert_same_data <- function(mod, wide, label) {
-  d <- extract.mirt(mod, "data")
-  ok <- nrow(d) == nrow(wide) && ncol(d) == ncol(wide) &&
-    identical(colnames(d), colnames(wide)) && identical(is.na(unname(d)), is.na(unname(wide)))
-  if (!ok) stop(sprintf("Model %s does not use the shared wide matrix.", label))
-  invisible(TRUE)
-}
-
-fit_mirt <- function(wide, itemtype, label, SE = TRUE) {
+# --- model fitting -------------------------------------------------------------
+fit_mirt <- function(wide, itemtype, SE = TRUE) {
   set.seed(SEED)
-  mod <- with_warnings(
-    mirt(wide, model = 1, itemtype = itemtype, method = MIRT_METHOD,
-         quadpts = MIRT_QUADPTS, SE = SE, SE.type = MIRT_SE_TYPE, TOL = MIRT_TOL,
-         technical = list(NCYCLES = MIRT_NCYCLES), verbose = FALSE),
-    context = paste0("mirt fit ", label))
-  assert_same_data(mod, wide, label)
-  mod
+  mirt(wide, model = 1, itemtype = itemtype, method = MIRT_METHOD, quadpts = MIRT_QUADPTS,
+       SE = SE, SE.type = MIRT_SE_TYPE, TOL = MIRT_TOL,
+       technical = list(NCYCLES = MIRT_NCYCLES), verbose = FALSE)
 }
 
 convergence_row <- function(mod, label) {
@@ -164,8 +89,7 @@ convergence_row <- function(mod, label) {
     method = MIRT_METHOD, quadpts = MIRT_QUADPTS, se_type = MIRT_SE_TYPE, tol = MIRT_TOL,
     converged = extract.mirt(mod, "converged"),
     iterations = extract.mirt(mod, "iterations"),
-    information_matrix_pd = tryCatch(extract.mirt(mod, "secondordertest"),
-                                     error = function(e) NA),
+    information_matrix_pd = tryCatch(extract.mirt(mod, "secondordertest"), error = function(e) NA),
     condition_number = tryCatch(extract.mirt(mod, "condnum"), error = function(e) NA),
     logLik = extract.mirt(mod, "logLik"),
     npar = extract.mirt(mod, "nest"),
@@ -178,35 +102,14 @@ convergence_row <- function(mod, label) {
   )
 }
 
-# --- absolute fit: C2 (spec 3) ------------------------------------------------
-# mirt 1.46 computes the uni- and bivariate moments of M2-type statistics from
-# the available pairs when data are missing. A rater pair that shares no products
-# has undefined bivariate moments, so C2 becomes NaN. The null model (calcNull)
-# is not requested: with a NaN statistic its comparison errors out. If C2 is not
-# finite, the reason is recorded instead of forcing a result.
-c2_global_fit <- function(mod) {
-  d <- extract.mirt(mod, "data")
-  ov <- crossprod(!is.na(d))
-  n_pairs <- sum(upper.tri(ov))
-  n_no_overlap <- sum(ov[upper.tri(ov)] == 0)
-  res <- tryCatch(with_warnings(M2(mod, type = "C2", calcNull = FALSE, quadpts = MIRT_QUADPTS), "M2 C2"),
-                  error = function(e) e)
-  ok <- !inherits(res, "error") && is.finite(res$M2)
-  out <- data.frame(statistic = "C2", computable = ok,
-                    rater_pairs = n_pairs, rater_pairs_without_overlap = n_no_overlap)
-  if (ok) {
-    cbind(out, as.data.frame(res), note = paste(
-      "Computed on pairwise-available moments; rater pairs without overlap",
-      "contribute no information. Interpret with caution."))
-  } else {
-    out$note <- if (inherits(res, "error")) paste("Not computable:", conditionMessage(res)) else
-      sprintf("Not computable: %d of %d rater pairs share no products, so their bivariate moments and hence C2 are undefined.",
-              n_no_overlap, n_pairs)
-    out
-  }
+eap_scores <- function(mod) {
+  fscores(mod, method = "EAP", full.scores = TRUE, full.scores.SE = TRUE, verbose = FALSE)
 }
 
-# --- information and reliability (spec 4) -----------------------------------
+# Empirical marginal reliability of EAP scores: Var(theta_hat) / (Var(theta_hat) + mean PSD^2)
+empirical_rel <- function(fs) var(fs[, "F1"]) / (var(fs[, "F1"]) + mean(fs[, "SE_F1"]^2))
+
+# --- information and reliability ------------------------------------------------
 # Rater information on a theta grid: matrix (length(theta) x J).
 rater_information <- function(mod, theta) {
   J <- extract.mirt(mod, "nitems")
@@ -215,26 +118,17 @@ rater_information <- function(mod, theta) {
   colnames(info) <- colnames(extract.mirt(mod, "data"))
   info
 }
-
 rel_from_info <- function(info) info / (info + 1)
 se_from_info <- function(info) 1 / sqrt(info + 1)
+normal_weights <- function(theta) dnorm(theta) * mean(diff(theta))  # N(0, 1) weights on a grid
 
-# N(0, 1) quadrature weights on an equally spaced grid (sum to ~1 over -4..4).
-normal_weights <- function(theta) dnorm(theta) * mean(diff(theta))
-
-# Product-level information at the EAP estimate, summed ONLY over the raters
-# who actually rated the product (spec 4c). Using testinfo(mod, theta) with all
-# raters here would be wrong for an incomplete design.
+# Information of a product at its EAP estimate, summed over the raters who rated it.
 product_information <- function(mod, theta_hat, rated) {
-  stopifnot(nrow(rated) == length(theta_hat))
   info_all <- rater_information(mod, theta_hat)  # products x raters
-  stopifnot(identical(dim(info_all), dim(rated)))
   rowSums(info_all * rated)
 }
 
-# --- agreement of product rankings -----------------------------------------------
-# Percentile ranks in [0, 1] (ties get their mean rank); quintiles 1-5 of each
-# score's own distribution. Used for model comparison (04) and raw mean vs GRM (03).
+# --- agreement of product rankings --------------------------------------------------
 pct_rank <- function(x) (rank(x) - 0.5) / length(x)
 quintile <- function(x) pmin(5L, floor(pct_rank(x) * 5) + 1L)
 rank_change <- function(x, ref) {
@@ -247,21 +141,18 @@ rank_change <- function(x, ref) {
          share_products_changing_quintile_by_2_or_more = mean(abs(quintile(x) - quintile(ref)) >= 2))
 }
 
-# Pretty rater-ID order (R01, R02, ...).
-rater_order <- function(ids) ids[order(as.integer(gsub("\\D", "", ids)), ids)]
+rater_order <- function(ids) ids[order(as.integer(gsub("\\D", "", ids)), ids)]  # R01, R02, ...
 
-# --- pseudonym key (local inspection only) ------------------------------------
+# --- pseudonym key (interactive use only) --------------------------------------------
 # data/raw/rater_pseudonym_key.csv (written by notebook 00, gitignored) maps the
-# original user IDs to R01, R02, ... Use these helpers interactively to look up
-# raters in the raw data. No pipeline script calls them, and their output must
-# never be written to results/.
+# original user IDs to R01, R02, ... No pipeline script calls these helpers, and
+# their output must never be written to results/.
 RATER_KEY_CSV <- file.path(ROOT, "data", "raw", "rater_pseudonym_key.csv")
 rater_key <- function() {
   if (!file.exists(RATER_KEY_CSV)) stop("No pseudonym key at ", RATER_KEY_CSV, " (run notebook 00)")
   key <- read_csv(RATER_KEY_CSV, col_types = cols(.default = "c"))
-  setNames(key$original_rater_id, key$rater_id)  # named vector: pseudonym -> original
+  setNames(key$original_rater_id, key$rater_id)  # pseudonym -> original
 }
-# to = "original" adds/replaces with original IDs; to = "pseudonym" maps back.
 switch_rater_ids <- function(ids, to = c("original", "pseudonym")) {
   key <- rater_key()
   if (match.arg(to) == "pseudonym") key <- setNames(names(key), key)

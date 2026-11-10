@@ -1,7 +1,4 @@
-Stage: 03_grm_information 
-Timestamp: 2026-11-04 15:19:23 
-Seed: 20260713 
-Smoke run: FALSE 
+Run: 2026-11-10 23:27:13  seed: 20260713  quick: FALSE
 
 R version 4.6.0 (2026-04-24)
 Platform: x86_64-pc-linux-gnu
@@ -27,8 +24,8 @@ attached base packages:
 [8] base     
 
 other attached packages:
-[1] ggplot2_4.0.3  readr_2.2.0    tidyr_1.3.2    dplyr_1.2.1    mirt_1.46.1   
-[6] lattice_0.22-9
+[1] igraph_2.3.2   ggplot2_4.0.3  readr_2.2.0    tidyr_1.3.2    dplyr_1.2.1   
+[6] mirt_1.46.1    lattice_0.22-9
 
 loaded via a namespace (and not attached):
  [1] tidyselect_1.2.1      viridisLite_0.4.3     farver_2.1.2         
