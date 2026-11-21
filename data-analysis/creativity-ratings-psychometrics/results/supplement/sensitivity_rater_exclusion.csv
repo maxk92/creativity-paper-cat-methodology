@@ -1,14 +1,14 @@
 quantity,final_data,all_raters,note
-n_raters,24,28,
-n_ratings,9471,9502,
-n_products,3840,3841,
+n_raters,25,29,
+n_ratings,9831,9862,
+n_products,3841,3842,
 excluded_raters,,"R20;R21;R22;R28;R29;R29 (one category, not estimable)",
-empirical_marginal_reliability,0.684386633306632,0.683849302741001,Var(theta)/(Var(theta)+mean(PSD^2))
-model_based_marginal_reliability,0.967994711185607,0.970621375567497,mirt::marginal_rxx (hypothetical full panel)
-theta_pearson_common_products,0.999932859973631,,"all-raters vs final GRM, 3840 common products"
-theta_spearman_common_products,0.999933565785295,,"all-raters vs final GRM, 3840 common products"
-theta_mean_abs_diff,0.00204810065478636,,"all-raters vs final GRM, 3840 common products"
-theta_max_abs_diff,0.367459225783806,,"all-raters vs final GRM, 3840 common products"
-share_products_changing_quintile,0.0015625,,"all-raters vs final GRM, 3840 common products"
-a_max_abs_diff_common_raters,0.190293875268911,,"all-raters vs final GRM, 24 common raters"
-a_pearson_common_raters,0.997287134055124,,"all-raters vs final GRM, 24 common raters"
+empirical_marginal_reliability,0.694895714412876,0.694529985080276,Var(theta)/(Var(theta)+mean(PSD^2))
+model_based_marginal_reliability,0.970081605930873,0.97207019359674,mirt::marginal_rxx (hypothetical full panel)
+theta_pearson_common_products,0.999968493528064,,"all-raters vs final GRM, 3841 common products"
+theta_spearman_common_products,0.999958794279689,,"all-raters vs final GRM, 3841 common products"
+theta_mean_abs_diff,0.001872518977726,,"all-raters vs final GRM, 3841 common products"
+theta_max_abs_diff,0.165176030004472,,"all-raters vs final GRM, 3841 common products"
+share_products_changing_quintile,0.00364488414475397,,"all-raters vs final GRM, 3841 common products"
+a_max_abs_diff_common_raters,0.21450656560812,,"all-raters vs final GRM, 25 common raters"
+a_pearson_common_raters,0.997960054976603,,"all-raters vs final GRM, 25 common raters"

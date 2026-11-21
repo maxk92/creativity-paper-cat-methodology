@@ -1,0 +1,9 @@
+subset,min_ratings,max_ratings,alpha,n_products,n_ratings,n_raters,n_categories_used,method,package,source
+at least 2 ratings,2,,0.4020241336306837,2984,8974,25,7,ordinal,irr 0.85,results/data/ratings_wide.csv
+exactly 2 ratings,2,2,0.42013578733327805,2227,4454,20,7,ordinal,irr 0.85,results/data/ratings_wide.csv
+at least 3 ratings,3,,0.38300898709799414,757,4520,25,7,ordinal,irr 0.85,results/data/ratings_wide.csv
+exactly 3 ratings,3,3,0.14033232509145754,73,219,21,7,ordinal,irr 0.85,results/data/ratings_wide.csv
+at least 4 ratings,4,,0.3960098558651669,684,4301,24,7,ordinal,irr 0.85,results/data/ratings_wide.csv
+exactly 4 ratings,4,4,0.34982579829829163,93,372,24,7,ordinal,irr 0.85,results/data/ratings_wide.csv
+at least 5 ratings,5,,0.3993760060571815,591,3929,24,7,ordinal,irr 0.85,results/data/ratings_wide.csv
+exactly 5 ratings,5,5,0.40009351976115304,143,715,21,7,ordinal,irr 0.85,results/data/ratings_wide.csv

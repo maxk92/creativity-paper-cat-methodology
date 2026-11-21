@@ -1,2 +1,2 @@
 method,alpha,ci_low,ci_high,ci_type,n_boot,n_boot_failed,seed,n_units,n_pairable_units,n_raters,package,interpretation
-ordinal,0.3948827881827712,NA,NA,no bootstrap in this run (JRT_SKIP_KRIPP_BOOT),0,0,20260713,3840,2905,24,irr 0.85,Agreement (consensus) of single ratings; raters treated as interchangeable.
+ordinal,0.4020241336306837,0.374596843292704,0.42694070574405946,"percentile bootstrap, resampling products",1000,0,20260713,3841,2984,25,irr 0.85,Agreement (consensus) of single ratings; raters treated as interchangeable.
