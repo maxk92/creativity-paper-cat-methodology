@@ -1,0 +1,5 @@
+rater,theta=-1,theta=+0,theta=+1,theta=+2
+A · reference,3.01,4.0,4.99,5.94
+B · strict (thresholds +1.5),1.64,2.52,3.5,4.5
+C · flat (a = 0.6),3.29,4.0,4.71,5.36
+D · compressed thresholds,2.12,4.0,5.88,6.78

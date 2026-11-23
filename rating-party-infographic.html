@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rate with us – 24 November</title>
+<style>
+  :root {
+    --navy: #002855;
+    --blue: #004080;
+    --sky: #1e88c7;
+    --tint: #eef2f7;
+    --tint2: #e2e9f2;
+    --ink: #1c2b3a;
+    --muted: #5b6b7c;
+  }
+  @page { size: 1200px 1440px; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { width: 1200px; height: 1440px; background: #fff; }
+  body {
+    font-family: "Lato", "Source Sans Pro", "Noto Sans", sans-serif;
+    color: var(--ink);
+    display: flex; flex-direction: column;
+  }
+
+  /* header */
+  .hero {
+    background: var(--navy);
+    color: #fff;
+    padding: 70px 80px 62px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero .kicker {
+    font-size: 26px; letter-spacing: 0.18em; text-transform: uppercase;
+    opacity: 0.8; font-weight: 700; margin-bottom: 18px;
+  }
+  .hero h1 { font-size: 78px; font-weight: 900; line-height: 1.02; letter-spacing: -0.01em; }
+  .hero h1 span { color: #9fd1f2; }
+  .hero .sub { font-size: 30px; font-weight: 400; margin-top: 22px; opacity: 0.92; max-width: 900px; line-height: 1.3; }
+  .hero .ball {
+    position: absolute; right: -60px; top: -70px; width: 360px; height: 360px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.22), rgba(255,255,255,0.04) 70%);
+  }
+  .hero .ball2 {
+    position: absolute; right: 150px; bottom: -190px; width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.14), rgba(255,255,255,0.02) 70%);
+  }
+
+  /* when / where tiles */
+  .facts {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+    padding: 56px 80px 0 80px;
+  }
+  .fact {
+    background: var(--tint); border-radius: 22px; padding: 30px 22px 30px 24px;
+    display: flex; align-items: center; gap: 22px;
+  }
+  .fact svg { width: 60px; height: 60px; flex: none; }
+  .fact .label { font-size: 20px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); font-weight: 700; }
+  .fact .value { font-size: 40px; font-weight: 900; color: var(--navy); line-height: 1.05; margin-top: 4px; }
+  .fact .value small { display: block; font-size: 21px; white-space: nowrap; font-weight: 400; color: var(--blue); margin-top: 4px; }
+
+  /* steps */
+  .steps { padding: 58px 80px 0 80px; display: flex; flex-direction: column; gap: 34px; flex: 1; }
+  .step { display: flex; align-items: flex-start; gap: 30px; }
+  .step .n {
+    flex: none; width: 76px; height: 76px; border-radius: 50%;
+    background: var(--navy); color: #fff; font-size: 38px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step h2 { font-size: 36px; font-weight: 900; color: var(--navy); margin-bottom: 6px; line-height: 1.1; }
+  .step p { font-size: 27px; line-height: 1.4; color: var(--ink); max-width: 920px; }
+  .step p b { color: var(--blue); font-weight: 900; }
+
+  /* reward bar */
+  .reward {
+    margin: 44px 80px 0 80px; border-radius: 22px;
+    background: var(--tint2); border: 3px solid var(--navy);
+    padding: 30px 36px; display: flex; align-items: center; gap: 28px;
+  }
+  .reward svg { width: 84px; height: 84px; flex: none; }
+  .reward .t { font-size: 32px; font-weight: 900; color: var(--navy); line-height: 1.15; }
+  .reward .t span { font-weight: 400; display: block; font-size: 25px; color: var(--ink); margin-top: 6px; }
+
+  /* closing */
+  .closing {
+    margin: 46px 80px 0 80px; text-align: center;
+    font-size: 30px; font-weight: 700; color: var(--navy); line-height: 1.35;
+  }
+  footer {
+    margin-top: auto; padding: 30px 80px 40px 80px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 20px; color: var(--muted);
+  }
+  footer img { height: 52px; }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="ball"></div><div class="ball2"></div>
+  <div class="kicker">Team-building evening · Rating party</div>
+  <h1>Rate with us:<br><span>pizza, drinks &amp; 100 actions</span></h1>
+  <div class="sub">An informal evening of football, food and science: take part in the rating study and help us score creative actions.</div>
+</section>
+
+<section class="facts">
+  <div class="fact">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#002855" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/>
+      <rect x="13" y="13" width="4" height="4" rx="0.8" fill="#002855" stroke="none"/>
+    </svg>
+    <div><div class="label">When</div><div class="value">24 Nov<small>Tuesday, from 17:30</small></div></div>
+  </div>
+  <div class="fact">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#002855" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/>
+    </svg>
+    <div><div class="label">Where</div><div class="value">Room 111<small>IG2, DSHS</small></div></div>
+  </div>
+  <div class="fact">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#002855" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/>
+      <circle cx="17" cy="9" r="2.6"/><path d="M16 14.3c3 0 5.5 2.2 5.5 5.7"/>
+    </svg>
+    <div><div class="label">Who</div><div class="value">Everyone<small>no criteria at all</small></div></div>
+  </div>
+</section>
+
+<section class="steps">
+  <div class="step">
+    <div class="n">1</div>
+    <div>
+      <h2>Come along and bring people</h2>
+      <p>Friends, colleagues, anyone who likes football. No prior knowledge needed; a short familiarisation comes first.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="n">2</div>
+    <div>
+      <h2>Rate 100 actions in the browser app</h2>
+      <p>Short video clips, a few quick ratings each, your gut feeling. About <b>20 to 30 minutes</b>, and you can split it into chunks.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="n">3</div>
+    <div>
+      <h2>Eat, drink, talk football</h2>
+      <p>Pizza and drinks on the side, and a chance to argue about what counts as creative.</p>
+    </div>
+  </div>
+</section>
+
+<section class="reward">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#002855" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3.5 4.5 12 21.5 20.5 4.5A18 18 0 0 0 3.5 4.5z"/>
+    <path d="M6 9.5c3.5-1.3 8.5-1.3 12 0"/>
+    <circle cx="9.5" cy="7.5" r="1.1" fill="#002855" stroke="none"/>
+    <circle cx="13.5" cy="12.5" r="1.1" fill="#002855" stroke="none"/>
+    <circle cx="10.5" cy="15.5" r="1.1" fill="#002855" stroke="none"/>
+  </svg>
+  <div class="t">100 actions rated = pizza &amp; drinks on us
+    <span>Every rating you give becomes part of the next analysis. The more raters, the fairer the scores.</span>
+  </div>
+</section>
+
+<footer>
+  <div>Creativity in football · rating study</div>
+  <img src="img/logo.png" alt="German Sport University Cologne">
+</footer>
+
+</body>
+</html>

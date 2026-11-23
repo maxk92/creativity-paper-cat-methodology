@@ -1,0 +1,186 @@
+/* Override for polynomial-multiplication-talk.qmd only.
+   The shared DSHS CSS applies margin-left: 1em to .reveal section with no
+   matching margin-right, clipping right-column content. Reset it here. */
+.reveal section {
+  margin-left: 0 !important;
+}
+
+/* The shared DSHS CSS sets `padding: 1.5em !important; max-width: 100% !important;`
+   on .reveal section without box-sizing: border-box. In content-box (the default),
+   max-width caps content only, so the padding is added on top and every slide
+   overflows its frame by ~2.5em. Doesn't show up in the live scaled view (Reveal's
+   margin band absorbs it), but a fixed-size PDF export clips right at the slide
+   edge, cutting off right-column/right-edge content. border-box makes padding
+   count toward max-width instead of adding to it. */
+.reveal section {
+  box-sizing: border-box !important;
+}
+
+/* .fill — for text-only concept slides: enlarge the list text and spread it
+   vertically. Content sits near the top with a tight header gap. */
+.reveal section.fill {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+  padding-top: 0.3em;
+}
+/* "Top-level" list = one directly under the section OR directly inside a
+   .fragment wrapper, so animated bullet groups match the un-animated ones
+   (a list nested in a <div class="fragment"> is NOT a `section > ul` child). */
+.reveal section.fill > ul,
+.reveal section.fill > ol,
+.reveal section.fill > .fragment > ul,
+.reveal section.fill > .fragment > ol {
+  font-size: 1.4em;
+  line-height: 1.5;
+  margin: 0.2em 0 0 0;
+}
+.reveal section.fill > .fragment { margin-top: 0.2em; }
+/* nested sub-lists: bring the size back down (font-size compounds) */
+.reveal section.fill ul ul,
+.reveal section.fill ul ol,
+.reveal section.fill ol ol,
+.reveal section.fill ol ul {
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+/* Vertical gap between the top-level bullet lines on a .fill slide.
+   ADJUST HERE: raise 0.7em to spread the lines further apart, lower it to tighten. */
+.reveal section.fill > ul > li,
+.reveal section.fill > .fragment > ul > li { margin-block: 0.7em; }
+.reveal section.fill > ul > li:first-child { margin-block-start: 0; }
+.reveal section.fill > ul > li > p,
+.reveal section.fill > .fragment > ul > li > p { margin: 0; }
+.reveal section.fill > p {
+  font-size: 1.25em;
+  line-height: 1.45;
+  margin: 0.2em 0;
+}
+.reveal section.fill h2 { margin-bottom: 0.05em; }
+.reveal section.fill h3 { margin: 0.35em 0 0.05em; font-size: 1.15em; }
+
+/* .spread — plain bullet slide whose lines are distributed down ~70% of the
+   slide height. ADJUST HERE: change the 70% to spread wider / narrower. */
+.reveal section.spread {
+  display: flex !important;
+  flex-direction: column;
+  height: 100%;
+}
+.reveal section.spread > ul {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 70%;
+  margin-top: 0.5em;
+  font-size: 1.12em;
+  line-height: 1.35;
+}
+
+/* .lead-cols — two-column concept slide: enlarge the left (text) column so a
+   figure-bearing slide still fills its space. */
+.reveal section.lead-cols .column > ul {
+  font-size: 1.25em;
+  line-height: 1.6;
+}
+
+/* References: shrink so the full list fits / scrolls sanely. */
+.reveal #refs { font-size: 0.6em; line-height: 1.35; }
+.reveal #refs p { margin: 0.15em 0; }
+
+/* === kolloq-slides additions ===================================== */
+/* The DSHS base size leaves the 1280x720 frame half empty; enlarge the
+   content slides and keep .smaller for the dense ones (figure + table). */
+.reveal .slides section.slide { font-size: 1.25em; }
+.reveal .slides section.slide.smaller { font-size: 1.0em; }
+.reveal .slides section.slide.smaller .citation { font-size: 0.7em; }
+/* Tighten the generous list spacing of the house style on these decks. */
+.reveal .slides section.slide li { margin-bottom: 0.45em; }
+.reveal .slides section.slide ul ul li { margin-bottom: 0.2em; }
+/* Section divider slides: white text on the navy background. */
+.reveal .slides section.title-slide.level1 h1 { color: #ffffff; font-size: 2em; }
+/* Tables: compact rows, navy rules. */
+.reveal .slides section.slide table { font-size: 0.85em; margin: 0.2em 0 0.4em 0; }
+.reveal .slides section.slide table th, .reveal .slides section.slide table td { padding: 0.15em 0.5em; }
+/* Example clips */
+.reveal video.clip { width: 100%; max-height: 240px; border-radius: 8px; display: block; margin: 0 auto; }
+/* Centred closing slide */
+.reveal .slides section.slide.closing { text-align: center; }
+.reveal .slides section.slide.closing h2 { text-align: center; }
+/* Numbered lists split into one fragment per item: undo the wide spacing
+   the house style gives `.fragment ol`. */
+.reveal .slides section.slide .fragment ol { line-height: 1.35; margin: 0.15em 0; }
+.reveal .slides section.slide .fragment ol li { margin: 0.2em 0; }
+
+/* === revision 2026-11-15 ========================================== */
+/* Diagram boxes: the shared CSS gives the flex container gap:0 and sizes the
+   boxes by content, so three text-heavy boxes touch. Give them a gap and let
+   them share the row width. */
+.reveal .diagram-container { gap: 1em; margin: 0.4em 0 0.6em 0; align-items: stretch; }
+.reveal .diagram-box { display: flex; flex-direction: column; justify-content: center; }
+.reveal .slides section.slide.smaller .diagram-box { padding: 0.7em 0.8em; }
+/* .spread also for numbered lists (design recommendations slide) */
+.reveal section.spread > ol {
+  display: flex; flex-direction: column; justify-content: space-between;
+  height: 72%; margin-top: 0.5em; font-size: 1.05em; line-height: 1.35;
+}
+.reveal section.spread > ol li { margin-bottom: 0; }
+.reveal .diagram-box { flex: 1 1 0; min-width: 0; box-sizing: border-box; }
+/* Paper header screenshots (slide 5) */
+.reveal img.paper-header { width: 100%; border: 1px solid #c3c9d1; border-radius: 6px; box-shadow: 2px 3px 6px rgba(0,0,0,.18); display: block; }
+/* Parameter list on the JRT slide */
+.reveal .slides section.slide .param-list ul { list-style: none; margin-left: 0; padding-left: 0; }
+.reveal .slides section.slide .param-list li { margin-bottom: 0.55em; }
+.reveal .param-sym { display: inline-block; min-width: 2.6em; font-size: 1.25em; color: #002855; font-weight: bold; }
+/* Three schematic columns on the rater-problems slide */
+.reveal .slides section.slide .problem-col img { width: 100%; display: block; margin: 0.2em auto 0 auto; }
+/* Stacked images that swap in place (slide: the two actions again) */
+.reveal .r-stack > * { margin: 0; }
+
+/* === revision 3 (2026-11-15) ======================================= */
+/* Citation hover popups (Quarto citations-hover) need link-citations; style the popup */
+.reveal .citation a { color: inherit; text-decoration: none; }
+/* Smartart arrow below the step boxes, solid */
+.reveal .smartart-container { padding-bottom: 70px; }
+.reveal .smartart-container::before, .reveal .smartart-container::after {
+  top: auto; bottom: 0; transform: none; height: 60px; opacity: 1;
+}
+/* Videos that shrink when the extra information appears (custom fragment) */
+.reveal .slides section .fragment.shrink { opacity: 1; visibility: inherit; display: block; height: 0; margin: 0; }
+.reveal .slides section .fragment.shrink ~ video.clip { max-height: 400px; transition: max-height 0.4s ease; }
+.reveal .slides section .fragment.shrink.visible ~ video.clip { max-height: 150px; }
+/* Grey parameter boxes with the symbol on its own line */
+.reveal .param-head { display: block; font-size: 1.3em; color: #002855; font-weight: bold; margin-bottom: 0.1em; }
+.reveal .param-name { display: block; font-weight: bold; margin-bottom: 0.25em; }
+/* Side-by-side elements in the latent-variable box */
+.reveal .lv-row { display: flex; justify-content: center; align-items: center; gap: 0.6em; }
+.reveal .lv-row > div { flex: 1 1 0; border: 2px solid #002855; border-radius: 8px; padding: 0.4em 0.5em; background: #ffffff; }
+.reveal .lv-plus { flex: 0 0 auto !important; border: none !important; background: none !important; font-size: 1.6em; font-weight: bold; }
+/* Outlook slide: two boxed columns, smaller font */
+.reveal .slides section.slide.outlook { font-size: 1.0em; }
+.reveal .slides section.slide.outlook .column > .white-box { min-height: 330px; }
+/* Narrow first column of the ladder table */
+.reveal .slides section.slide table.ladder td:first-child, .reveal .slides section.slide table.ladder th:first-child { width: 4.5em; white-space: nowrap; }
+
+/* DFG logo in the foreground of the title slide (bottom left; the runner is the
+   faded background bottom right). The title section is stretched to the full
+   slide height only while it is the present slide, so that bottom-left is the
+   slide's bottom-left; reveal's inline display:none on other slides stays intact. */
+.reveal .slides section#title-slide.present {
+  display: flex !important; flex-direction: column; justify-content: center;
+  height: 100% !important; top: 0 !important; box-sizing: border-box;
+}
+.reveal .slides section#title-slide::after {
+  content: ""; position: absolute; left: 4%; bottom: 7%; width: 330px; height: 60px;
+  background: url("img/dfg-logo.png") no-repeat left center; background-size: contain; pointer-events: none;
+}
+
+/* "How creativity is assessed": shrink the method boxes on click 1, highlight CAT on click 3 */
+.reveal .slides section .fragment.shrink-boxes, .reveal .slides section .fragment.cat-highlight { opacity: 1; visibility: inherit; display: block; height: 0; margin: 0; }
+.reveal .slides section .fragment.shrink-boxes.visible ~ .diagram-container .detail { display: none; }
+.reveal .slides section .fragment.cat-highlight.visible ~ .diagram-container .cat-box,
+.reveal .slides section .fragment.cat-highlight.visible ~ .fragment .diagram-container .cat-box { background: #ffe3b3 !important; border: 2px solid #E69F00; }
+.reveal .diagram-container.props .diagram-box { padding: 0.5em 0.6em; }
+/* research questions: tighter than .spread, one fragment per question */
+.reveal .slides section .rq-list .fragment { margin-bottom: 1.1em; }
+.reveal .slides section .rq-list ul { margin-bottom: 0; }

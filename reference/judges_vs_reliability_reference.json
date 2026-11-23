@@ -1,0 +1,111 @@
+{
+  "meta": {
+    "title": "Number of ratings versus reliability: recommended analysis for the sparse, randomly assigned rating design",
+    "purpose": "Reference for verifying that the manuscript's analysis of reliability as a function of the number of ratings per action is carried out and described as recommended. Replaces the earlier version of judges_vs_reliability_reference.json.",
+    "date": "2026-11-11",
+    "provenance": "Recommendation based on the design described by the author; nothing here was computed on the manuscript's data. Action counts are as reported by the author."
+  },
+
+  "design": {
+    "assignment": "The number of ratings per action was assigned at random; there is no pattern in which actions were rated more or less often.",
+    "actions_by_number_of_ratings": {
+      "1": 797,
+      "2": 2627,
+      "3": 117,
+      "4": 117,
+      "5": 189,
+      "6": 181,
+      "7": 114,
+      "8": 66,
+      "9": 36,
+      "10": 20,
+      "more_than_10": 20
+    },
+    "total_actions": 4284,
+    "crossed_block": "No action was rated by all judges. The largest fully crossed block has about 14 judges and about 10 actions.",
+    "crossed_block_verdict": "Not usable for this analysis: an empirical reliability from about 10 scores would be mostly noise. Random assignment makes a crossed block unnecessary."
+  },
+
+  "component_1_grouped_analysis": {
+    "role": "Main result.",
+    "justification": "Because the number of ratings was assigned at random, each group is a random sample of all actions. Reliability by number of ratings is therefore a valid design-based result, not only a description.",
+    "method": "Group actions by the number of ratings received and compute the reliability of the EAP scores within each group.",
+    "report_both_versions_per_group": {
+      "empirical_reliability": "Var(EAP) / (Var(EAP) + mean(PSD^2)), computed within the group",
+      "prior_based": "1 - mean(PSD^2), computed within the group",
+      "expected_relation": "With random assignment the two should agree, because score variance plus mean error variance is close to 1. A divergence indicates that the group's actions are not typical of all actions."
+    },
+    "group_sizes": {
+      "adequate": "Groups with 1 to 7 ratings (114 to 2627 actions each).",
+      "thin": "Groups with 8, 9, 10 and more than 10 ratings (66, 36, 20, 20 actions). Pool them or show them with wide intervals."
+    },
+    "uncertainty": "Bootstrap confidence intervals over actions for every point."
+  },
+
+  "component_2_thinning_within_actions": {
+    "role": "Validation. Recovers what a crossed block would have provided by subsampling ratings per action instead of judges per block.",
+    "common_setup": "Judge parameters are kept fixed at the estimates from the full model; only the scoring is repeated.",
+    "thinning": {
+      "method": "Take the actions with five or more ratings. Randomly keep n = 1, 2, 3, 4, 5 of each action's ratings, rescore by EAP, and compute the empirical reliability at each n. Repeat over many random draws.",
+      "actions_available": 626,
+      "advantage": "The same actions appear at every n, which the grouped analysis cannot offer."
+    },
+    "split_halves": {
+      "method": "Split each action's ratings into two disjoint random sets of n ratings, score both sets, and correlate the two scores across actions. Repeat over many random splits.",
+      "interpretation": "With random judge assignment, this correlation directly estimates the reliability of a score based on n ratings.",
+      "advantages": [
+        "No part-whole overlap between the two scores.",
+        "Depends little on the model's own standard errors, so it is the check that relies least on the model being right."
+      ],
+      "actions_available": {
+        "1_vs_1": {"requires": "2 or more ratings", "actions": 3487},
+        "2_vs_2": {"requires": "4 or more ratings", "actions": 743},
+        "3_vs_3": {"requires": "6 or more ratings", "actions": 437},
+        "4_vs_4": {"requires": "8 or more ratings", "actions": 142},
+        "5_vs_5": {"requires": "10 or more ratings", "actions": 40}
+      },
+      "support": "1 vs 1, 2 vs 2 and 3 vs 3 are well supported; 4 vs 4 is usable; 5 vs 5 is too small to rely on."
+    }
+  },
+
+  "component_3_model_based_curve": {
+    "role": "Ties the results together and extends them beyond the range where the data are dense.",
+    "method": "For each n, draw sets of n judges, sum their information functions I(theta), and compute the expected reliability as the average of I(theta) / (I(theta) + 1) over a N(0,1) distribution of theta. Plot against n.",
+    "judge_sampling": "Sample judges in proportion to the number of ratings each contributed, so that the curve mimics the real design.",
+    "status_of_extension": "Values beyond the range with dense data are model-based projections, not observed results."
+  },
+
+  "classical_reference": {
+    "method": "Spearman-Brown curve, rel(n) = n * r_1 / (1 + (n - 1) * r_1), from a single-rating reliability r_1.",
+    "role": "Classical reference line on the same figure."
+  },
+
+  "figure": {
+    "content": [
+      "Model-based curve as a line.",
+      "Grouped reliabilities as points with confidence intervals.",
+      "Split-half correlations as a second set of points.",
+      "Spearman-Brown curve as the classical reference."
+    ],
+    "x_axis": "Number of ratings per action",
+    "y_axis": "Reliability"
+  },
+
+  "interpretation": {
+    "agreement": "If the three analyses agree for n = 1 to about 7, the relationship is well supported in that range, with a model-based projection beyond it.",
+    "disagreement": "A gap between the split-half points and the other two is informative, because the split-half values depend least on the model being correct."
+  },
+
+  "checks_for_the_manuscript": [
+    "States that the number of ratings per action was randomly assigned, as the basis for treating the grouped analysis as design-based.",
+    "Does not base the analysis on the fully crossed block of about 10 actions.",
+    "Reports both reliability versions per group, or states which one is shown.",
+    "Pools or clearly marks the thin groups (8 or more ratings) and gives confidence intervals.",
+    "States that judge parameters were held fixed when rescoring thinned or split ratings.",
+    "Split-half sets are disjoint; scores are not correlated with scores that include the same ratings.",
+    "Does not rely on the 5 vs 5 split (40 actions).",
+    "States how judges were sampled for the model-based curve.",
+    "Labels every curve or point set by type (model-based, grouped empirical, split-half, Spearman-Brown).",
+    "Presents values beyond the dense range as projections."
+  ]
+}

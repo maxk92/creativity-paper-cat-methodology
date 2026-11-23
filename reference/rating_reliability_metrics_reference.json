@@ -1,0 +1,121 @@
+{
+  "meta": {
+    "title": "Evaluation metrics for creativity ratings: Cronbach's alpha, Krippendorff's alpha, Spearman-Brown, JRT reliability",
+    "purpose": "Reference for verifying that a manuscript describes these metrics, their limitations, and their appropriate use in a fully crossed block versus a sparse rating design correctly.",
+    "date": "2026-11-11",
+    "provenance": "Standard psychometric results stated from general knowledge; no numbers here were computed on the manuscript's data. Companion file: jrt_reference.json (JRT model, estimation, scoring).",
+    "definitions": {
+      "fully_crossed_block": "Every judge rates every product in the block (complete product x judge matrix).",
+      "sparse_design": "Each product is rated by only a subset of the judges; subsets differ between products.",
+      "key_distinction": "Reliability of an aggregated score (how well a mean or model score separates products) is a different quantity from agreement of individual ratings (whether judges assign the same value). Do not use the two terms interchangeably."
+    }
+  },
+
+  "cronbach_alpha": {
+    "measures": "Reliability (internal consistency) of the sum or mean rating across k judges: the share of variance in the composite that is consistent across judges.",
+    "formula": "alpha = k/(k-1) * (1 - sum of judge variances / variance of the sum score). Equivalent to a two-way consistency intraclass correlation for the mean of k judges.",
+    "level": "The composite of k judges. Increases with the number of judges.",
+    "properties": [
+      "Based on covariances between judges; additive severity differences between judges do not lower it.",
+      "Treats ratings as interval-scaled.",
+      "It is not an index of agreement. Describing it as 'inter-rater agreement' is imprecise; 'inter-rater reliability of the mean rating' or 'consistency' is correct."
+    ],
+    "limitations": [
+      "Requires a complete product x judge matrix.",
+      "Assumes judges are essentially tau-equivalent (equally good indicators) with uncorrelated errors; with unequal judges it is a lower bound to the reliability of the mean.",
+      "One error variance for all products; gives no product-specific precision.",
+      "Refers to the unweighted mean; says nothing about differences in judge discrimination or scale use.",
+      "Depends on the variance of the products in the sample (restricted range lowers it)."
+    ],
+    "in_sparse_design": {
+      "status": "Not appropriate as the reliability of the available scores.",
+      "why_it_overstates": [
+        "Listwise deletion: only products rated by all judges are kept. Ratings are dropped, the remaining subset may be small or unrepresentative, and the coefficient describes a full-panel mean that most products never received.",
+        "Pairwise covariances: the coefficient is assembled for a complete panel of k judges, i.e. it assumes a design that does not exist. Each real product is rated by fewer judges, so its mean is less reliable than the coefficient implies.",
+        "In both cases the result overestimates the reliability of the scores actually obtained in the sparse design.",
+        "It additionally ignores that means from different judge subsets are confounded with judge severity, which adds error that alpha does not count."
+      ],
+      "wording_note": "Correct claim: Cronbach's alpha overstates the reliability (consistency) of sparse-design scores because it either discards ratings or presumes a fully crossed design. Avoid saying it overstates 'agreement' without qualification, since alpha is not an agreement coefficient; if the manuscript uses 'agreement' loosely, flag it."
+    }
+  },
+
+  "krippendorff_alpha": {
+    "measures": "Chance-corrected agreement of individual ratings: whether judges assign the same value to the same product.",
+    "formula": "alpha = 1 - D_o / D_e, where D_o is the observed disagreement among ratings of the same product and D_e the disagreement expected if ratings were assigned to products at random. The difference function depends on the chosen measurement level (nominal, ordinal, interval, ratio).",
+    "level": "A single rating. Does not increase systematically with the number of judges.",
+    "properties": [
+      "Handles any number of judges and missing ratings natively, so it is computable in sparse designs.",
+      "Treats judges as interchangeable.",
+      "Systematic severity differences between judges count as disagreement (absolute agreement).",
+      "With the interval metric it is close to a one-way single-rating intraclass correlation.",
+      "Usually much lower than Cronbach's alpha on the same data, because it refers to single ratings and penalises severity differences."
+    ],
+    "limitations": [
+      "Not the reliability of an aggregated score; a low value does not imply that the mean rating or a model-based score is unreliable.",
+      "Penalises exactly the judge tendencies (severity, scale use) that JRT models and accounts for.",
+      "Value depends on the chosen measurement level; this must be reported (ordinal is the natural choice for 1-5 ratings).",
+      "Sensitive to the spread of products: low variance between products lowers it.",
+      "One coefficient for the whole panel; no judge-specific or product-specific information."
+    ]
+  },
+
+  "spearman_brown": {
+    "measures": "Not a coefficient of its own but a projection: the reliability of the mean of k ratings, given the reliability of a single rating.",
+    "formula": "rel_k = k * r_1 / (1 + (k - 1) * r_1), where r_1 is the single-rating reliability (e.g. a single-rating intraclass correlation from a variance-components model).",
+    "relations": "Standardised Cronbach's alpha equals Spearman-Brown applied to the mean inter-judge correlation.",
+    "use": "Classical estimate of the reliability of raw mean ratings when products have fewer than all judges: step a single-rating reliability up to the number of ratings a product actually has.",
+    "limitations": [
+      "Assumes parallel, interchangeable judges with equal error variance; ignores differences in discrimination and scale use.",
+      "The result depends on which single-rating reliability is used. When different products are rated by different judges, judge severity variance is part of the error, so an absolute-agreement / one-way single-rating coefficient is the appropriate input; a consistency coefficient would overstate.",
+      "With varying numbers of ratings per product there is no single k; use the actual k per product or state the summary used (e.g. harmonic mean).",
+      "Gives one reliability per k, not a product-specific standard error."
+    ]
+  },
+
+  "jrt_reliability": {
+    "measures": "Reliability of the model-based product scores (EAP) from the fitted judge response model, built from product-specific standard errors.",
+    "variants": {
+      "empirical": "Var(EAP) / (Var(EAP) + mean of squared posterior SDs). Describes the scores actually obtained; valid with missing ratings because each product contributes its own standard error.",
+      "expected_marginal": "Average over a N(0,1) product distribution of I(theta) / (I(theta) + 1), where I is the summed information of a stated set of judges. Assumes every product is rated by all judges in that set.",
+      "conditional": "I(theta) / (I(theta) + 1) at a given theta; shows where on the scale precision is high or low."
+    },
+    "properties": [
+      "Accounts for judge differences in severity, scale use and discrimination.",
+      "Precision can differ between products and along the scale.",
+      "Places products rated by different judge subsets on one scale, provided the design is connected."
+    ],
+    "limitations": [
+      "Model-dependent: takes the fitted model at face value. Overestimated discriminations or violated local independence inflate it.",
+      "Standard errors of scores condition on the estimated judge parameters and omit their uncertainty.",
+      "Relies on the N(0,1) latent distribution (identification, EAP shrinkage).",
+      "Requires a connected design and enough ratings per judge and category for stable parameters.",
+      "Expected reliability computed over all judges overstates precision in a sparse design; the empirical version is the one that reflects the real design.",
+      "Refers to a different score than Cronbach's alpha (weighted model score versus unweighted mean), so a higher value is not by itself evidence of more accurate scores."
+    ]
+  },
+
+  "recommended_use": {
+    "fully_crossed_block": {
+      "reliability_of_mean_rating": "Cronbach's alpha (standard in the consensual assessment literature); interpret as a lower bound when judges are unequal.",
+      "reliability_of_model_scores": "JRT empirical reliability; expected and conditional reliability are also meaningful here because the full panel rated every product.",
+      "agreement_description": "Krippendorff's alpha (ordinal) as a supplementary description of how interchangeable judges are; not the reliability of the aggregate.",
+      "spearman_brown": "Not needed for the full panel; useful only to project reliability for fewer or more judges."
+    },
+    "sparse_design": {
+      "reliability_of_model_scores": "JRT empirical reliability is the appropriate primary index.",
+      "classical_counterpart_for_raw_means": "Single-rating intraclass correlation (absolute agreement, from a variance-components model) stepped up with Spearman-Brown to the typical or actual number of ratings per product.",
+      "agreement_description": "Krippendorff's alpha (ordinal), computable with missing data; descriptive only.",
+      "not_appropriate": "Cronbach's alpha as the reliability of the sparse-design scores: it overstates, because it either drops ratings (listwise) or assumes a fully crossed design that is not the real one (pairwise). JRT expected reliability over the whole judge pool has the same problem unless explicitly presented as a hypothetical full-panel value."
+    }
+  },
+
+  "statements_to_flag_in_a_manuscript": [
+    "Cronbach's alpha described as agreement between judges.",
+    "Cronbach's alpha reported for a sparse design without stating how missing ratings were handled and that it refers to a complete panel.",
+    "Krippendorff's alpha reported without its measurement level, or interpreted as the reliability of mean or model-based scores.",
+    "Direct comparison of Cronbach's and Krippendorff's alpha as if they were on the same level (composite versus single rating).",
+    "Spearman-Brown applied without stating the single-rating coefficient and the k used.",
+    "JRT expected (marginal) reliability presented as the reliability of sparse-design scores.",
+    "A higher JRT reliability than Cronbach's alpha presented as proof that JRT scores are more accurate."
+  ]
+}

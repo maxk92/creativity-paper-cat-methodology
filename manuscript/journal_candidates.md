@@ -10,6 +10,12 @@ Manuscript as of draft 4 (for the compliance checks below): abstract 252 words; 
 excluding references; 10 tables and figures in the main text and 27 in the supplement; written in first person
 plural ("we"); exploratory secondary analysis, not preregistered; Quarto source rendering to .docx and .pdf.
 
+
+## Daniel:
+1) Journal of Creative Behavior
+2) Behaviour Research Methods
+3) Psychological Assessment
+
 ## Summary
 
 | # | Journal | Publisher | JIF 2025 [2024] | JCR quartile (category) | Fit | Submission files |

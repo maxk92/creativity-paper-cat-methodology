@@ -1,0 +1,5 @@
+action,rater,given,n,percentile,mean,median,share_at_or_below
+bale,R19,6,250,86.6,4.01,4.0,0.936
+bale,R02,5,873,82.0,3.03,3.0,0.872
+danilo,R01,3,1174,79.0,2.16,2.0,0.9
+danilo,R06,4,520,93.8,1.76,1.0,0.971

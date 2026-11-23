@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "title": "Rater infit and outfit: calculation, meaning, interpretation",
+    "purpose": "Reference for verifying that a manuscript computes, describes and interprets rater infit and outfit statistics correctly in a JRT (graded response model) analysis with a sparse rating design.",
+    "date": "2026-11-11",
+    "provenance": "Standard definitions stated from general knowledge; nothing here was computed on the manuscript's data. Software function names are unverified.",
+    "notation": {
+      "i": "action (rated object)",
+      "j": "rater",
+      "k": "rating category",
+      "x_ij": "observed rating of action i by rater j",
+      "theta_hat_i": "estimated score of action i",
+      "P_jk(theta)": "model probability that rater j gives rating k at theta",
+      "N_j": "number of actions rated by rater j"
+    }
+  },
+
+  "calculation": {
+    "expected_rating": "E_ij = sum over k of k * P_jk(theta_hat_i)",
+    "model_variance": "W_ij = sum over k of (k - E_ij)^2 * P_jk(theta_hat_i)",
+    "standardised_residual": "z_ij = (x_ij - E_ij) / sqrt(W_ij)",
+    "outfit": "Outfit_j = (1 / N_j) * sum over i of z_ij^2. Unweighted mean of the squared standardised residuals.",
+    "infit": "Infit_j = sum over i of (x_ij - E_ij)^2 / sum over i of W_ij. Equivalently, the mean of z_ij^2 weighted by W_ij (information-weighted).",
+    "scope_of_sums": "Over the actions the rater actually rated.",
+    "form": "Both are mean-square statistics with expected value 1 under the model. Standardised (t or z) versions exist; state which is reported."
+  },
+
+  "meaning": {
+    "common": "Both compare the scatter of a rater's observed ratings around the model's expectation with the scatter the model predicts.",
+    "outfit": "Outlier-sensitive fit. Dominated by a few highly unexpected ratings, typically for actions far from the rater's thresholds.",
+    "infit": "Information-weighted fit. Reflects misfit in the bulk of ordinary ratings, where the rater is informative; more robust to single outliers."
+  },
+
+  "interpretation": {
+    "about_1": "Ratings scatter as much as the model predicts.",
+    "above_1_underfit": "More erratic than predicted: inconsistent or idiosyncratic ratings.",
+    "below_1_overfit": "More predictable than predicted: muted scale use, or ratings that depend on something shared with other raters.",
+    "rules_of_thumb": "0.5 to 1.5 is a commonly cited acceptable range; tighter ranges such as 0.7 to 1.3 are also used. These are conventions, not tests, and should be presented as such.",
+    "high_outfit_with_normal_infit": "Points to a small number of surprising ratings rather than a generally inconsistent rater."
+  },
+
+  "cautions": {
+    "meaning_differs_between_rasch_and_grm": {
+      "rasch_family": "In many-facet Rasch (and other equal-discrimination) models, all raters share one discrimination. A noisy rater therefore shows infit/outfit above 1, a very sharp rater below 1.",
+      "grm_jrt": "In the graded response model each rater has an own discrimination a_j, which absorbs those differences. A noisy rater appears as a low a_j with fit near 1.",
+      "consequence": "In JRT, infit and outfit indicate misfit that the discrimination parameter cannot capture (e.g. erratic individual ratings). They are not measures of rater consistency in the Rasch sense, and values from the two model families are not comparable."
+    },
+    "downward_bias_in_sparse_designs": {
+      "mechanism": "theta_hat_i is estimated from the same ratings whose residuals are evaluated. For an action with a single rating, the score is determined by that rating, so the residual is artificially small. With two ratings the effect is weaker but present.",
+      "consequence": "When most actions have one or two ratings, values below 1 are expected and must not be read as overfit.",
+      "remedy": "Compute the statistics only on actions with three or more ratings, or report the restriction used."
+    },
+    "score_type": "Values depend on which score is plugged in (e.g. shrunken EAP versus ML/WLE); state it.",
+    "small_N_j": "For raters with few ratings the statistics are unstable."
+  },
+
+  "software_unverified": {
+    "mirt": "itemfit() is believed to offer infit and outfit; originally intended for Rasch-family models. Check the documentation.",
+    "jrt": "Believed to report them via the additional statistics option. Check the documentation."
+  },
+
+  "statements_to_flag_in_a_manuscript": [
+    "Infit/outfit interpreted as rater consistency or discrimination in a GRM-based analysis.",
+    "Values below 1 interpreted as overfit or redundancy without addressing the sparse design.",
+    "Infit/outfit from an MFRM and from the GRM compared as if equivalent.",
+    "Cut-off ranges presented as formal tests or without naming the convention.",
+    "No statement of whether mean-square or standardised values are reported.",
+    "No statement of which actions (number of ratings) entered the calculation.",
+    "Infit and outfit definitions swapped (infit is the information-weighted one; outfit the unweighted, outlier-sensitive one)."
+  ]
+}
