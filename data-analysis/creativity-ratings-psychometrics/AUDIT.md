@@ -53,6 +53,7 @@ Branch `audit/jrt-spec`. Started 2026-10-22. The spec is `../../ANLEITUNG_JRT_Au
 | M1 cannot be estimated in mirt with 7 categories | **Use `sirt::rm.facets` as M1.** Keep raters with fewer than 15 ratings for now |
 | Internal category gaps (R20, R22) | **Flag them, do not exclude** (they may be excluded later). Superseded by the 15-ratings minimum below, which removes both |
 | Minimum ratings per rater (after the first full run) | **Exclude raters with fewer than 15 ratings** from the whole pipeline (R20, R21, R22; 24 ratings, 1 product drops out). Reason: parameters not identified. The all-raters run is kept in git (commit `5a0cf88`) as a sensitivity comparison |
+| Minimum ratings per rater, revisited (2026-11-23) | **Kept.** All raters were modelled for a trial run (sensitivity reports in `../rater-exclusion-sensitivity/`). Observed reliability and the scores did not change materially, but the four raters with fewer than 15 ratings (R20, R21, R22, R28) had the least precise parameters relative to their estimates, mostly low information and internal category gaps, and lowered the simulated reliability. The 15-ratings rule stays; the all-raters refit remains the sensitivity analysis |
 | Deletion list (§4) | **Approved in full.** The paper switches to the GRM outputs, so `02d` is removed too |
 
 ## 1. Inventory

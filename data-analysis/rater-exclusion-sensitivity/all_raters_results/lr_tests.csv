@@ -1,0 +1,3 @@
+comparison,logLik_restricted,logLik_general,X2,df,p,df_expected_formula,df_matches_formula,note
+M1 vs M2: rater-specific thresholds,-15234.855924904066,-14783.199235263037,903.313379282059,118,3.2752130221392674e-121,140,FALSE,"Across software (rm.facets vs mirt). df differ from (J-1)(K-2) when raters leave END categories unused (fewer step parameters in M2). Raters with internal category gaps (R20, R22, R27, R28) make the nesting approximate."
+M2 vs M3: rater-specific discriminations,-14783.199235263037,-14691.387431419778,183.62360768651706,28,8.231244464205216e-25,28,TRUE,"mirt, same object"

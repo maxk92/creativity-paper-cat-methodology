@@ -1,0 +1,156 @@
+---
+title: "Sensitivity analysis: the JRT results on all raters"
+subtitle: "Main pipeline (raters with ≥ 15 ratings) versus the same pipeline on all raters"
+date: today
+format:
+  html:
+    embed-resources: true
+    toc: true
+    code-fold: true
+execute:
+  warning: false
+  message: false
+---
+
+On 2026-11-23 the whole JRT pipeline (`R/01_grm.R`, `02_comparison.R`, `03_simulations.R`)
+was run once on all raters instead of only those with at least 15 ratings, and the
+manuscript was briefly updated to it. The rule was then kept. This report sets the
+results of the two runs side by side for reliability and rater parameters.
+
+- **≥ 15 ratings** (main analysis): `../creativity-ratings-psychometrics/results/`, 25 raters.
+- **All raters**: `all_raters_results/`, written by `run_all_raters.sh`, which runs the unchanged
+  pipeline scripts with the cut-off lowered to 2 ratings. R29 (one rating, one category) has
+  no estimable parameters and stays out in both runs. No Krippendorff bootstrap in this run.
+
+Raters added in the all-rater run: R20 (13 ratings), R21 (9), R22 (2), R28 (7).
+
+```{r setup}
+suppressPackageStartupMessages({library(readr); library(dplyr); library(tidyr); library(ggplot2); library(knitr)})
+MAIN <- "../creativity-ratings-psychometrics/results"
+rd <- function(name, set) {
+  f <- if (set == "all") file.path("all_raters_results", paste0(name, ".csv")) else
+    Filter(file.exists, file.path(MAIN, c("main", "supplement"), paste0(name, ".csv")))[1]
+  read_csv(f, show_col_types = FALSE)
+}
+both <- function(name) bind_rows(`≥ 15 ratings` = rd(name, "min15"), `all raters` = rd(name, "all"), .id = "run")
+added <- c("R20", "R21", "R22", "R28")
+f3 <- function(x) sprintf("%.3f", x)
+```
+
+## Data basis
+
+```{r design}
+both("design_summary") %>%
+  filter(quantity %in% c("n_ratings", "n_products", "n_raters", "ratings_per_product_max", "products_with_1_rating",
+                         "ratings_per_rater_min", "matrix_fill", "rater_pairs_total", "rater_pairs_without_overlap",
+                         "raters_with_category_gaps", "raters_with_internal_gap")) %>%
+  mutate(value = ifelse(grepl("^[0-9.]+$", value), as.character(signif(as.numeric(value), 4)), value)) %>%
+  pivot_wider(names_from = run, values_from = value) %>% kable()
+```
+
+## Reliability
+
+```{r reliability}
+ci <- both("reliability_ci") %>% transmute(run, quantity, est = estimate, ci = sprintf("[%s, %s]", f3(ci_low), f3(ci_high)), n_draws_rejected)
+ka <- both("krippendorff_alpha") %>% transmute(run, quantity = "krippendorff_alpha (ordinal)", est = alpha, ci = "", n_draws_rejected = NA)
+ca <- both("cronbach_alpha") %>% transmute(run, quantity = paste0("cronbach_alpha: ", variant), est = raw_alpha, ci = "", n_draws_rejected = NA)
+bind_rows(ci, ka, ca) %>% mutate(value = paste(f3(est), ci)) %>% select(run, quantity, value, n_draws_rejected) %>%
+  pivot_wider(names_from = run, values_from = c(value, n_draws_rejected)) %>%
+  select(quantity, `value_≥ 15 ratings`, `value_all raters`, `n_draws_rejected_≥ 15 ratings`, `n_draws_rejected_all raters`) %>%
+  kable(caption = "Reliability and agreement. Intervals: 95% over 200 accepted parameter draws; n_draws_rejected = invalid GRM draws (a ≤ 0 or unordered thresholds) that had to be replaced.")
+```
+
+```{r by-n}
+obs <- both("reliability_by_n_ratings") %>% filter(n_ratings <= 6) %>% transmute(run, k = n_ratings, observed = sprintf("%s (%d)", f3(rel_post_mean), n_products))
+sim <- both("reliability_projection") %>% filter(k <= 6) %>% transmute(run, k, simulated = sprintf("%s [%s, %s]", f3(empirical), f3(empirical_q025), f3(empirical_q975)))
+full_join(obs, sim, by = c("run", "k")) %>% pivot_wider(names_from = run, values_from = c(observed, simulated)) %>%
+  kable(caption = "Observed mean rel_post by number of ratings (number of products) and simulated reliability of the projection (k random raters per product, 95% range over replications).")
+both("reliability_min_ratings") %>% transmute(run, design, n_ratings_added, simulated = sprintf("%s [%s, %s]", f3(empirical), f3(empirical_q025), f3(empirical_q975)), observed = f3(observed_empirical_reliability)) %>%
+  kable(caption = "Top-up simulation: actual design and at least four ratings per product.")
+```
+
+## Rater parameters
+
+```{r raters}
+par <- both("rater_parameters") %>% select(run, rater_id, n_ratings, a, a_se, b1, b1_se)
+inf <- both("rater_information_ci") %>% select(run, rater_id, info = info_weighted_area, info_ci_low, info_ci_high)
+gap <- both("category_usage") %>% select(run, rater_id, n_categories_used, internal_gap)
+rp <- par %>% left_join(inf, by = c("run", "rater_id")) %>% left_join(gap, by = c("run", "rater_id")) %>%
+  mutate(group = if_else(rater_id %in% added, "< 15 ratings", "≥ 15 ratings"),
+         info_ci_width = info_ci_high - info_ci_low, a_se_rel = a_se / a)
+rp_all <- rp %>% filter(run == "all raters")
+rp_all %>% arrange(n_ratings) %>%
+  transmute(rater_id, n_ratings, a = sprintf("%.2f (%.2f)", a, a_se), `SE(a)/a` = round(a_se_rel, 2),
+            b1 = sprintf("%.2f (%.2f)", b1, b1_se), information = sprintf("%.2f [%.2f, %.2f]", info, info_ci_low, info_ci_high),
+            categories_used = n_categories_used, internal_gap) %>%
+  kable(caption = "GRM rater parameters in the all-rater run, sorted by number of ratings: discrimination a and first threshold b1 with SE, average information with 95% interval over parameter draws.")
+```
+
+```{r rater-summary}
+rp_all %>% group_by(group) %>%
+  summarise(raters = n(), median_info = median(info), min_info = min(info), max_info = max(info),
+            median_SE_a_over_a = median(a_se_rel), max_SE_a = max(a_se),
+            median_info_ci_width_over_info = median(info_ci_width / info), internal_gaps = sum(internal_gap)) %>%
+  kable(digits = 2, caption = "Raters with fewer than 15 ratings versus the others (all-rater run).")
+common <- rp %>% filter(!rater_id %in% added) %>% select(run, rater_id, a) %>% pivot_wider(names_from = run, values_from = a)
+```
+
+The discriminations of the 25 common raters agree closely between the two runs
+(*r* = `r f3(cor(common[[2]], common[[3]]))`, largest absolute difference
+`r f3(max(abs(common[[2]] - common[[3]])))`).
+
+```{r rater-fig}
+#| fig-width: 10
+#| fig-height: 3.8
+#| fig-cap: "All-rater run: discrimination a (±1.96 SE, clipped to the panel) and average information (95% interval) against the number of ratings per rater (log scale). Dashed line: 15 ratings."
+d <- bind_rows(
+  rp_all %>% transmute(rater_id, n_ratings, group, quantity = "discrimination a (± 1.96 SE)", est = a, lo = a - 1.96 * a_se, hi = a + 1.96 * a_se),
+  rp_all %>% transmute(rater_id, n_ratings, group, quantity = "average information (95% interval)", est = info, lo = info_ci_low, hi = info_ci_high))
+lims <- d %>% group_by(quantity) %>% summarise(ymax = if (first(quantity) == "discrimination a (± 1.96 SE)") 7 else max(hi))
+ggplot(d, aes(n_ratings, est, colour = group)) +
+  geom_vline(xintercept = 15, linetype = 2, colour = "grey50") +
+  geom_linerange(aes(ymin = pmax(lo, -1), ymax = pmin(hi, 7))) + geom_point(size = 2) +
+  geom_text(data = filter(d, group == "< 15 ratings"), aes(label = rater_id), nudge_x = 0.12, size = 3, show.legend = FALSE) +
+  scale_x_log10() + scale_colour_manual(values = c("#c2410c", "#64748b")) +
+  facet_wrap(~quantity, scales = "free_y") + labs(x = "ratings per rater (log scale)", y = NULL, colour = NULL) +
+  theme_minimal(base_size = 11) + theme(legend.position = "bottom")
+```
+
+## Other results that change
+
+```{r other}
+sev <- function(set) rd("rater_parameters_by_model", set) %>% filter(model == "M1_RSM", parameter == "b_rater")
+m3 <- function(set) rd("discrimination_m3", set)
+fit <- function(set) rd("model_fit", set)
+other <- function(set) {
+  s <- sev(set); m <- m3(set); f <- fit(set)
+  bic <- setNames(f$BIC, f$model)
+  c(`M1 severity range (logits)` = sprintf("%.3f (%s) to %.3f (%s), span %.3f", min(s$estimate), s$rater_id[which.min(s$estimate)], max(s$estimate), s$rater_id[which.max(s$estimate)], diff(range(s$estimate))),
+    `M3 discrimination range` = sprintf("%.3f (%s) to %.3f (%s)", min(m$estimate), m$rater_id[which.min(m$estimate)], max(m$estimate), m$rater_id[which.max(m$estimate)]),
+    `BIC: GRM minus M1` = sprintf("%.3f", bic[["GRM"]] - bic[["M1_RSM"]]),
+    `GRM first threshold b1, range` = { p <- rd("rater_parameters", set); sprintf("%.2f (%s) to %.2f (%s)", min(p$b1), p$rater_id[which.min(p$b1)], max(p$b1), p$rater_id[which.max(p$b1)]) })
+}
+tibble(quantity = names(other("min15")), `≥ 15 ratings` = other("min15"), `all raters` = other("all")) %>% kable()
+```
+
+## Note
+
+```{r note}
+#| echo: false
+#| results: asis
+g <- rp_all %>% filter(group == "< 15 ratings")
+o <- rp_all %>% filter(group == "≥ 15 ratings")
+rel <- both("reliability_ci") %>% filter(quantity == "empirical_marginal_reliability")
+pr <- both("reliability_projection") %>% filter(k == 1)
+cat(sprintf(
+"The four raters with fewer than 15 ratings (R20, R21, R22, R28) had far less precise parameter estimates, relative to their size, than the other raters: the median SE(a)/a was %.2f for them against %.2f for the other raters, with extreme values for R22 (a = %.2f, *SE* %.2f; 2 ratings) and R21 (a = %.2f, *SE* %.2f; first threshold %.2f, *SE* %.2f), and their information intervals were much wider relative to the estimate (median width/estimate %.1f against %.1f). Three of them carried little information (R21 %.2f, R28 %.2f, R20 %.2f against a median of %.2f for the other raters), whereas the information of R22 (%.2f) rests on two ratings and has an interval from %.2f to %.2f. Three of the four (%s) left a category inside their observed range unused, against one of the other raters (R27). Including them lowered the simulated reliability, because the projection draws every rater with equal probability (one random rating: %s against %s), and the number of rejected parameter draws rose from %d to %d. The observed reliability of the obtained scores was essentially unchanged (%s against %s). The rule of at least 15 ratings per rater was therefore kept.\n",
+median(g$a_se_rel), median(o$a_se_rel),
+g$a[g$rater_id == "R22"], g$a_se[g$rater_id == "R22"], g$a[g$rater_id == "R21"], g$a_se[g$rater_id == "R21"], g$b1[g$rater_id == "R21"], g$b1_se[g$rater_id == "R21"],
+median(g$info_ci_width / g$info), median(o$info_ci_width / o$info),
+g$info[g$rater_id == "R21"], g$info[g$rater_id == "R28"], g$info[g$rater_id == "R20"], median(o$info),
+g$info[g$rater_id == "R22"], g$info_ci_low[g$rater_id == "R22"], g$info_ci_high[g$rater_id == "R22"],
+paste(g$rater_id[g$internal_gap], collapse = ", "),
+f3(pr$empirical[pr$run == "all raters"]), f3(pr$empirical[pr$run == "≥ 15 ratings"]),
+as.integer(both("reliability_ci")$n_draws_rejected[1]), as.integer(both("reliability_ci") %>% filter(run == "all raters") %>% pull(n_draws_rejected) %>% first()),
+f3(rel$estimate[rel$run == "all raters"]), f3(rel$estimate[rel$run == "≥ 15 ratings"])))
+```

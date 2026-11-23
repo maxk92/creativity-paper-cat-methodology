@@ -2,8 +2,8 @@
 # Krippendorff's alpha (ordinal) by number of ratings per product
 # ------------------------------------------------------------
 # Standalone, hard-coded script (not part of run_pipeline.sh). Reads the
-# pipeline's wide matrix (results/data/ratings_wide.csv: products x the 24
-# retained raters, ratings coded 0-6) and computes irr::kripp.alpha
+# pipeline's wide matrix (results/data/ratings_wide.csv: products x the
+# modelled raters, ratings coded 0-6) and computes irr::kripp.alpha
 # (method = "ordinal", same call as R/02_comparison.R) on product subsets
 # defined by how many ratings a product has: at least k and exactly k, for
 # k = 2, 3, 4, 5. No bootstrap.

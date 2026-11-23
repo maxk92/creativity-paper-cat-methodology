@@ -1,0 +1,223 @@
+---
+title: "What changes if no rater is excluded?"
+subtitle: "Sensitivity check of the rule that drops raters with fewer than 15 ratings"
+date: today
+format:
+  html:
+    embed-resources: true
+    toc: true
+    code-fold: true
+    df-print: kable
+execute:
+  warning: false
+  message: false
+---
+
+The main pipeline (`../creativity-ratings-psychometrics/`) drops raters with fewer than
+15 ratings (`MIN_RATINGS_PER_RATER`). This notebook fits the same GRM (same `mirt`
+settings, via `fit_mirt()` from `R/jrt_functions.R`) with and without that rule and
+compares the two ("final" = with the rule). After a trial run of the whole pipeline on
+all raters, the rule was kept (2026-11-23); see `all_raters_sensitivity.html` for the
+full comparison. It reads the same input file as the pipeline and writes nothing to the
+pipeline folders.
+
+```{r setup}
+PSY <- normalizePath("../creativity-ratings-psychometrics")
+# jrt_functions.R finds its folder from the command line, which under quarto points
+# to quarto itself; hide commandArgs so it falls back to the working directory.
+owd <- setwd(PSY); commandArgs <- function(...) character(0)
+source("R/jrt_functions.R"); rm(commandArgs); setwd(owd)
+library(knitr)
+f3 <- function(x) round(x, 3)
+
+long <- read_csv(INPUT_CSV, show_col_types = FALSE, col_types = cols(action_id = "c", rater_id = "c", .default = "?")) %>%
+  transmute(product_id = action_id, rater_id, x = as.integer(rating_numeric) - SCALE_MIN)
+n_rater <- count(long, rater_id, name = "n_ratings")
+rare <- n_rater$rater_id[n_rater$n_ratings < MIN_RATINGS_PER_RATER]
+
+to_wide <- function(d) {
+  w <- pivot_wider(d, names_from = rater_id, values_from = x) %>% arrange(product_id)
+  m <- as.matrix(w[, rater_order(setdiff(names(w), "product_id"))]); storage.mode(m) <- "integer"
+  rownames(m) <- w$product_id; m
+}
+wide_all <- to_wide(long)
+# A rater who used one category only has no estimable GRM parameters.
+one_cat <- colnames(wide_all)[apply(wide_all, 2, function(x) length(unique(na.omit(x))) < 2)]
+wide_all <- wide_all[, setdiff(colnames(wide_all), one_cat)]
+wide_all <- wide_all[rowSums(!is.na(wide_all)) > 0, ]
+
+wide_fin <- to_wide(filter(long, !rater_id %in% rare))
+```
+
+```{r fit}
+#| cache: true
+grm_fin <- fit_mirt(wide_fin, "graded", SE = TRUE)
+grm_all <- fit_mirt(wide_all, "graded", SE = TRUE)
+```
+
+```{r scores}
+fs_fin <- eap_scores(grm_fin); rownames(fs_fin) <- rownames(wide_fin)
+fs_all <- eap_scores(grm_all); rownames(fs_all) <- rownames(wide_all)
+```
+
+Raters below the cut-off: `r paste0(rare, " (", n_rater$n_ratings[match(rare, n_rater$rater_id)], ")", collapse = ", ")`
+— `r sum(n_rater$n_ratings[n_rater$rater_id %in% rare])` ratings in total.
+`r if (length(one_cat)) paste0(paste(one_cat, collapse = ", "), " used a single category and cannot be modelled even without exclusion, so 'all raters' means all modellable raters.")`
+The all-rater model `r if (extract.mirt(grm_all, "converged")) "converged" else "did NOT converge"`
+in `r extract.mirt(grm_all, "iterations")` EM cycles.
+
+## 1. Overall reliability
+
+```{r q1}
+kripp <- function(w) irr::kripp.alpha(t(w), method = "ordinal")$value
+common <- intersect(rownames(wide_fin), rownames(wide_all))
+rel_tab <- function(mod, fs, w, label) tibble(
+  model = label, raters = ncol(w), ratings = sum(!is.na(w)), products = nrow(w),
+  empirical_rel = empirical_rel(fs), model_based_rel = marginal_rxx(mod),
+  mean_psd = mean(fs[, "SE_F1"]), mean_rel_post = mean(1 - fs[, "SE_F1"]^2),
+  mean_rel_post_common = mean(1 - fs[common, "SE_F1"]^2),
+  krippendorff_alpha = kripp(w))
+q1 <- bind_rows(rel_tab(grm_fin, fs_fin, wide_fin, "final (≥ 15 ratings)"),
+                rel_tab(grm_all, fs_all, wide_all, "all raters"))
+kable(q1, digits = 3, caption = "Reliability with and without the exclusion. empirical_rel = Var(θ̂)/(Var(θ̂)+mean PSD²) (primary figure); model_based_rel = mirt::marginal_rxx (hypothetical product rated by the whole panel); rel_post = 1 − PSD² per product; _common = the products present in both models.")
+th <- cbind(fin = fs_fin[common, "F1"], all = fs_all[common, "F1"])
+```
+
+The product scores of the two models correlate at r = `r sprintf("%.5f", cor(th)[1, 2])`
+(mean |Δθ| = `r f3(mean(abs(th[, 2] - th[, 1])))`, max `r f3(max(abs(th[, 2] - th[, 1])))`).
+The model-based reliability rises because each extra rater adds information for a
+product rated by *everyone*, which no real product is.
+
+## 2. The rarely-rating raters compared with the others
+
+Per rater in the all-rater model: discrimination *a* (with SE), **marginal information**
+(expected Fisher information that one rating adds, averaged over θ ~ N(0, 1)), infit/outfit,
+and **agreement with the rest of the panel**: the Spearman correlation between the rater's
+ratings and the EAP score the same product gets from the *other* raters only (leave-one-rater-out
+EAP with the all-rater parameters, products that nobody else rated are left out).
+
+```{r q2}
+theta_w <- normal_weights(THETA_GRID)
+info_grid <- rater_information(grm_all, THETA_GRID)
+pars <- coef(grm_all, IRTpars = TRUE, printSE = TRUE)
+fit <- itemfit(grm_all, fit_stats = "infit", Theta = fs_all[, "F1", drop = FALSE], method = "EAP")
+loo <- function(j) {
+  rows <- which(!is.na(wide_all[, j]) & rowSums(!is.na(wide_all[, -match(j, colnames(wide_all))])) > 0)
+  resp <- wide_all[rows, , drop = FALSE]; x <- resp[, j]; resp[, j] <- NA
+  th <- fscores(grm_all, method = "EAP", response.pattern = resp, verbose = FALSE)[, "F1"]
+  c(n_with_others = length(rows), rest_agreement = suppressWarnings(cor(x, th, method = "spearman")))
+}
+q2 <- tibble(rater_id = colnames(wide_all)) %>%
+  mutate(n_ratings = colSums(!is.na(wide_all)),
+         group = if_else(rater_id %in% rare, "< 15 ratings", "≥ 15 ratings"),
+         a = sapply(rater_id, \(r) pars[[r]]["par", "a"]),
+         a_se = sapply(rater_id, \(r) pars[[r]]["SE", "a"]),
+         marginal_info = colSums(info_grid * theta_w),
+         infit = fit$infit, outfit = fit$outfit) %>%
+  bind_cols(as_tibble(t(sapply(.$rater_id, loo))))
+kable(q2 %>% arrange(n_ratings), digits = 2, caption = "Raters in the all-rater GRM, sorted by number of ratings.")
+q2 %>% group_by(group) %>%
+  summarise(raters = n(), across(c(a, marginal_info, rest_agreement), list(median = median, min = min, max = max), .names = "{.col}_{.fn}")) %>%
+  kable(digits = 2, caption = "Group summary (median, min, max).")
+```
+
+```{r q2-fig}
+#| fig-width: 10
+#| fig-height: 3.6
+#| fig-cap: "Rater discrimination (±1 SE), marginal information and rest-of-panel agreement against the number of ratings (log scale). Dashed line: the 15-rating cut-off."
+q2 %>% mutate(lo = a - a_se, hi = a + a_se) %>%
+  pivot_longer(c(a, marginal_info, rest_agreement), names_to = "quantity") %>%
+  mutate(lo = if_else(quantity == "a", lo, NA), hi = if_else(quantity == "a", hi, NA),
+         quantity = recode(quantity, a = "discrimination a", marginal_info = "marginal information",
+                           rest_agreement = "agreement with rest (Spearman)")) %>%
+  ggplot(aes(n_ratings, value, colour = group)) +
+  geom_vline(xintercept = MIN_RATINGS_PER_RATER, linetype = 2, colour = "grey50") +
+  geom_linerange(aes(ymin = lo, ymax = hi), na.rm = TRUE) + geom_point(size = 2) +
+  scale_x_log10() + scale_colour_manual(values = c("#c2410c", "#64748b")) +
+  facet_wrap(~quantity, scales = "free_y") + labs(x = "ratings (log scale)", y = NULL, colour = NULL) +
+  theme_minimal(base_size = 11) + theme(legend.position = "bottom")
+```
+
+## 3. Products rated by the rarely-rating raters
+
+For every product that a rater below the cut-off rated: its posterior SD and
+rel~post~ = 1 − PSD² in the final model (without that rating) and in the all-rater
+model (with it), plus the Fisher information that the extra rating contributes at the
+product's θ̂. Adding a rating can only add Fisher information at fixed parameters,
+but the posterior SD can still grow if the rating conflicts with the others.
+As a baseline, the same change is shown for all other products (pure re-estimation
+drift, because their data did not change).
+
+```{r q3}
+rare_in <- intersect(rare, colnames(wide_all))
+rare_rows <- rownames(wide_all)[rowSums(!is.na(wide_all[, rare_in, drop = FALSE])) > 0]
+# Fisher information of the rare raters' ratings at each product's theta-hat (products x rare raters)
+info_rare <- rowSums(rater_information(grm_all, fs_all[rare_rows, "F1"])[, rare_in, drop = FALSE] *
+                       !is.na(wide_all[rare_rows, rare_in, drop = FALSE]))
+names(info_rare) <- rare_rows
+prod <- tibble(product_id = rownames(wide_all)) %>%
+  mutate(rated_by_rare = product_id %in% rare_rows,
+         n_all = rowSums(!is.na(wide_all)),
+         n_fin = unname(rowSums(!is.na(wide_fin))[product_id]),
+         theta_fin = fs_fin[match(product_id, rownames(fs_fin)), "F1"], theta_all = fs_all[product_id, "F1"],
+         psd_fin = fs_fin[match(product_id, rownames(fs_fin)), "SE_F1"], psd_all = fs_all[product_id, "SE_F1"],
+         rel_fin = 1 - psd_fin^2, rel_all = 1 - psd_all^2, d_rel = rel_all - rel_fin)
+prod_rare <- prod %>% filter(rated_by_rare) %>%
+  mutate(info_from_rare = info_rare[product_id],
+         raters = sapply(product_id, \(p) paste(colnames(wide_all)[!is.na(wide_all[p, ])], collapse = ";")))
+prod %>% filter(!is.na(n_fin)) %>% group_by(rated_by_rare) %>%
+  summarise(products = n(), mean_rel_fin = mean(rel_fin), mean_rel_all = mean(rel_all),
+            mean_d_rel = mean(d_rel), min_d_rel = min(d_rel), max_d_rel = max(d_rel),
+            share_rel_lower = mean(d_rel < -1e-4), mean_abs_d_theta = mean(abs(theta_all - theta_fin))) %>%
+  kable(digits = 3, caption = "Change in per-product reliability (all-rater minus final model), products present in both models.")
+```
+
+`r sum(is.na(prod_rare$n_fin))` product(s) were rated *only* by raters below the cut-off
+and are therefore absent from the final model; in the all-rater model they get
+rel~post~ = `r paste(f3(prod_rare$rel_all[is.na(prod_rare$n_fin)]), collapse = ", ")`.
+
+```{r q3-table}
+prod_rare %>% arrange(d_rel) %>%
+  transmute(product = substr(product_id, 1, 8), raters, n_fin, n_all, theta_fin, theta_all,
+            rel_fin, rel_all, d_rel, info_from_rare) %>%
+  kable(digits = 3, caption = "Each product rated by a rater below the cut-off (sorted by the change in rel_post).")
+```
+
+```{r q3-fig}
+#| fig-width: 6
+#| fig-height: 4.5
+#| fig-cap: "Per-product rel_post without (final model) and with (all-rater model) the ratings of the raters below the cut-off. Points above the diagonal gain reliability."
+ggplot(prod_rare %>% filter(!is.na(n_fin)), aes(rel_fin, rel_all, colour = factor(n_all - n_fin))) +
+  geom_abline(linetype = 2, colour = "grey50") + geom_point(size = 2) +
+  scale_colour_manual(values = c("1" = "#c2410c", "2" = "#1d4ed8", "3" = "#15803d")) +
+  coord_equal() + labs(x = "rel_post, final model", y = "rel_post, all raters", colour = "added ratings") +
+  theme_minimal(base_size = 11)
+```
+
+## Answers
+
+*Filled in from the output above; see the tables for the exact values.*
+
+```{r answers}
+#| echo: false
+#| results: asis
+g <- q2 %>% group_by(group) %>% summarise(across(c(a, marginal_info, rest_agreement), median))
+r3 <- prod %>% filter(rated_by_rare, !is.na(n_fin))
+cat(sprintf(
+"1. **Overall reliability** barely moves: empirical marginal reliability %.3f (final) vs %.3f (all raters); mean rel~post~ over the common products %.3f vs %.3f; Krippendorff's α %.3f vs %.3f. The model-based (full-panel) value goes from %.3f to %.3f only because the hypothetical full panel gets bigger.\n\n",
+q1$empirical_rel[1], q1$empirical_rel[2], q1$mean_rel_post_common[1], q1$mean_rel_post_common[2],
+q1$krippendorff_alpha[1], q1$krippendorff_alpha[2], q1$model_based_rel[1], q1$model_based_rel[2]))
+cat(sprintf(
+"2. **Raters below the cut-off** (median over raters, < 15 vs ≥ 15 ratings): discrimination a = %.2f vs %.2f, marginal information %.2f vs %.2f, rest-of-panel agreement %.2f vs %.2f. Their discrimination SEs are large (see table), so their individual parameters are poorly determined, which was the reason for the rule.\n\n",
+g$a[1], g$a[2], g$marginal_info[1], g$marginal_info[2], g$rest_agreement[1], g$rest_agreement[2]))
+cat(sprintf(
+"3. **Products they rated** (%d present in both models): mean rel~post~ %.3f without vs %.3f with their ratings (mean change %+.3f; %d of %d products lose reliability, largest loss %.3f). Products not touched by these raters change by a mean of %+.4f (re-estimation drift).\n",
+nrow(r3), mean(r3$rel_fin), mean(r3$rel_all), mean(r3$d_rel), sum(r3$d_rel < -1e-4), nrow(r3), min(r3$d_rel),
+mean(prod$d_rel[!prod$rated_by_rare & !is.na(prod$n_fin)])))
+rr <- q2 %>% filter(group == "< 15 ratings") %>% arrange(a)
+cat(sprintf(
+"4. **Notes.** The products these raters saw are densely rated (median %d ratings in the final model vs %g overall), so one extra rating changes little. Individually: %s. The product rated only by %s gets rel~post~ = %.3f in the all-rater model, i.e. no usable score.\n",
+as.integer(median(r3$n_fin)), median(prod$n_fin, na.rm = TRUE),
+paste(sprintf("%s (%d ratings) a = %.2f, SE %.2f, rest agreement %.2f", rr$rater_id, rr$n_ratings, rr$a, rr$a_se, rr$rest_agreement), collapse = "; "),
+prod_rare$raters[is.na(prod_rare$n_fin)], prod_rare$rel_all[is.na(prod_rare$n_fin)]))
+```

@@ -1,0 +1,28 @@
+quantity,value
+n_ratings,9862
+n_products,3842
+n_raters,29
+min_ratings_per_rater (exclusion cut-off),2
+raters_excluded,R29
+ratings_excluded,1
+products_dropped,0
+n_categories,7
+scale,1-7
+internal_coding,rating - 1 (0-6)
+ratings_per_product_mean,2.56689224362311
+ratings_per_product_median,2
+ratings_per_product_min,1
+ratings_per_product_max,16
+ratings_per_product_harmonic_mean,1.81947602369189
+products_with_1_rating,858
+ratings_per_rater_min,2
+ratings_per_rater_max,1174
+matrix_fill,0.0885135256421763
+n_components,1
+rater_pairs_total,406
+rater_pairs_without_overlap,59
+rater_pairs_overlap_median,9.5
+raters_with_category_gaps,12
+raters_with_internal_gap,4
+duplicate_pairs_resolved_in_00,26
+duplicate_pairs_conflicting,1

@@ -13,6 +13,8 @@ pipeline in `R/`. The Bayesian notebooks (`02a`–`02d`, `03`) have been removed
 
 ## Open author decisions
 - [x] Exclude raters with fewer than 15 ratings: decided 2026-10-22, applied in `R/01_data_design.R`.
+  Revisited 2026-11-23: an all-raters trial run was made and the rule was kept (reports in
+  `../rater-exclusion-sensitivity/`; the all-raters refit stays in `sensitivity_rater_exclusion.csv`).
 
 ## Optional (not in the spec)
 - [ ] Per-rater rates of "action not recognised" (from `00`). Check whether they relate to severity

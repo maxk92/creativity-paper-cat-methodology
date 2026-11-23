@@ -1,0 +1,2 @@
+model,itemtype,method,quadpts,se_type,tol,converged,iterations,information_matrix_pd,condition_number,logLik,npar,AIC,BIC,SABIC,n_products,n_ratings
+GRM,graded,EM,61,Oakes,1e-4,TRUE,457,TRUE,32221.474669880074,-14666.269934571224,181,29694.53986914245,30826.468319284908,30251.334773235794,3842,9862

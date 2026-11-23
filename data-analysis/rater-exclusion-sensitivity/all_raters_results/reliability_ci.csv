@@ -1,0 +1,3 @@
+quantity,estimate,ci_low,ci_high,n_draws,n_draws_rejected,seed,method
+empirical_marginal_reliability,0.6945299850802763,0.6740048482490278,0.7077789610400471,200,1325,20260713,"percentile interval over parameter draws (asymptotic normal, Oakes covariance) with products resampled"
+model_based_marginal_reliability,0.9720871902291749,0.969680231895567,0.9758022880151609,200,1325,20260713,"percentile interval over parameter draws (asymptotic normal, Oakes covariance); grid version of marginal_rxx"

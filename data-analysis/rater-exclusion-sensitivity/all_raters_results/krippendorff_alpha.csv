@@ -1,0 +1,2 @@
+method,alpha,ci_low,ci_high,ci_type,n_boot,n_boot_failed,seed,n_units,n_pairable_units,n_raters,package,interpretation
+ordinal,0.40096951664727665,NA,NA,no bootstrap in this run (JRT_SKIP_KRIPP_BOOT),0,0,20260713,3842,2984,29,irr 0.85,Agreement (consensus) of single ratings; raters treated as interchangeable.

@@ -1,0 +1,11 @@
+index,refers_to,value,ci_or_note
+Krippendorff's alpha (ordinal),consensus of single ratings,0.40096951664727665,no bootstrap in this run
+Cronbach's alpha (pairwise covariances),consistency of the unweighted rater mean,0.9594611791252234,"95% CI [0.930, 0.969] (bootstrap, 509 of 1,000 replications computable, approximate); 18 raters; removed: R22;R28;R26;R21;R12;R19;R14;R02;R20;R27;R17"
+Cronbach's alpha (fully crossed block),consistency of the unweighted rater mean (crossed subset),0.7851541142700931,"95% CI [0.736, 0.822] (bootstrap, 1,000 replications); 3 raters, 270 products"
+GRM: empirical marginal reliability,actual theta_hat (primary),0.6945299850802763,"95% CI [0.674, 0.708] (200 parameter draws); Var(theta)/(Var(theta)+mean(PSD^2))"
+GRM: model-based marginal reliability,hypothetical full panel,0.9720701935967402,"95% CI [0.970, 0.976] (200 parameter draws); mirt::marginal_rxx, all raters"
+GRM: median rel_post,precision per product,0.7061365830413353,"first quartile 0.600, third quartile 0.795"
+GRM: IQR rel_post,precision per product,0.19527867469465876,
+M1 (rating-scale MFRM): marginal reliability,comparison,0.9656467178977819,
+M2 (partial-credit MFRM): marginal reliability,comparison,0.9634638555276864,
+M3 (GPCM): marginal reliability,comparison,0.9685161889925561,
